@@ -4,160 +4,170 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard · Sekunet Garantías</title>
-  <link rel="stylesheet" href="../css/global.css"/>
-  <link rel="stylesheet" href="../css/dashboard.css"/>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* Aquí incluí tus estilos base y las mejoras de los badges */
+    :root {
+      --primary: #1B4F9C;
+      --amber: #F7B24B;
+      --bg: #f4f7fa;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); margin: 0; display: flex; }
+    
+    /* Estilos rápidos para el layout */
+    .sidebar { width: 260px; background: white; height: 100vh; border-right: 1px solid #e0e0e0; }
+    .main-content { flex: 1; padding: 2rem; }
+    
+    /* Badges de colores (Mejora UX) */
+    .badge-definitiva { background: #fef3c7; color: #b45309; padding: 5px 10px; border-radius: 4px; font-weight: 600; font-size: 12px; }
+    .badge-temporal { background: #ccfbf1; color: #0f766e; padding: 5px 10px; border-radius: 4px; font-weight: 600; font-size: 12px; }
+    
+    .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+    .status-pill.pendiente { background: #fee2e2; color: #991b1b; }
+    .status-pill.completado { background: #dcfce7; color: #166534; }
+
+    /* Stats Grid */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 1rem; }
+    .stat-value { font-size: 1.5rem; font-weight: bold; display: block; }
+    
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
+    th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #f0f0f0; }
+    th { background: #fafafa; color: #666; font-size: 13px; }
+  </style>
 </head>
 <body>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-      <div class="brand-icon">
-        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-          <rect width="32" height="32" rx="8" fill="#1B4F9C"/>
-          <path d="M8 16L14 22L24 10" stroke="#F7B24B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <span class="brand-name">SEKUNET</span>
-    </div>
-
-    <nav class="sidebar-nav">
-      <a href="dashboard.html" class="nav-item active" data-page="dashboard">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        Dashboard
-      </a>
-      <a href="formulario.html" class="nav-item" data-page="formulario">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        Nuevo Formulario
-      </a>
-      <a href="definitivas.html" class="nav-item" data-page="definitivas">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        Salidas Definitivas
-      </a>
-      <a href="temporales.html" class="nav-item" data-page="temporales">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Salidas Temporales
-      </a>
-      <a href="inventario.html" class="nav-item" data-page="inventario">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-        Inventario
-      </a>
+  <aside class="sidebar">
+    <div style="padding: 2rem; font-weight: 800; color: var(--primary); font-size: 24px;">SEKUNET</div>
+    <nav style="padding: 1rem;">
+       <div style="padding: 10px; color: var(--primary); font-weight: bold;">Dashboard</div>
+       <div style="padding: 10px; color: #666;">Inventario</div>
     </nav>
-
-    <div class="sidebar-footer">
-      <div class="user-info" id="userInfo">
-        <div class="user-avatar" id="userAvatar">?</div>
-        <div class="user-details">
-          <span class="user-name" id="userName">Cargando...</span>
-          <span class="user-role">Técnico</span>
-        </div>
-      </div>
-      <button class="btn-logout" id="logoutBtn" title="Cerrar sesión">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
-        </svg>
-      </button>
-    </div>
   </aside>
 
-  <!-- MAIN CONTENT -->
   <main class="main-content">
-
-    <header class="topbar">
-      <button class="sidebar-toggle" id="sidebarToggle">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-        </svg>
-      </button>
-      <div class="topbar-title">
-        <h2>Dashboard</h2>
-        <span id="currentDate" class="topbar-date"></span>
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+      <div>
+        <h2 style="margin:0;">Panel de Control</h2>
+        <span id="currentDate" style="color: #888;"></span>
       </div>
-      <a href="formulario.html" class="btn-amber">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Nuevo Registro
-      </a>
+      <div id="userInfo" style="display:flex; align-items:center; gap: 10px;">
+        <div id="userAvatar" style="background: var(--amber); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">?</div>
+        <span id="userName">Usuario</span>
+      </div>
     </header>
 
-    <!-- STATS CARDS -->
     <section class="stats-grid">
       <div class="stat-card">
-        <div class="stat-icon blue">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">Total Registros</span>
-          <span class="stat-value" id="statTotal">—</span>
-        </div>
+        <div><span style="color:#888;">Total Registros</span><span class="stat-value" id="statTotal">0</span></div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon amber">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">Salidas Definitivas</span>
-          <span class="stat-value" id="statDefinitivas">—</span>
-        </div>
+        <div><span style="color:#888;">Definitivas</span><span class="stat-value" id="statDefinitivas">0</span></div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon teal">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">Salidas Temporales</span>
-          <span class="stat-value" id="statTemporales">—</span>
-        </div>
+        <div><span style="color:#888;">Temporales</span><span class="stat-value" id="statTemporales">0</span></div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon green">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">Artículos en Inventario</span>
-          <span class="stat-value" id="statInventario">—</span>
-        </div>
+        <div><span style="color:#888;">Stock Inventario</span><span class="stat-value" id="statInventario">0</span></div>
       </div>
     </section>
 
-    <!-- RECENT RECORDS -->
-    <section class="section-card">
-      <div class="section-header">
-        <h3>Registros Recientes</h3>
-        <div class="filter-tabs">
-          <button class="tab active" data-filter="todos">Todos</button>
-          <button class="tab" data-filter="definitiva">Definitivas</button>
-          <button class="tab" data-filter="temporal">Temporales</button>
-        </div>
-      </div>
-      <div class="table-wrapper">
-        <table class="data-table" id="recentTable">
-          <thead>
-            <tr>
-              <th>Folio</th>
-              <th>Fecha</th>
-              <th>Tipo</th>
-              <th>Solicitado por</th>
-              <th>Cliente</th>
-              <th>Sede</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody id="recentTableBody">
-            <tr><td colspan="7" class="table-loading">Cargando registros...</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <section style="background: white; padding: 1.5rem; border-radius: 12px;">
+      <h3>Registros Recientes</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Folio</th>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Solicitante</th>
+            <th>Cliente</th>
+            <th>Sede</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="recentTableBody">
+          <tr><td colspan="7">Cargando datos...</td></tr>
+        </tbody>
+      </table>
     </section>
-
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/supabase.js"></script>
-  <script src="../js/auth-guard.js"></script>
-  <script src="../js/dashboard.js"></script>
+
+  <script>
+    // 1. CONFIGURACIÓN (Pon tus datos aquí)
+    const supabaseUrl = 'https://TU_PROYECTO.supabase.co';
+    const supabaseKey = 'TU_ANON_KEY';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // 2. INICIO
+    document.addEventListener('DOMContentLoaded', async () => {
+        mostrarFecha();
+        await cargarDatos();
+    });
+
+    function mostrarFecha() {
+        const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-ES', opciones);
+    }
+
+    async function cargarDatos() {
+        try {
+            // Consultar estadísticas
+            const [total, def, temp, inv] = await Promise.all([
+                supabase.from('registros').select('*', { count: 'exact', head: true }),
+                supabase.from('registros').select('*', { count: 'exact', head: true }).eq('tipo', 'definitiva'),
+                supabase.from('registros').select('*', { count: 'exact', head: true }).eq('tipo', 'temporal'),
+                supabase.from('inventario').select('cantidad')
+            ]);
+
+            document.getElementById('statTotal').textContent = total.count || 0;
+            document.getElementById('statDefinitivas').textContent = def.count || 0;
+            document.getElementById('statTemporales').textContent = temp.count || 0;
+            
+            const totalStock = inv.data?.reduce((acc, item) => acc + item.cantidad, 0) || 0;
+            document.getElementById('statInventario').textContent = totalStock;
+
+            // Consultar tabla
+            const { data: registros, error } = await supabase
+                .from('registros')
+                .select('*')
+                .order('fecha', { ascending: false })
+                .limit(8);
+
+            if (error) throw error;
+            renderTable(registros);
+
+        } catch (err) {
+            console.error("Error cargando Supabase:", err);
+            document.getElementById('recentTableBody').innerHTML = '<tr><td colspan="7">Error al conectar con Supabase. Revisa las llaves.</td></tr>';
+        }
+    }
+
+    function renderTable(data) {
+        const tbody = document.getElementById('recentTableBody');
+        if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7">No hay registros.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = data.map(reg => `
+            <tr>
+                <td>#${reg.folio}</td>
+                <td>${new Date(reg.fecha).toLocaleDateString()}</td>
+                <td><span class="badge-${reg.tipo}">${reg.tipo}</span></td>
+                <td>${reg.solicitado_por}</td>
+                <td>${reg.cliente}</td>
+                <td>${reg.sede}</td>
+                <td><span class="status-pill ${reg.estado}">${reg.estado}</span></td>
+            </tr>
+        `).join('');
+    }
+  </script>
 </body>
 </html>
