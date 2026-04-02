@@ -971,21 +971,36 @@ function updateProgress() {
 }
 
 /* ══ INVENTORY ══ */
-let inventory = []; // array of row objects from Excel
+let inventory = [];
 let invFiltered = [];
 let invSortCol = '', invSortDir = 1;
-const INV_STORAGE_KEY = 'sekunet_inventory_v1';
+const INV_TABLE = 'inventario';
 
 const INV_COLS = ['Bodega','Artículo','Descripción del Artículo','Marca','Unidad de Medida Almacén','Disponible Almacén'];
 
-function invLoad() {
-  try {
-    const raw = localStorage.getItem(INV_STORAGE_KEY);
-    if (raw) { inventory = JSON.parse(raw); invRender(); invUpdateUI(); }
-  } catch(e) { inventory = []; }
+function sbRowToInv(r) {
+  return {
+    'Bodega':                   r.bodega     || '',
+    'Artículo':                 r.articulo   || '',
+    'Descripción del Artículo': r.descripcion || '',
+    'Marca':                    r.marca      || '',
+    'Unidad de Medida Almacén': r.unidad     || '',
+    'Disponible Almacén':       r.disponible || ''
+  };
 }
-function invSave() {
-  try { localStorage.setItem(INV_STORAGE_KEY, JSON.stringify(inventory)); } catch(e) {}
+
+async function invLoad() {
+  try {
+    const data = await sbFetch('GET', INV_TABLE + '?order=articulo.asc&limit=5000', null);
+    inventory = (data || []).map(sbRowToInv);
+    invRender();
+    invUpdateUI();
+    if (inventory.length) showToast('Inventario cargado', 'success', inventory.length + ' artículos desde Supabase');
+  } catch(e) {
+    inventory = [];
+    // Tabla puede no existir aún, no mostrar error ruidoso
+    console.warn('inventario table:', e.message);
+  }
 }
 
 function invParseExcel(file) {
@@ -1011,93 +1026,47 @@ async function invHandleFile(file) {
     const rows = await invParseExcel(file);
     if (!rows.length) { showToast('El archivo está vacío', 'error'); return; }
 
-    // Detect how many were new vs overwritten
-    const newBySerie = {};
+    const sbRows = [];
     rows.forEach(r => {
-      const serie = String(r['Artículo'] || r['Serie'] || '').trim();
-      if (serie) newBySerie[serie] = r; else newBySerie['__noserie__' + Math.random()] = r;
+      const articulo = String(r['Artículo'] || r['Serie'] || '').trim();
+      if (!articulo) return;
+      sbRows.push({
+        articulo,
+        bodega:      String(r['Bodega']                    || '').trim(),
+        descripcion: String(r['Descripción del Artículo']  || '').trim(),
+        marca:       String(r['Marca']                     || '').trim(),
+        unidad:      String(r['Unidad de Medida Almacén']  || '').trim(),
+        disponible:  String(r['Disponible Almacén']        || '').trim(),
+        updated_at:  new Date().toISOString()
+      });
     });
 
-    // Merge: overwrite duplicates by Artículo key
-    const existing = {};
-    inventory.forEach(r => {
-      const k = String(r['Artículo'] || '').trim() || '__' + Math.random();
-      existing[k] = r;
-    });
-    let added = 0, overwritten = 0;
-    Object.entries(newBySerie).forEach(([k, r]) => {
-      if (existing[k]) overwritten++;
-      else added++;
-      existing[k] = r;
-    });
-    inventory = Object.values(existing);
-    invSave();
+    if (!sbRows.length) { showToast('Sin artículos válidos en el Excel', 'error'); return; }
+
+    const BATCH = 200;
+    let upserted = 0;
+    for (let i = 0; i < sbRows.length; i += BATCH) {
+      const batch = sbRows.slice(i, i + BATCH);
+      await fetch(SB_URL + '/rest/v1/' + INV_TABLE + '?on_conflict=articulo', {
+        method: 'POST',
+        headers: {
+          'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates,return=minimal'
+        },
+        body: JSON.stringify(batch)
+      });
+      upserted += batch.length;
+    }
+
+    const fresh = await sbFetch('GET', INV_TABLE + '?order=articulo.asc&limit=5000', null);
+    inventory = (fresh || []).map(sbRowToInv);
     invRender();
     invUpdateUI();
-    showToast('Inventario actualizado', 'success', `${added} nuevos · ${overwritten} reemplazados · ${inventory.length} total`);
-  } catch(err) { showToast('Error al leer el archivo', 'error', err.message); }
+    showToast('Inventario sincronizado', 'success', sbRows.length + ' artículos subidos · ' + inventory.length + ' total en la nube');
+  } catch(err) { showToast('Error al procesar el archivo', 'error', err.message); }
 }
 
-function invUpdateUI() {
-  const hasData = inventory.length > 0;
-  document.getElementById('uploadZone').style.display = hasData ? 'none' : '';
-  document.getElementById('invTableCard').style.display = hasData ? '' : 'none';
-  document.getElementById('invSearchBox').style.display = hasData ? '' : 'none';
-  document.getElementById('invStatsBar').style.display  = hasData ? '' : 'none';
-  if (hasData) {
-    document.getElementById('invSubtitle').textContent = 'Inventario activo · subí un nuevo Excel para actualizar';
-    document.getElementById('invStatTotal').textContent = inventory.length + ' artículos';
-    const bodegas = new Set(inventory.map(r => r['Bodega']||'').filter(Boolean)).size;
-    document.getElementById('invStatBodegas').textContent = bodegas + (bodegas===1?' bodega':' bodegas');
-    // update badge
-    const el = document.getElementById('invCount');
-    el.textContent = inventory.length; el.style.display = '';
-  }
-}
-
-function invRender() {
-  const q = (document.getElementById('invSearch')?.value || '').toLowerCase().trim();
-  let rows = q
-    ? inventory.filter(r => INV_COLS.some(c => String(r[c]||'').toLowerCase().includes(q)))
-    : [...inventory];
-
-  if (invSortCol) {
-    rows.sort((a,b) => {
-      const av = String(a[invSortCol]||''), bv = String(b[invSortCol]||'');
-      return av < bv ? -invSortDir : av > bv ? invSortDir : 0;
-    });
-  }
-  invFiltered = rows;
-
-  const tbody = document.getElementById('invTbody');
-  if (!rows.length) {
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="6"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>Sin resultados</td></tr>';
-    return;
-  }
-  tbody.innerHTML = rows.slice(0, 500).map((r, i) => `<tr style="animation-delay:${Math.min(i,30)*0.015}s">
-    <td class="td-mono">${r['Bodega']||'—'}</td>
-    <td><strong>${r['Artículo']||'—'}</strong></td>
-    <td style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r['Descripción del Artículo']||'—'}</td>
-    <td><span class="badge badge-brand">${r['Marca']||'—'}</span></td>
-    <td class="td-mono">${r['Unidad de Medida Almacén']||'—'}</td>
-    <td class="td-mono" style="font-weight:600;color:var(--ink-1)">${r['Disponible Almacén']||'—'}</td>
-  </tr>`).join('');
-  if (rows.length > 500) {
-    tbody.innerHTML += `<tr><td colspan="6" style="text-align:center;padding:.75rem;font-size:.75rem;color:var(--ink-4)">Mostrando 500 de ${rows.length} — refiná la búsqueda para ver más</td></tr>`;
-  }
-}
-
-function invSortBy(col) {
-  if (invSortCol === col) invSortDir *= -1;
-  else { invSortCol = col; invSortDir = 1; }
-  document.querySelectorAll('#invTable thead th').forEach(th => {
-    th.classList.remove('sorted');
-    const si = th.querySelector('.sort-icon'); if (si) si.textContent = '↕';
-  });
-  const th = document.querySelector(`#invTable thead th[data-col="${col}"]`);
-  if (th) { th.classList.add('sorted'); const si = th.querySelector('.sort-icon'); if (si) si.textContent = invSortDir===1?'↑':'↓'; }
-  invRender();
-}
 
 /* ══ SERIE AUTOCOMPLETE ══ */
 let serieMatchedItem = null;
