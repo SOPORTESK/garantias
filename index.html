@@ -1998,22 +1998,22 @@ async function restoreSession() {
               user:          data.user
             }));
           } else {
-            // Refresh no devolvió token — sesión expirada
-            localStorage.removeItem('sb_session');
-            return false;
+            // Refresh no devolvió token nuevo — usar el guardado igual
+            authToken   = session.access_token;
+            currentUser = session.user;
           }
         } else {
-          // Refresh rechazado — sesión expirada, pedir login de nuevo
-          localStorage.removeItem('sb_session');
-          return false;
+          // Refresh rechazado — usar token guardado como fallback
+          // (el token JWT puede seguir siendo válido aunque el refresh falle)
+          authToken   = session.access_token;
+          currentUser = session.user;
         }
       } catch(e) {
-        // Error de red — usar token guardado como fallback
+        // Error de red — usar token guardado
         authToken   = session.access_token;
         currentUser = session.user;
       }
     } else {
-      // Sin refresh_token — usar access_token guardado
       authToken   = session.access_token;
       currentUser = session.user;
     }
