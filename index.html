@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Formulario de Garantías · Sekunet</title>
   <style>
-    /* Design System - Exact Image Colors */
+    /* Design System - Compact PDF Layout */
     :root {
       --primary-blue: #1B4F9C;
       --secondary-orange: #F7B24B;
@@ -13,19 +13,19 @@
       --white: #FFFFFF;
       --black: #000000;
       
-      /* Spacing System */
-      --spacing-xs: 0.5rem;
-      --spacing-sm: 0.75rem;
-      --spacing-md: 1rem;
-      --spacing-lg: 1.5rem;
-      --spacing-xl: 2rem;
-      --spacing-2xl: 3rem;
+      /* Compact Spacing System */
+      --spacing-xs: 0.25rem;
+      --spacing-sm: 0.5rem;
+      --spacing-md: 0.75rem;
+      --spacing-lg: 1rem;
+      --spacing-xl: 1.25rem;
+      --spacing-2xl: 1.5rem;
       
-      /* Consistent Gaps */
-      --gap-sm: 0.75rem;
-      --gap-md: 1rem;
-      --gap-lg: 1.5rem;
-      --gap-xl: 2rem;
+      /* Compact Gaps */
+      --gap-sm: 0.5rem;
+      --gap-md: 0.75rem;
+      --gap-lg: 1rem;
+      --gap-xl: 1.25rem;
     }
 
     * {
@@ -45,14 +45,14 @@
     .form-container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 2rem 1rem;
+      padding: var(--spacing-sm) var(--spacing-md);
       animation: fadeInUp 0.6s ease-out;
     }
 
-    /* Header - Exact Image Colors with Perfect Spacing */
+    /* Header - Compact Layout */
     .form-header {
       background: #2c3e50;
-      padding: var(--spacing-md) var(--spacing-xl);
+      padding: var(--spacing-sm) var(--spacing-lg);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -72,29 +72,29 @@
     .logo-section {
       display: flex;
       align-items: center;
-      gap: var(--gap-lg);
+      gap: var(--gap-md);
     }
 
     .logo {
       display: flex;
       align-items: center;
-      gap: var(--gap-md);
+      gap: var(--gap-sm);
     }
 
     .logo svg {
-      width: 48px;
-      height: 48px;
-      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+      width: 36px;
+      height: 36px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
       transition: transform 0.3s ease;
     }
 
     .logo:hover svg {
-      transform: scale(1.1) rotate(5deg);
+      transform: scale(1.05) rotate(2deg);
     }
 
     .brand-name {
       color: var(--white);
-      font-size: 1.75rem;
+      font-size: 1.25rem;
       font-weight: 800;
       font-family: Arial, sans-serif;
       letter-spacing: -0.025em;
@@ -111,7 +111,7 @@
       display: flex;
       align-items: center;
       gap: var(--gap-sm);
-      padding: var(--spacing-sm) var(--spacing-md);
+      padding: var(--spacing-xs) var(--spacing-sm);
       background: #34495e;
       border-radius: var(--spacing-xs);
       border: 1px solid #2c3e50;
@@ -136,8 +136,8 @@
       background: var(--primary-blue);
       color: var(--white);
       text-align: center;
-      padding: var(--spacing-lg);
-      font-size: 20px;
+      padding: var(--spacing-md);
+      font-size: 18px;
       font-weight: bold;
       font-family: Arial, sans-serif;
       margin: 0;
@@ -159,18 +159,18 @@
       left: 100%;
     }
 
-    /* Modern Form Content with Uniform Spacing */
+    /* Compact Form Content */
     .warranty-form {
       background: rgba(255, 255, 255, 0.9);
       backdrop-filter: blur(10px);
       border-radius: var(--radius-xl);
-      padding: var(--spacing-xl);
+      padding: var(--spacing-lg);
       box-shadow: var(--shadow-xl);
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .form-section {
-      margin-bottom: var(--spacing-xl);
+      margin-bottom: var(--spacing-lg);
       position: relative;
     }
 
@@ -181,14 +181,14 @@
     .section-title {
       background: linear-gradient(135deg, var(--primary-600), var(--primary-800));
       color: white;
-      padding: var(--spacing-md) var(--spacing-lg);
-      font-size: 1.125rem;
+      padding: var(--spacing-sm) var(--spacing-md);
+      font-size: 1rem;
       font-weight: 600;
       border-radius: var(--radius-lg);
-      margin: 0 0 var(--spacing-lg) 0;
+      margin: 0 0 var(--spacing-md) 0;
       display: flex;
       align-items: center;
-      gap: var(--gap-md);
+      gap: var(--gap-sm);
       box-shadow: var(--shadow-md);
       position: relative;
       overflow: hidden;
@@ -206,9 +206,9 @@
 
     .form-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: var(--gap-lg);
-      margin-bottom: var(--spacing-lg);
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--gap-md);
+      margin-bottom: var(--spacing-md);
     }
 
     .form-group {
@@ -223,12 +223,12 @@
 
     .form-label {
       color: var(--white);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: bold;
       font-family: Arial, sans-serif;
-      margin-bottom: 5px;
+      margin-bottom: 3px;
       background: var(--secondary-orange);
-      padding: 8px 12px;
+      padding: 6px 10px;
       text-transform: uppercase;
       border: none;
     }
@@ -244,8 +244,8 @@
     .form-input, .form-textarea {
       background: white;
       border: 2px solid var(--neutral-300);
-      padding: 0.875rem 1rem;
-      font-size: 0.9375rem;
+      padding: 0.625rem 0.75rem;
+      font-size: 0.875rem;
       font-family: inherit;
       border-radius: var(--radius-lg);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -671,8 +671,8 @@
       // Set current date
       setCurrentDate();
       
-      // Generate consecutive number
-      generateConsecutiveNumber();
+      // Generate consecutive number based on rules
+      updateConsecutiveNumber();
     }
 
     function setCurrentDate() {
@@ -683,29 +683,50 @@
       dateElement.textContent = formattedDate;
     }
 
-    function generateConsecutiveNumber() {
-      const consecutiveElement = document.getElementById('consecutiveNumber');
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, '0');
+    let currentConsecutive = 21179; // Comienza en 21179 (el próximo)
+
+    function updateConsecutiveNumber() {
+      const tipo = document.getElementById('tipo').value;
+      const categoria = document.getElementById('categoria').value;
+      const consecutiveElement = document.querySelector('.consecutive-value');
       
-      // Generate random 3-digit number
-      const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      let prefix = '';
       
-      // Format: YYYYMM-XXX
-      const consecutive = `${year}${month}-${randomNum}`;
+      // Aplicar reglas según TIPO y CATEGORIA
+      if (tipo === 'salida definitiva') {
+        if (categoria === 'Nota de Crédito') {
+          prefix = 'GNC'; // G + NC
+        } else {
+          prefix = 'G'; // Solo G
+        }
+      } else if (tipo === 'salida temporal') {
+        if (categoria === 'Nota de Crédito') {
+          prefix = 'TNC'; // T + NC
+        } else {
+          prefix = 'T'; // Solo T
+        }
+      }
+      
+      // Formato: prefijo + consecutivo
+      const consecutive = `${prefix}${currentConsecutive}`;
       consecutiveElement.textContent = consecutive;
     }
 
     function setupEventListeners() {
       const form = document.getElementById('warrantyForm');
       const clearBtn = document.getElementById('clearBtn');
+      const tipoField = document.getElementById('tipo');
+      const categoriaField = document.getElementById('categoria');
       
       // Form submission
       form.addEventListener('submit', handleFormSubmit);
       
       // Clear button
       clearBtn.addEventListener('click', clearForm);
+      
+      // Update consecutive when tipo or categoria changes
+      tipoField.addEventListener('change', updateConsecutiveNumber);
+      categoriaField.addEventListener('change', updateConsecutiveNumber);
     }
 
     function handleFormSubmit(e) {
