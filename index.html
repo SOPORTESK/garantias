@@ -610,6 +610,29 @@
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
             Limpiar
           </button>
+          <div style="position:relative;" id="enviarWrap">
+            <button type="button" class="btn btn-ghost btn-lg" id="enviarBtn" onclick="toggleEnviarMenu()">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+              Enviar
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" id="enviarChevron" style="width:11px;height:11px;margin-left:1px;transition:transform .18s;flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div id="enviarMenu" style="display:none;position:absolute;bottom:calc(100% + 6px);right:0;min-width:230px;background:var(--surface);border:1.5px solid var(--border-2);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden;z-index:300;">
+              <button onclick="openEnviarCorreo()" style="display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;width:100%;background:none;border:none;border-bottom:1px solid var(--border);cursor:pointer;font-family:var(--font);" onmouseover="this.style.background='var(--brand-dim)'" onmouseout="this.style.background='none'">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;color:var(--brand);flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                <div style="text-align:left;">
+                  <div style="font-size:.8rem;font-weight:700;color:var(--ink-1);">Por correo</div>
+                  <div style="font-size:.68rem;color:var(--ink-4);">Abre Outlook con asunto prellenado</div>
+                </div>
+              </button>
+              <button onclick="openEnviarImprimir()" style="display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;width:100%;background:none;border:none;cursor:pointer;font-family:var(--font);" onmouseover="this.style.background='var(--blue-dim)'" onmouseout="this.style.background='none'">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;color:var(--blue);flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                <div style="text-align:left;">
+                  <div style="font-size:.8rem;font-weight:700;color:var(--ink-1);">Vista previa de impresión</div>
+                  <div style="font-size:.68rem;color:var(--ink-4);">Abre el diálogo de impresión</div>
+                </div>
+              </button>
+            </div>
+          </div>
           <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
             Guardar Registro
@@ -1270,6 +1293,69 @@ function closeSaveModal() {
   document.getElementById('saveModal').classList.remove('open');
 }
 
+/* ══ MENÚ ENVIAR (barra del formulario) ══ */
+function toggleEnviarMenu() {
+  const menu = document.getElementById('enviarMenu');
+  const chevron = document.getElementById('enviarChevron');
+  const open = menu.style.display !== 'none';
+  menu.style.display = open ? 'none' : 'block';
+  chevron.style.transform = open ? '' : 'rotate(180deg)';
+}
+function closeEnviarMenu() {
+  const menu = document.getElementById('enviarMenu');
+  const chevron = document.getElementById('enviarChevron');
+  if (menu) { menu.style.display = 'none'; }
+  if (chevron) { chevron.style.transform = ''; }
+}
+
+async function openEnviarCorreo() {
+  closeEnviarMenu();
+  if (!lastSavedRecord) { showToast('Guardá un registro primero','info'); return; }
+  showToast('Preparando email…','info');
+  try {
+    const canvas = await captureForm();
+    const r = lastSavedRecord;
+    const boleta  = r.boleta || 'comprobante';
+    const tipo    = TIPO_LABELS[r.tipo]     || r.tipo     || '';
+    const cat     = CAT_LABELS[r.categoria] || r.categoria || '';
+    const ticket  = r.ticket ? 'Ticket #' + r.ticket : '';
+    const partes  = [tipo, cat, ticket].filter(Boolean);
+    const subject = encodeURIComponent(partes.join(' · ') + ' · Boleta ' + boleta);
+    const body = encodeURIComponent(
+      'Se adjunta el comprobante de garantía (archivo PNG).\n\n' +
+      'Boleta:    ' + boleta + '\n' +
+      (r.nombre  ? 'Cliente:   ' + r.nombre  + '\n' : '') +
+      (r.ticket  ? 'Ticket:    ' + r.ticket  + '\n' : '') +
+      (r.factura ? 'Factura:   ' + r.factura + '\n' : '') +
+      (r.sede    ? 'Sede:      ' + r.sede    + '\n' : '') +
+      (tipo      ? 'Tipo:      ' + tipo      + '\n' : '') +
+      (cat       ? 'Categoría: ' + cat       + '\n' : '') +
+      '\n— Sekunet Garantías'
+    );
+    const a = document.createElement('a');
+    a.download = 'Garantia_' + boleta + '.png';
+    a.href = canvas.toDataURL('image/png'); a.click();
+    setTimeout(() => {
+      window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+      showToast('PNG descargado · Outlook abierto', 'success', 'Adjuntá el PNG al email');
+    }, 700);
+  } catch(err) { showToast('Error','error',err.message); }
+}
+
+async function openEnviarImprimir() {
+  closeEnviarMenu();
+  if (!lastSavedRecord) { showToast('Guardá un registro primero','info'); return; }
+  showToast('Abriendo vista de impresión…','info');
+  try {
+    const canvas = await captureForm();
+    const imgData = canvas.toDataURL('image/png');
+    const boleta = lastSavedRecord?.boleta || '';
+    const w = window.open('','_blank');
+    w.document.write('<html><head><title>Garantia '+boleta+'</title><style>body{margin:0}img{width:100%;display:block}@media print{@page{size:A4;margin:0}}</style></head><body><img src="'+imgData+'"><script>window.onload=function(){window.print()}<\/script></body></html>');
+    w.document.close();
+  } catch(err) { showToast('Error al imprimir','error',err.message); }
+}
+
 async function doSendEmail() {
   showToast('Preparando email…','info');
   try {
@@ -1622,6 +1708,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('revertBoletaBtn').addEventListener('click', revertBoleta);
   document.getElementById('deleteTestBtn').addEventListener('click', deleteTestRecords);
+
+  // Cerrar menú Enviar al hacer click fuera
+  document.addEventListener('click', e => {
+    const wrap = document.getElementById('enviarWrap');
+    if (wrap && !wrap.contains(e.target)) closeEnviarMenu();
+  });
 
   // Form events
   document.getElementById('tipo').addEventListener('change', () => { renderHeaderBoleta(); updateProgress(); });
