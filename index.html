@@ -434,10 +434,7 @@
           <div style="font-size:.8rem;font-weight:700;color:var(--ink-1)" id="menuFullName">—</div>
           <div style="font-size:.7rem;color:var(--ink-4)" id="menuEmail">—</div>
         </div>
-        <button class="user-menu-item" id="menuAdminBtn" onclick="switchTab('admin')" style="display:none">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-          Panel Admin
-        </button>
+
         <button class="user-menu-item danger" onclick="authSignOut()">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
           Cerrar sesión
@@ -968,13 +965,7 @@ function hideLoginOverlay() {
   if (menuName)  menuName.textContent  = fullName;
   if (menuEmail) menuEmail.textContent = email;
 
-  // Mostrar botón Admin en el menú si corresponde
-  const menuAdminBtn = document.getElementById('menuAdminBtn');
-  if (menuAdminBtn && isAdmin()) menuAdminBtn.style.display = '';
 
-  // Mostrar botón Admin en nav si corresponde
-  const adminNavBtn = document.getElementById('adminNavBtn');
-  if (adminNavBtn && isAdmin()) adminNavBtn.style.display = '';
 }
 
 function showLoginTab(mode) {
@@ -1113,8 +1104,26 @@ function logoClick(e) {
       showToast('Acceso denegado', 'error', 'No tenés permisos de administrador');
       return;
     }
-    switchTab('admin');
-    showToast('Panel de administrador', 'info');
+    // Pedir contraseña antes de mostrar el panel
+    const pass = prompt('Contraseña de administrador:');
+    if (!pass) return;
+    // Verificar contra Supabase
+    const email = currentUser?.email;
+    if (!email) return;
+    fetch(SB_URL + '/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass })
+    }).then(r => r.json()).then(data => {
+      if (data.access_token) {
+        const adminBtn = document.getElementById('adminNavBtn');
+        if (adminBtn) adminBtn.style.display = '';
+        switchTab('admin');
+        showToast('Panel de administrador', 'info');
+      } else {
+        showToast('Contraseña incorrecta', 'error');
+      }
+    }).catch(() => showToast('Error al verificar', 'error'));
   }
 }
 
