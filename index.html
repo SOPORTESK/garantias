@@ -907,19 +907,42 @@ async function invHandleFile(file) {
     if (!rows.length) { showToast('El archivo está vacío','error'); return; }
     const sbRows = [];
     rows.forEach(r => {
-      const articulo = String(r['Artículo']||r['Serie']||'').trim();
+      // Aceptar columna "Serie" o "Artículo" indistintamente
+      const articulo = String(r['Serie']||r['Artículo']||'').trim();
       if (!articulo) return;
-      sbRows.push({ articulo, bodega:String(r['Bodega']||'').trim(), descripcion:String(r['Descripción del Artículo']||'').trim(), marca:String(r['Marca']||'').trim(), unidad:String(r['Unidad de Medida Almacén']||'').trim(), disponible:String(r['Disponible Almacén']||'').trim(), updated_at:new Date().toISOString() });
+      sbRows.push({
+        articulo,
+        bodega:      String(r['Bodega']                    ||'').trim(),
+        descripcion: String(r['Descripción del Artículo']  ||'').trim(),
+        marca:       String(r['Marca']                     ||'').trim(),
+        unidad:      String(r['Unidad de Medida Almacén']  ||'').trim(),
+        disponible:  String(r['Disponible Almacén']        ||'').trim(),
+        updated_at:  new Date().toISOString()
+      });
     });
     if (!sbRows.length) { showToast('Sin artículos válidos','error'); return; }
+
+    // Paso 1: borrar todo el inventario anterior
+    await fetch(SB_URL+'/rest/v1/'+INV_TABLE+'?id=neq.00000000-0000-0000-0000-000000000000', {
+      method: 'DELETE',
+      headers: { 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json' }
+    });
+
+    // Paso 2: insertar el inventario nuevo en lotes de 200
     const BATCH = 200;
-    for (let i=0; i<sbRows.length; i+=BATCH) {
-      await fetch(SB_URL+'/rest/v1/'+INV_TABLE+'?on_conflict=articulo', { method:'POST', headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'}, body:JSON.stringify(sbRows.slice(i,i+BATCH)) });
+    for (let i = 0; i < sbRows.length; i += BATCH) {
+      await fetch(SB_URL+'/rest/v1/'+INV_TABLE, {
+        method: 'POST',
+        headers: { 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
+        body: JSON.stringify(sbRows.slice(i, i+BATCH))
+      });
     }
+
+    // Paso 3: recargar desde Supabase
     const fresh = await sbFetch('GET', INV_TABLE+'?order=articulo.asc&limit=5000', null);
     inventory = (fresh||[]).map(sbRowToInv);
     invRender(); invUpdateUI();
-    showToast('Inventario sincronizado','success',sbRows.length+' artículos subidos · '+inventory.length+' total');
+    showToast('Inventario reemplazado', 'success', sbRows.length+' artículos cargados');
   } catch(err) { showToast('Error al procesar','error',err.message); }
 }
 
