@@ -354,9 +354,6 @@
     #printForm .pf-label{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#A89E92;}
     #printForm .pf-value{font-size:11px;font-weight:500;color:#1A1108;border-bottom:1px solid #E8E5E0;padding-bottom:3px;min-height:18px;}
     #printForm .pf-value.pf-text-area{min-height:36px;white-space:pre-wrap;}
-    #printForm .pf-footer{margin-top:20px;border-top:1px solid #E8E5E0;padding-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-    #printForm .pf-sig-line{border-bottom:1px solid #1A1108;margin-top:28px;}
-    #printForm .pf-sig-label{font-size:8px;color:#A89E92;margin-top:4px;}
 
     /* RESPONSIVE */
     @media(max-width:768px){.admin-rail{display:none;}.stat-grid{grid-template-columns:1fr 1fr;}.modal-grid{grid-template-columns:1fr;}}
@@ -821,7 +818,6 @@
   <div class="pf-section"><div class="pf-section-title">Información del Cliente</div><div class="pf-grid"><div class="pf-field"><div class="pf-label">Ticket N°</div><div class="pf-value" id="pf-ticket"></div></div><div class="pf-field"><div class="pf-label">Sede</div><div class="pf-value" id="pf-sede"></div></div><div class="pf-field"><div class="pf-label">Nombre del Cliente</div><div class="pf-value" id="pf-nombre"></div></div><div class="pf-field"><div class="pf-label">Factura N°</div><div class="pf-value" id="pf-factura"></div></div></div></div>
   <div class="pf-section"><div class="pf-section-title">Información del Producto</div><div class="pf-grid"><div class="pf-field"><div class="pf-label">Marca</div><div class="pf-value" id="pf-marca"></div></div><div class="pf-field"><div class="pf-label">Serie</div><div class="pf-value" id="pf-serie"></div></div><div class="pf-field"><div class="pf-label">Cantidad</div><div class="pf-value" id="pf-cantidad"></div></div><div class="pf-field"><div class="pf-label">Fecha de Compra</div><div class="pf-value" id="pf-fecha-compra"></div></div></div></div>
   <div class="pf-section"><div class="pf-section-title">Descripción y Falla</div><div class="pf-grid-2"><div class="pf-field pf-full"><div class="pf-label">Descripción del Artículo</div><div class="pf-value pf-text-area" id="pf-descripcion"></div></div><div class="pf-field pf-full"><div class="pf-label">Descripción de la Falla</div><div class="pf-value pf-text-area" id="pf-falla"></div></div></div></div>
-  <div class="pf-footer"><div><div class="pf-sig-line"></div><div class="pf-sig-label">Firma del Cliente</div></div><div><div class="pf-sig-line"></div><div class="pf-sig-label">Firma del Responsable · Sekunet</div></div></div>
 </div>
 
 <script>
@@ -1641,7 +1637,6 @@ function buildPrintHTML(r) {
 <div class="pf-section"><div class="pf-section-title">Información del Cliente</div><div class="pf-grid"><div class="pf-field"><div class="pf-label">Ticket N°</div><div class="pf-value">${r.ticket||'—'}</div></div><div class="pf-field"><div class="pf-label">Sede</div><div class="pf-value">${r.sede||'—'}</div></div><div class="pf-field"><div class="pf-label">Cliente</div><div class="pf-value">${r.nombre||'—'}</div></div><div class="pf-field"><div class="pf-label">Factura N°</div><div class="pf-value">${r.factura||'—'}</div></div></div></div>
 <div class="pf-section"><div class="pf-section-title">Información del Producto</div><div class="pf-grid"><div class="pf-field"><div class="pf-label">Marca</div><div class="pf-value">${r.marca||'—'}</div></div><div class="pf-field"><div class="pf-label">Serie</div><div class="pf-value">${r.serie||'—'}</div></div><div class="pf-field"><div class="pf-label">Cantidad</div><div class="pf-value">${r.cantidad||'—'}</div></div><div class="pf-field"><div class="pf-label">Fecha de Compra</div><div class="pf-value">${fechaCompra}</div></div></div></div>
 <div class="pf-section"><div class="pf-section-title">Descripción y Falla</div><div class="pf-grid-2"><div class="pf-field pf-full"><div class="pf-label">Descripción del Artículo</div><div class="pf-value pf-text-area">${r.descripcion||'—'}</div></div><div class="pf-field pf-full"><div class="pf-label">Descripción de la Falla</div><div class="pf-value pf-text-area">${r.falla||'—'}</div></div></div></div>
-<div class="pf-footer"><div><div class="pf-sig-line"></div><div class="pf-sig-label">Firma del Cliente</div></div><div><div class="pf-sig-line"></div><div class="pf-sig-label">Firma del Responsable · Sekunet</div></div></div>
 </body></html>`;
 }
 
