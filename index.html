@@ -3,870 +3,261 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Formulario de Garantías · Sekunet</title>
+  <title>Sistema de Garantías · SEKUNET PRO</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+
   <style>
-    /* Design System - Compact PDF Layout */
     :root {
       --primary-blue: #1B4F9C;
-      --secondary-orange: #F7B24B;
-      --light-blue-bg: #E6F3FF;
-      --white: #FFFFFF;
-      --black: #000000;
-      
-      /* Compact Spacing System */
-      --spacing-xs: 0.25rem;
-      --spacing-sm: 0.5rem;
-      --spacing-md: 0.75rem;
-      --spacing-lg: 1rem;
-      --spacing-xl: 1.25rem;
-      --spacing-2xl: 1.5rem;
-      
-      /* Compact Gaps */
-      --gap-sm: 0.5rem;
-      --gap-md: 0.75rem;
-      --gap-lg: 1rem;
-      --gap-xl: 1.25rem;
+      --dark-blue: #0f2e5c;
+      --sekunet-orange: #F7B24B;
+      --bg-gray: #e2e8f0;
+      --white: #ffffff;
+      --text-main: #1e293b;
+      --border: #cbd5e1;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: Arial, sans-serif;
-      background: var(--light-blue-bg);
-      min-height: 100vh;
-      line-height: 1.6;
-      color: var(--black);
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--bg-gray);
+      color: var(--text-main);
+      line-height: 1.4;
+      padding: 20px;
     }
 
-    .form-container {
-      max-width: 1200px;
+    /* Contenedor Tipo Hoja Técnica */
+    .sheet {
+      max-width: 1050px;
       margin: 0 auto;
-      padding: var(--spacing-sm) var(--spacing-md);
-      animation: fadeInUp 0.6s ease-out;
+      background: var(--white);
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      border-radius: 4px;
+      overflow: hidden;
     }
 
-    /* Header - Compact Layout */
-    .form-header {
-      background: #2c3e50;
-      padding: var(--spacing-sm) var(--spacing-lg);
+    /* Cabecera Negra/Azul Oscuro */
+    .header-top {
+      background: #1e293b;
+      color: white;
+      padding: 15px 30px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 3px solid #1a252f;
+      border-bottom: 4px solid var(--sekunet-orange);
     }
 
-    .form-header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--primary-600), var(--secondary-500));
-    }
+    .brand { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+    .brand span { color: var(--sekunet-orange); }
 
-    .logo-section {
-      display: flex;
-      align-items: center;
-      gap: var(--gap-md);
+    .header-meta { display: flex; gap: 20px; }
+    .meta-badge {
+      background: rgba(255,255,255,0.1);
+      padding: 5px 15px;
+      border-radius: 3px;
+      font-size: 12px;
+      border: 1px solid rgba(255,255,255,0.2);
     }
+    .meta-badge b { color: var(--sekunet-orange); margin-right: 5px; }
 
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: var(--gap-sm);
-    }
-
-    .logo svg {
-      width: 36px;
-      height: 36px;
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-      transition: transform 0.3s ease;
-    }
-
-    .logo:hover svg {
-      transform: scale(1.05) rotate(2deg);
-    }
-
-    .brand-name {
-      color: var(--white);
-      font-size: 1.25rem;
-      font-weight: 800;
-      font-family: Arial, sans-serif;
-      letter-spacing: -0.025em;
-    }
-
-    .header-info {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: var(--gap-md);
-    }
-
-    .date-info, .consecutive-info {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: var(--gap-sm);
-      padding: var(--spacing-xs) var(--spacing-sm);
-      background: #34495e;
-      border-radius: var(--spacing-xs);
-      border: 1px solid #2c3e50;
-    }
-
-    .date-label, .consecutive-label {
-      color: var(--white);
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .date-value, .consecutive-value {
-      color: var(--white);
-      font-size: 0.875rem;
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .form-title {
+    .main-title {
       background: var(--primary-blue);
-      color: var(--white);
-      text-align: center;
-      padding: var(--spacing-md);
-      font-size: 18px;
-      font-weight: bold;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      border-bottom: 3px solid var(--dark-blue);
-    }
-
-    .form-title::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.5s ease;
-    }
-
-    .form-title:hover::before {
-      left: 100%;
-    }
-
-    /* Compact Form Content */
-    .warranty-form {
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(10px);
-      border-radius: var(--radius-xl);
-      padding: var(--spacing-lg);
-      box-shadow: var(--shadow-xl);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .form-section {
-      margin-bottom: var(--spacing-lg);
-      position: relative;
-    }
-
-    .form-section:last-child {
-      margin-bottom: 0;
-    }
-
-    .section-title {
-      background: linear-gradient(135deg, var(--primary-600), var(--primary-800));
       color: white;
-      padding: var(--spacing-sm) var(--spacing-md);
-      font-size: 1rem;
-      font-weight: 600;
-      border-radius: var(--radius-lg);
-      margin: 0 0 var(--spacing-md) 0;
-      display: flex;
-      align-items: center;
-      gap: var(--gap-sm);
-      box-shadow: var(--shadow-md);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .section-title::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background: var(--secondary-500);
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: var(--gap-md);
-      margin-bottom: var(--spacing-md);
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-
-    .form-group.full-width {
-      grid-column: 1 / -1;
-    }
-
-    .form-label {
-      color: var(--white);
-      font-size: 14px;
-      font-weight: 900;
-      font-family: Arial, sans-serif;
-      margin-bottom: 3px;
-      background: var(--secondary-orange);
-      padding: 8px 12px;
+      text-align: center;
+      padding: 10px;
+      font-weight: 800;
       text-transform: uppercase;
-      border: none;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+      font-size: 18px;
     }
 
-    .form-label::after {
-      content: '';
-      width: 4px;
-      height: 4px;
-      background: var(--secondary-500);
-      border-radius: 50%;
+    /* Formulario Estructurado */
+    .form-body { padding: 30px; }
+
+    .section-head {
+      background: #f8fafc;
+      border-left: 5px solid var(--primary-blue);
+      padding: 8px 15px;
+      margin: 20px 0 15px 0;
+      font-weight: 800;
+      font-size: 14px;
+      text-transform: uppercase;
+      color: var(--primary-blue);
     }
 
-    .form-input, .form-textarea {
-      background: white;
-      border: 2px solid var(--neutral-300);
-      padding: 0.625rem 0.75rem;
-      font-size: 0.875rem;
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .col-3 { grid-column: span 3; }
+    .col-4 { grid-column: span 4; }
+    .col-6 { grid-column: span 6; }
+    .col-8 { grid-column: span 8; }
+    .col-9 { grid-column: span 9; }
+    .col-12 { grid-column: span 12; }
+
+    .field-group { display: flex; flex-direction: column; }
+
+    /* Estilo Etiquetas Naranjas (Identidad Sekunet) */
+    .label {
+      background: var(--sekunet-orange);
+      color: var(--primary-blue);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      width: fit-content;
+      text-transform: uppercase;
+      border-radius: 2px 2px 0 0;
+    }
+
+    input, select, textarea {
+      border: 1px solid var(--primary-blue);
+      padding: 10px;
       font-family: inherit;
-      border-radius: var(--radius-lg);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      color: var(--black);
-      font-weight: 500;
-    }
-
-    .form-input option {
-      color: var(--black);
-      background: white;
-      font-weight: 500;
-    }
-
-    .form-input:focus, .form-textarea:focus {
+      font-size: 14px;
+      border-radius: 0 3px 3px 3px;
       outline: none;
-      border-color: var(--primary-500);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-      transform: translateY(-2px);
     }
 
-    .form-input:hover, .form-textarea:hover {
-      border-color: var(--neutral-300);
+    input:focus, select:focus, textarea:focus {
+      background: #f0f7ff;
+      border-color: var(--dark-blue);
     }
 
-    .form-textarea {
-      resize: vertical;
-      min-height: 120px;
-      font-family: inherit;
-    }
-
-    /* Modern Section Styling */
-    .top-section, .bottom-section {
-      background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
-      padding: 1.5rem;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--primary-200);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .top-section::before, .bottom-section::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--primary-500), var(--secondary-500));
-    }
-
-    /* Modern Buttons */
-    .form-buttons {
+    /* Footer y Botones */
+    .form-footer {
+      margin-top: 40px;
       display: flex;
-      gap: 1.5rem;
-      justify-content: center;
-      margin-top: 3rem;
-      padding-top: 2rem;
-      border-top: 1px solid var(--neutral-200);
+      gap: 15px;
     }
 
     .btn {
-      padding: 0.875rem 2rem;
+      flex: 1;
+      padding: 18px;
       border: none;
-      font-size: 0.9375rem;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      border-radius: var(--radius-lg);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.025em;
-      min-width: 140px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: 0.2s;
     }
 
-    .btn::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.3);
-      transform: translate(-50%, -50%);
-      transition: width 0.6s, height 0.6s;
-    }
+    .btn-save { background: var(--primary-blue); color: white; }
+    .btn-save:hover { background: var(--dark-blue); }
+    .btn-cancel { background: #cbd5e1; color: #475569; }
 
-    .btn:active::before {
-      width: 300px;
-      height: 300px;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
-      color: white;
-      box-shadow: var(--shadow-md);
-    }
-
-    .btn-primary:hover {
-      background: linear-gradient(135deg, var(--primary-700), var(--primary-800));
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .btn-secondary {
-      background: linear-gradient(135deg, var(--neutral-500), var(--neutral-600));
-      color: white;
-      box-shadow: var(--shadow-md);
-    }
-
-    .btn-secondary:hover {
-      background: linear-gradient(135deg, var(--neutral-600), var(--neutral-700));
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    /* Modern Animations */
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateX(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    .form-section {
-      animation: slideIn 0.6s ease-out;
-      animation-fill-mode: both;
-    }
-
-    .form-section:nth-child(1) { animation-delay: 0.1s; }
-    .form-section:nth-child(2) { animation-delay: 0.2s; }
-    .form-section:nth-child(3) { animation-delay: 0.3s; }
-    .form-section:nth-child(4) { animation-delay: 0.4s; }
-
-    /* Modern Notification System */
-    .notification {
+    /* Notificación flotante */
+    #toast {
       position: fixed;
-      top: 2rem;
-      right: 2rem;
-      padding: 1rem 1.5rem;
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-xl);
+      top: 20px;
+      right: 20px;
+      padding: 15px 30px;
+      background: #10b981;
+      color: white;
+      font-weight: bold;
+      border-radius: 4px;
+      display: none;
       z-index: 1000;
-      font-weight: 600;
-      font-family: inherit;
-      animation: slideInRight 0.3s ease-out;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      min-width: 300px;
-    }
-
-    .notification::before {
-      content: '';
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .notification-success {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-    }
-
-    .notification-success::before {
-      background: white;
-    }
-
-    .notification-error {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      color: white;
-    }
-
-    .notification-error::before {
-      background: white;
-    }
-
-    .notification-info {
-      background: linear-gradient(135deg, #06b6d4, #0891b2);
-      color: white;
-    }
-
-    .notification-info::before {
-      background: white;
-    }
-
-    @keyframes slideInRight {
-      from {
-        opacity: 0;
-        transform: translateX(100px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      .form-container {
-        padding: 1rem;
-      }
-      
-      .form-header {
-        flex-direction: column;
-        gap: 1.5rem;
-        text-align: center;
-        padding: 1.5rem;
-      }
-      
-      .header-info {
-        align-items: center;
-        gap: 1rem;
-      }
-      
-      .form-row {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-      }
-      
-      .form-buttons {
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-      }
-      
-      .btn {
-        width: 100%;
-        max-width: 300px;
-      }
-      
-      .notification {
-        right: 1rem;
-        left: 1rem;
-        min-width: auto;
-      }
-    }
-
-    /* Dark mode support */
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --neutral-50: #171717;
-        --neutral-100: #262626;
-        --neutral-200: #404040;
-        --neutral-300: #525252;
-        --neutral-400: #737373;
-        --neutral-500: #a3a3a3;
-        --neutral-600: #d4d4d4;
-        --neutral-700: #e5e5e5;
-        --neutral-800: #f5f5f5;
-        --neutral-900: #fafafa;
-      }
-      
-      body {
-        background: linear-gradient(135deg, var(--neutral-900) 0%, var(--neutral-800) 100%);
-      }
-      
-      .form-header, .warranty-form {
-        background: rgba(30, 41, 59, 0.9);
-        border-color: rgba(255, 255, 255, 0.1);
-      }
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
   </style>
 </head>
 <body>
 
-  <div class="form-container">
-    <!-- HEADER -->
-    <div class="form-header">
-      <div class="logo-section">
-        <div class="logo">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="24" height="24" rx="4" fill="#1B4F9C"/>
-            <path d="M7 12L10 15L17 8" stroke="#F7B24B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span class="brand-name">SEKUNET</span>
-        </div>
-        <div class="header-info">
-          <div class="date-info">
-            <span class="date-label">FECHA:</span>
-            <span class="date-value">1 de abril de 2026</span>
-          </div>
-          <div class="consecutive-info">
-            <span class="consecutive-label">BOLETA:</span>
-            <span class="consecutive-value">202603-006</span>
-          </div>
-        </div>
+  <div id="toast">¡REGISTRO GUARDADO EXITOSAMENTE!</div>
+
+  <div class="sheet">
+    <div class="header-top">
+      <div class="brand">SEKU<span>NET</span></div>
+      <div class="header-meta">
+        <div class="meta-badge"><b>FECHA:</b> <span id="displayDate"></span></div>
+        <div class="meta-badge"><b>BOLETA:</b> <span id="displayID">---</span></div>
       </div>
     </div>
 
-    <h1 class="form-title">FORMULARIO DE GARANTÍAS</h1>
+    <h1 class="main-title">Control de Garantías y Salida de Equipos</h1>
 
-    <!-- FORM CONTENT -->
-    <form class="warranty-form" id="warrantyForm">
-      <!-- TOP SECTION -->
-      <div class="form-section top-section">
-        <h2 class="section-title">DATOS DEL FORMULARIO</h2>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="tipo" class="form-label">TIPO:</label>
-            <select id="tipo" name="tipo" class="form-input" required>
-              <option value="">Seleccione...</option>
-              <option value="salida definitiva">Salida Definitiva</option>
-              <option value="salida temporal">Salida Temporal</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="categoria" class="form-label">CATEGORIA</label>
-            <select id="categoria" name="categoria" class="form-input" required>
-              <option value="">Seleccione...</option>
-              <option value="Nota De Crédito">Nota De Crédito</option>
-              <option value="Garantía 1%">Garantía 1%</option>
-              <option value="RMA">RMA</option>
-              <option value="Reparación">Reparación</option>
-              <option value="RMA - Nota de Crédito">RMA - Nota de Crédito</option>
-              <option value="Garantía 1% con Nota de Crédito">Garantía 1% con Nota de Crédito</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="motivo" class="form-label">MOTIVO:</label>
-            <select id="motivo" name="motivo" class="form-input" required>
-              <option value="">Seleccione...</option>
-              <option value="Sin Existencias">Sin Existencias</option>
-              <option value="Solicitud del Cliente">Solicitud del Cliente</option>
-              <option value="Reemplazo">Reemplazo</option>
-            </select>
-          </div>
+    <form class="form-body" id="mainForm">
+      
+      <div class="section-head">1. Clasificación de Movimiento</div>
+      <div class="grid">
+        <div class="field-group col-4">
+          <label class="label">Tipo de Salida</label>
+          <select id="tipo" required>
+            <option value="">Seleccione...</option>
+            <option value="definitiva">Definitiva (G)</option>
+            <option value="temporal">Temporal (T)</option>
+          </select>
+        </div>
+        <div class="field-group col-4">
+          <label class="label">Categoría</label>
+          <select id="categoria" required>
+            <option value="Normal">Normal</option>
+            <option value="Nota De Crédito">Nota de Crédito (NC)</option>
+            <option value="RMA">RMA</option>
+          </select>
+        </div>
+        <div class="field-group col-4">
+          <label class="label">Motivo</label>
+          <input type="text" id="motivo" placeholder="Ej: Falla de fábrica">
         </div>
       </div>
 
-      <!-- CLIENT INFORMATION -->
-      <div class="form-section">
-        <h2 class="section-title">INFORMACIÓN DEL CLIENTE</h2>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="ticket" class="form-label">TICKET N°:</label>
-            <input type="text" id="ticket" name="ticket" class="form-input" required>
-          </div>
-          <div class="form-group">
-            <label for="sede" class="form-label">SEDE</label>
-            <input type="text" id="sede" name="sede" class="form-input" required>
-          </div>
-          <div class="form-group">
-            <label for="nombre" class="form-label">NOMBRE:</label>
-            <input type="text" id="nombre" name="nombre" class="form-input" required>
-          </div>
-          <div class="form-group">
-            <label for="factura" class="form-label">FACTURA N°:</label>
-            <input type="text" id="factura" name="factura" class="form-input" required>
-          </div>
+      <div class="section-head">2. Identificación del Cliente</div>
+      <div class="grid">
+        <div class="field-group col-3">
+          <label class="label">Ticket N°</label>
+          <input type="text" id="ticket" required>
+        </div>
+        <div class="field-group col-9">
+          <label class="label">Nombre del Cliente / Empresa</label>
+          <input type="text" id="cliente" required>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="field-group col-6">
+          <label class="label">Sede / Ubicación</label>
+          <input type="text" id="sede" required>
+        </div>
+        <div class="field-group col-6">
+          <label class="label">Factura Relacionada</label>
+          <input type="text" id="factura">
         </div>
       </div>
 
-      <!-- PRODUCT INFORMATION -->
-      <div class="form-section">
-        <h2 class="section-title">INFORMACIÓN DEL PRODUCTO</h2>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="cantidad" class="form-label">CANTIDAD:</label>
-            <input type="number" id="cantidad" name="cantidad" class="form-input" min="1" required>
-          </div>
-          <div class="form-group">
-            <label for="fechaCompra" class="form-label">FECHA DE COMPRA</label>
-            <input type="date" id="fechaCompra" name="fechaCompra" class="form-input" required>
-          </div>
-          <div class="form-group">
-            <label for="marca" class="form-label">MARCA:</label>
-            <input type="text" id="marca" name="marca" class="form-input" required>
-          </div>
-          <div class="form-group">
-            <label for="codigo" class="form-label">CÓDIGO DE ARTÍCULO</label>
-            <input type="text" id="codigo" name="codigo" class="form-input" required>
-          </div>
+      <div class="section-head">3. Información Técnica del Producto</div>
+      <div class="grid">
+        <div class="field-group col-4">
+          <label class="label">Marca</label>
+          <input type="text" id="marca" required>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="serie" class="form-label">SERIE:</label>
-            <input type="text" id="serie" name="serie" class="form-input">
-          </div>
-          <div class="form-group full-width">
-            <label for="descripcion" class="form-label">DESCRIPCIÓN</label>
-            <textarea id="descripcion" name="descripcion" class="form-textarea" rows="3" required></textarea>
-          </div>
+        <div class="field-group col-4">
+          <label class="label">Modelo / Código</label>
+          <input type="text" id="codigo" required>
         </div>
-        <div class="form-row">
-          <div class="form-group full-width">
-            <label for="falla" class="form-label">FALLA</label>
-            <textarea id="falla" name="falla" class="form-textarea" rows="3" required></textarea>
-          </div>
+        <div class="field-group col-4">
+          <label class="label">Serie (S/N)</label>
+          <input type="text" id="serie" required>
+        </div>
+      </div>
+      <div class="grid" style="margin-top:10px;">
+        <div class="field-group col-12">
+          <label class="label">Descripción Detallada de la Falla</label>
+          <textarea id="falla" rows="4" required></textarea>
         </div>
       </div>
 
-      <!-- BUTTONS -->
-      <div class="form-buttons">
-        <button type="submit" class="btn btn-primary">GUARDAR</button>
-        <button type="button" class="btn btn-secondary" id="clearBtn">LIMPIAR</button>
-      </div>
-    </form>
-  </div>
-
-  <script>
-    // Formulario de Garantías JavaScript
-    document.addEventListener('DOMContentLoaded', function() {
-      // Initialize form
-      initializeForm();
-      
-      // Set up event listeners
-      setupEventListeners();
-    });
-
-    function initializeForm() {
-      // Set current date
-      setCurrentDate();
-      
-      // Generate consecutive number based on rules
-      updateConsecutiveNumber();
-    }
-
-    function setCurrentDate() {
-      const dateElement = document.getElementById('currentDate');
-      const today = new Date();
-      const options = { year: 'numeric', month: 'long', day: 'numeric' };
-      const formattedDate = today.toLocaleDateString('es-ES', options);
-      dateElement.textContent = formattedDate;
-    }
-
-    let currentConsecutive = 21179; // Comienza en 21179 (el próximo)
-
-    function updateConsecutiveNumber() {
-      const tipo = document.getElementById('tipo').value;
-      const categoria = document.getElementById('categoria').value;
-      const consecutiveElement = document.querySelector('.consecutive-value');
-      
-      let prefix = '';
-      
-      // Aplicar prefijo inmediato para salida definitiva/temporal
-      if (tipo === 'salida definitiva') {
-        prefix = 'G'; // Aplicar G inmediatamente
-      } else if (tipo === 'salida temporal') {
-        prefix = 'T'; // Aplicar T inmediatamente
-      }
-      
-      // Agregar NC si es Nota De Crédito
-      if (categoria === 'Nota De Crédito') {
-        if (tipo === 'salida definitiva') {
-          prefix = 'GNC'; // G + NC
-        } else if (tipo === 'salida temporal') {
-          prefix = 'TNC'; // T + NC
-        }
-      }
-      
-      // Formato: prefijo + consecutivo
-      const consecutive = `${prefix}${currentConsecutive}`;
-      consecutiveElement.textContent = consecutive;
-    }
-
-    function setupEventListeners() {
-      const form = document.getElementById('warrantyForm');
-      const clearBtn = document.getElementById('clearBtn');
-      const tipoField = document.getElementById('tipo');
-      const categoriaField = document.getElementById('categoria');
-      
-      // Form submission
-      form.addEventListener('submit', handleFormSubmit);
-      
-      // Clear button
-      clearBtn.addEventListener('click', clearForm);
-      
-      // Update consecutive when tipo or categoria changes
-      tipoField.addEventListener('change', updateConsecutiveNumber);
-      categoriaField.addEventListener('change', updateConsecutiveNumber);
-    }
-
-    function handleFormSubmit(e) {
-      e.preventDefault();
-      
-      const form = e.target;
-      const submitBtn = form.querySelector('button[type="submit"]');
-      
-      // Validate all fields
-      if (!validateForm()) {
-        showNotification('Por favor, complete todos los campos requeridos', 'error');
-        return;
-      }
-      
-      // Show loading state
-      submitBtn.textContent = 'GUARDANDO...';
-      submitBtn.disabled = true;
-      
-      // Get form data
-      const formData = getFormData();
-      
-      // Simulate saving to database
-      setTimeout(() => {
-        console.log('Form data:', formData);
-        showNotification('Formulario guardado exitosamente', 'success');
-        clearForm();
-        generateConsecutiveNumber(); // Generate new consecutive number
-        
-        // Reset button
-        submitBtn.textContent = 'GUARDAR';
-        submitBtn.disabled = false;
-      }, 1500);
-    }
-
-    function validateForm() {
-      const form = document.getElementById('warrantyForm');
-      const requiredFields = form.querySelectorAll('[required]');
-      let isValid = true;
-      
-      requiredFields.forEach(field => {
-        if (!field.value.trim()) {
-          isValid = false;
-          field.style.borderColor = '#ef4444';
-        } else {
-          field.style.borderColor = '#1e40af';
-        }
-      });
-      
-      return isValid;
-    }
-
-    function getFormData() {
-      const form = document.getElementById('warrantyForm');
-      const formData = new FormData(form);
-      const data = {};
-      
-      // Add metadata
-      data.fecha_creacion = new Date().toISOString();
-      data.consecutivo = document.getElementById('consecutiveNumber').textContent;
-      data.fecha_formulario = document.getElementById('currentDate').textContent;
-      
-      // Convert FormData to object
-      for (let [key, value] of formData.entries()) {
-        data[key] = value;
-      }
-      
-      return data;
-    }
-
-    function clearForm() {
-      const form = document.getElementById('warrantyForm');
-      form.reset();
-      
-      // Reset field colors
-      const inputs = form.querySelectorAll('.form-input, .form-textarea');
-      inputs.forEach(input => {
-        input.style.borderColor = '#1e40af';
-      });
-      
-      // Keep approved by value
-      const aprobadoInput = document.getElementById('aprobado');
-      if (aprobadoInput) {
-        aprobadoInput.value = 'Jorge Montenegro';
-      }
-      
-      showNotification('Formulario limpiado', 'info');
-    }
-
-    function showNotification(message, type = 'info') {
-      // Remove existing notifications
-      const existingNotification = document.querySelector('.notification');
-      if (existingNotification) {
-        existingNotification.remove();
-      }
-      
-      // Create notification element
-      const notification = document.createElement('div');
-      notification.className = `notification notification-${type}`;
-      notification.textContent = message;
-      
-      // Style notification
-      const colors = {
-        success: { bg: '#10b981', text: 'white' },
-        error: { bg: '#ef4444', text: 'white' },
-        info: { bg: '#3b82f6', text: 'white' }
-      };
-      
-      notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${colors[type].bg};
-        color: ${colors[type].text};
-        padding: 12px 20px;
-        border-radius: 4px;
-        z-index: 1000;
-        font-weight: bold;
-        font-family: Arial, sans-serif;
-      `;
-      
-      document.body.appendChild(notification);
-      
-      // Auto remove after 3 seconds
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.remove();
-        }
-      }, 3000);
-    }
-  </script>
-</body>
-</html>
+      <div class="section-head">4. Autorización</div>
+      <div class="grid">
+        <div class="field-group col-6">
+          <label class="label">Solicitado por</label>
+          <input type="text" id="solicitante" required>
+        </div>
+        <div class="field-group col-6">
+          <label class="label">Aprobado
