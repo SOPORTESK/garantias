@@ -5,26 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Formulario de Garantías · Sekunet</title>
   <style>
-    /* Modern Design System - Original Image Colors */
+    /* Design System - Exact Image Colors */
     :root {
       --primary-blue: #1B4F9C;
       --secondary-orange: #F7B24B;
-      --light-blue-bg: #e6f3ff;
-      --dark-blue: #0d47a1;
-      --white: #ffffff;
+      --light-blue-bg: #E6F3FF;
+      --white: #FFFFFF;
       --black: #000000;
-      
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-      
-      --radius-sm: 0.375rem;
-      --radius: 0.5rem;
-      --radius-md: 0.75rem;
-      --radius-lg: 1rem;
-      --radius-xl: 1.5rem;
     }
 
     * {
@@ -538,11 +525,11 @@
         <div class="header-info">
           <div class="date-info">
             <span class="date-label">FECHA:</span>
-            <span class="date-value" id="currentDate"></span>
+            <span class="date-value">1 de abril de 2026</span>
           </div>
           <div class="consecutive-info">
-            <span class="consecutive-label">CONSECUTIVO:</span>
-            <span class="consecutive-value" id="consecutiveNumber"></span>
+            <span class="consecutive-label">BOLETA:</span>
+            <span class="consecutive-value">202603-006</span>
           </div>
         </div>
       </div>
@@ -563,10 +550,6 @@
           <div class="form-group">
             <label for="categoria" class="form-label">CATEGORIA</label>
             <input type="text" id="categoria" name="categoria" class="form-input" required>
-          </div>
-          <div class="form-group">
-            <label for="boleta" class="form-label">BOLETA Nº:</label>
-            <input type="text" id="boleta" name="boleta" class="form-input" required>
           </div>
           <div class="form-group">
             <label for="motivo" class="form-label">MOTIVO</label>
