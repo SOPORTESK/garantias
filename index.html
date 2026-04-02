@@ -527,7 +527,7 @@
         <div class="section-body">
           <div class="form-grid">
             <div class="field"><label class="field-label" for="ticket">Ticket N°</label><input id="ticket" name="ticket" type="text" class="field-input" required></div>
-            <div class="field"><label class="field-label" for="sede">Sede</label><input id="sede" name="sede" type="text" class="field-input" required></div>
+            <div class="field"><label class="field-label" for="sede">Sede</label><select id="sede" name="sede" class="field-select" required><option value="">Seleccionar</option><option value="San José">San José</option><option value="Liberia">Liberia</option><option value="Pérez Zeledón">Pérez Zeledón</option></select></div>
             <div class="field"><label class="field-label" for="nombre">Nombre del Cliente</label><input id="nombre" name="nombre" type="text" class="field-input" required></div>
             <div class="field"><label class="field-label" for="factura">Factura N°</label><input id="factura" name="factura" type="text" class="field-input" required></div>
           </div>
@@ -924,9 +924,12 @@ function switchTab(tab) {
 
 /* ══ DATE & BOLETA ══ */
 function renderHeaderDate() {
-  document.getElementById('headerDate').textContent = new Date().toLocaleDateString('es-CR', { day:'2-digit', month:'short', year:'numeric' });
-  document.getElementById('adminDate').textContent  = new Date().toLocaleDateString('es-CR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  const now = new Date();
+  document.getElementById('headerDate').textContent = now.toLocaleDateString('es-CR', { day:'2-digit', month:'short', year:'numeric' });
+  document.getElementById('adminDate').textContent  = now.toLocaleDateString('es-CR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
 }
+// Actualiza la fecha cada minuto automáticamente
+setInterval(renderHeaderDate, 60000);
 function buildPrefix() {
   const t = document.getElementById('tipo').value, c = document.getElementById('categoria').value;
   let p = t === 'salida_definitiva' ? 'G' : t === 'salida_temporal' ? 'T' : '';
@@ -1696,7 +1699,7 @@ const EDIT_FIELDS = [
   {key:'categoria',label:'Categoría',type:'select',opts:[['nota_credito','Nota De Crédito'],['garantia_1','Garantía 1%'],['rma','RMA'],['reparacion','Reparación'],['rma_nota_credito','RMA - NC'],['garantia_1_nota_credito','Garantía 1% + NC']]},
   {key:'motivo',label:'Motivo',type:'select',opts:[['sin_existencias','Sin Existencias'],['solicitud_cliente','Solicitud del Cliente'],['reemplazo','Reemplazo']]},
   {key:'ticket',label:'Ticket N°',type:'text'},
-  {key:'sede',label:'Sede',type:'text'},
+  {key:'sede',label:'Sede',type:'select',opts:[['San José','San José'],['Liberia','Liberia'],['Pérez Zeledón','Pérez Zeledón']]},
   {key:'nombre',label:'Nombre del Cliente',type:'text'},
   {key:'factura',label:'Factura N°',type:'text'},
   {key:'cantidad',label:'Cantidad',type:'number'},
