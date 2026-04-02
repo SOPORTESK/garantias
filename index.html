@@ -1248,12 +1248,14 @@ function renderHeaderDate() {
 function buildPrefix() {
   const t = document.getElementById('tipo').value, c = document.getElementById('categoria').value;
   let p = t === 'salida_definitiva' ? 'G' : t === 'salida_temporal' ? 'T' : '';
-  if (c === 'nota_credito') p = p ? p+'NC' : 'NC';
+  const esNC = c === 'nota_credito' || c === 'rma_nota_credito' || c === 'garantia_1_nota_credito';
+  if (esNC) p = p ? p+'NC' : 'NC';
   return p;
 }
 function buildPrefixFrom(t, c) {
   let p = t === 'salida_definitiva' ? 'G' : t === 'salida_temporal' ? 'T' : '';
-  if (c === 'nota_credito') p = p ? p+'NC' : 'NC';
+  const esNC = c === 'nota_credito' || c === 'rma_nota_credito' || c === 'garantia_1_nota_credito';
+  if (esNC) p = p ? p+'NC' : 'NC';
   return p;
 }
 function formatBoleta(num, prefix) {
@@ -1977,24 +1979,41 @@ async function restoreSession() {
     const session = JSON.parse(raw);
     if (!session.access_token || !session.user) { localStorage.removeItem('sb_session'); return false; }
 
-    // Intentar refrescar el token para verificar que sigue válido
-    try {
-      const res = await fetch(SB_URL + '/auth/v1/token?grant_type=refresh_token', {
-        method: 'POST',
-        headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh_token: session.refresh_token })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        authToken   = data.access_token;
-        currentUser = data.user;
-        localStorage.setItem('sb_session', JSON.stringify({ access_token: data.access_token, refresh_token: data.refresh_token, user: data.user }));
-      } else {
-        // Token expirado — usar el guardado igual e intentar
+    // Intentar refrescar el token primero
+    if (session.refresh_token) {
+      try {
+        const res = await fetch(SB_URL + '/auth/v1/token?grant_type=refresh_token', {
+          method: 'POST',
+          headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: session.refresh_token })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.access_token) {
+            authToken   = data.access_token;
+            currentUser = data.user;
+            localStorage.setItem('sb_session', JSON.stringify({
+              access_token:  data.access_token,
+              refresh_token: data.refresh_token,
+              user:          data.user
+            }));
+          } else {
+            // Refresh no devolvió token — sesión expirada
+            localStorage.removeItem('sb_session');
+            return false;
+          }
+        } else {
+          // Refresh rechazado — sesión expirada, pedir login de nuevo
+          localStorage.removeItem('sb_session');
+          return false;
+        }
+      } catch(e) {
+        // Error de red — usar token guardado como fallback
         authToken   = session.access_token;
         currentUser = session.user;
       }
-    } catch(e) {
+    } else {
+      // Sin refresh_token — usar access_token guardado
       authToken   = session.access_token;
       currentUser = session.user;
     }
@@ -2006,7 +2025,7 @@ async function restoreSession() {
       const apellido = meta.apellido || '';
       currentPerfil  = { id: currentUser.id, nombre, apellido, correo: currentUser.email, rol: isAdminEmail(currentUser.email) ? 'admin' : 'usuario' };
     }
-    return true;
+    return !!(authToken && currentUser);
   } catch(e) {
     localStorage.removeItem('sb_session');
     return false;
