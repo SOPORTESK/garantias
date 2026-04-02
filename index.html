@@ -260,13 +260,15 @@
     }
 
     .form-label {
-      color: var(--neutral-700);
+      color: var(--neutral-800);
       font-size: 0.875rem;
-      font-weight: 600;
+      font-weight: 700;
       margin-bottom: 0.5rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
     }
 
     .form-label::after {
@@ -279,13 +281,15 @@
 
     .form-input, .form-textarea {
       background: white;
-      border: 2px solid var(--neutral-200);
+      border: 2px solid var(--neutral-300);
       padding: 0.875rem 1rem;
       font-size: 0.9375rem;
       font-family: inherit;
       border-radius: var(--radius-lg);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
+      color: var(--neutral-900);
+      font-weight: 500;
     }
 
     .form-input:focus, .form-textarea:focus {
