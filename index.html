@@ -49,14 +49,14 @@
       animation: fadeInUp 0.6s ease-out;
     }
 
-    /* Header - Original Image Colors with Uniform Spacing */
+    /* Header - Exact Image Colors with Perfect Spacing */
     .form-header {
-      background: var(--primary-blue);
-      padding: var(--spacing-md) var(--spacing-lg);
+      background: #2c3e50;
+      padding: var(--spacing-md) var(--spacing-xl);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 3px solid var(--dark-blue);
+      border-bottom: 3px solid #1a252f;
     }
 
     .form-header::before {
@@ -112,12 +112,13 @@
       align-items: center;
       gap: var(--gap-sm);
       padding: var(--spacing-sm) var(--spacing-md);
-      background: rgba(255, 255, 255, 0.1);
+      background: #34495e;
       border-radius: var(--spacing-xs);
+      border: 1px solid #2c3e50;
     }
 
     .date-label, .consecutive-label {
-      color: var(--neutral-600);
+      color: var(--white);
       font-size: 0.75rem;
       font-weight: 600;
       text-transform: uppercase;
@@ -125,7 +126,7 @@
     }
 
     .date-value, .consecutive-value {
-      color: var(--secondary-600);
+      color: var(--white);
       font-size: 0.875rem;
       font-weight: 700;
       font-variant-numeric: tabular-nums;
@@ -529,7 +530,7 @@
     <div class="form-header">
       <div class="logo-section">
         <div class="logo">
-          <svg width="35" height="35" viewBox="0 0 32 32" fill="none">
+          <svg width="48" height="48" viewBox="0 0 32 32" fill="none">
             <rect width="32" height="32" rx="8" fill="#1B4F9C"/>
             <path d="M8 16L14 22L24 10" stroke="#F7B24B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
