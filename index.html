@@ -611,29 +611,10 @@
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
             Limpiar
           </button>
-          <div style="position:relative;" id="enviarWrap">
-            <button type="button" class="btn btn-ghost btn-lg" id="enviarBtn" onclick="toggleEnviarMenu()">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-              Enviar
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" id="enviarChevron" style="width:11px;height:11px;margin-left:1px;transition:transform .18s;flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-            </button>
-            <div id="enviarMenu" style="display:none;position:absolute;bottom:calc(100% + 6px);right:0;min-width:230px;background:var(--surface);border:1.5px solid var(--border-2);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden;z-index:300;">
-              <button onclick="openEnviarCorreo()" style="display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;width:100%;background:none;border:none;border-bottom:1px solid var(--border);cursor:pointer;font-family:var(--font);" onmouseover="this.style.background='var(--brand-dim)'" onmouseout="this.style.background='none'">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;color:var(--brand);flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                <div style="text-align:left;">
-                  <div style="font-size:.8rem;font-weight:700;color:var(--ink-1);">Por correo</div>
-                  <div style="font-size:.68rem;color:var(--ink-4);">Abre Outlook con asunto prellenado</div>
-                </div>
-              </button>
-              <button onclick="openEnviarImprimir()" style="display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;width:100%;background:none;border:none;cursor:pointer;font-family:var(--font);" onmouseover="this.style.background='var(--blue-dim)'" onmouseout="this.style.background='none'">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;color:var(--blue);flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                <div style="text-align:left;">
-                  <div style="font-size:.8rem;font-weight:700;color:var(--ink-1);">Vista previa de impresión</div>
-                  <div style="font-size:.68rem;color:var(--ink-4);">Abre el diálogo de impresión</div>
-                </div>
-              </button>
-            </div>
-          </div>
+          <button type="button" class="btn btn-ghost btn-lg" id="enviarBtn" onclick="openEnviarModal()">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            Enviar
+          </button>
           <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
             Guardar Registro
@@ -805,53 +786,56 @@
   </div>
 </div>
 
-<!-- SAVE OPTIONS MODAL -->
+<!-- MODAL: GUARDAR (PNG, PDF, Copiar) -->
 <div class="save-modal-backdrop" id="saveModal">
-  <div class="save-modal" style="max-width:400px;">
+  <div class="save-modal" style="max-width:380px;">
     <div class="save-modal-title">Registro Guardado ✓</div>
     <div class="save-modal-sub" id="saveModalBoletaSub">Boleta guardada correctamente</div>
-
-    <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem;">
-
-      <!-- Fila 1: Copiar + Guardar PNG (compactos) -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
-        <button class="save-opt-btn" onclick="doCopyImage()" style="flex-direction:column;align-items:center;padding:.7rem .5rem;gap:.35rem;text-align:center;">
-          <div class="save-opt-icon ic-copy" style="width:30px;height:30px;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></div>
-          <div style="font-size:.78rem;font-weight:700;color:var(--ink-1);">Ver Comprobante</div>
-          <div style="font-size:.65rem;color:var(--ink-4);">Abrir para copiar</div>
-        </button>
-        <button class="save-opt-btn" onclick="doSavePNG()" style="flex-direction:column;align-items:center;padding:.7rem .5rem;gap:.35rem;text-align:center;">
-          <div class="save-opt-icon ic-img" style="width:30px;height:30px;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
-          <div style="font-size:.78rem;font-weight:700;color:var(--ink-1);">Imprimir / PDF</div>
-          <div style="font-size:.65rem;color:var(--ink-4);">Guardar como PDF</div>
-        </button>
-      </div>
-
-      <!-- Guardar PDF -->
-      <button class="save-opt-btn" onclick="doSavePDF()">
-        <div class="save-opt-icon ic-pdf"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg></div>
-        <div><div class="save-opt-label">Guardar como PDF</div><div class="save-opt-desc">Abre el comprobante → Ctrl+P → Guardar como PDF</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.75rem;">
+      <!-- Copiar imagen -->
+      <button class="save-opt-btn" onclick="doCopyImage()" style="flex-direction:column;align-items:center;padding:.75rem .4rem;gap:.4rem;text-align:center;">
+        <div class="save-opt-icon ic-copy" style="width:34px;height:34px;">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        </div>
+        <div style="font-size:.72rem;font-weight:700;color:var(--ink-1);">Copiar</div>
+        <div style="font-size:.62rem;color:var(--ink-4);">Imagen al portapapeles</div>
       </button>
+      <!-- Guardar PNG -->
+      <button class="save-opt-btn" onclick="doSavePNG()" style="flex-direction:column;align-items:center;padding:.75rem .4rem;gap:.4rem;text-align:center;">
+        <div class="save-opt-icon ic-img" style="width:34px;height:34px;">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </div>
+        <div style="font-size:.72rem;font-weight:700;color:var(--ink-1);">Guardar PNG</div>
+        <div style="font-size:.62rem;color:var(--ink-4);">Descargar imagen</div>
+      </button>
+      <!-- Guardar PDF -->
+      <button class="save-opt-btn" onclick="doSavePDF()" style="flex-direction:column;align-items:center;padding:.75rem .4rem;gap:.4rem;text-align:center;">
+        <div class="save-opt-icon ic-pdf" style="width:34px;height:34px;">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+        </div>
+        <div style="font-size:.72rem;font-weight:700;color:var(--ink-1);">Guardar PDF</div>
+        <div style="font-size:.62rem;color:var(--ink-4);">Ctrl+P en la ventana</div>
+      </button>
+    </div>
+    <button class="save-cancel" onclick="closeSaveModal()">Cerrar sin guardar</button>
+  </div>
+</div>
 
-      <!-- Separador ENVIAR -->
-      <div style="display:flex;align-items:center;gap:.5rem;margin:.1rem 0 0;">
-        <div style="flex:1;height:1px;background:var(--border-2);"></div>
-        <span style="font-size:.6rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-4);">Enviar</span>
-        <div style="flex:1;height:1px;background:var(--border-2);"></div>
-      </div>
-
-      <!-- Enviar por email -->
+<!-- MODAL: ENVIAR (correo e impresión solamente) -->
+<div class="save-modal-backdrop" id="enviarModal">
+  <div class="save-modal" style="max-width:360px;">
+    <div class="save-modal-title">Enviar comprobante</div>
+    <div class="save-modal-sub" id="enviarModalBoletaSub">Elegí cómo querés enviarlo</div>
+    <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem;">
       <button class="save-opt-btn" onclick="doSendEmail()">
         <div class="save-opt-icon" style="background:var(--brand-dim);color:var(--brand);width:36px;height:36px;flex-shrink:0;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
         </div>
         <div>
-          <div class="save-opt-label">Enviar por correo</div>
+          <div class="save-opt-label">Por correo</div>
           <div class="save-opt-desc">Abre el comprobante y Outlook con asunto prellenado</div>
         </div>
       </button>
-
-      <!-- Vista previa de impresión -->
       <button class="save-opt-btn" onclick="doSendPrint()">
         <div class="save-opt-icon" style="background:var(--blue-dim);color:var(--blue);width:36px;height:36px;flex-shrink:0;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
@@ -861,10 +845,8 @@
           <div class="save-opt-desc">Abre el diálogo de impresión del navegador</div>
         </div>
       </button>
-
     </div>
-
-    <button class="save-cancel" onclick="closeSaveModal()">Cerrar sin descargar</button>
+    <button class="save-cancel" onclick="closeEnviarModal()">Cerrar</button>
   </div>
 </div>
 
@@ -1456,143 +1438,25 @@ function populatePrintForm(r) {
   if(sub) sub.textContent = 'Boleta ' + (r.boleta||'—') + ' · ' + (r.nombre||'') + (r.nombre?' — ':'') + 'Registro guardado correctamente';
 }
 
+
+/* ══ MENÚ ENVIAR (barra del formulario) ══ */
+/* ══ MODAL ENVIAR ══ */
+function openEnviarModal() {
+  if (!lastSavedRecord) { showToast('Guardá un registro primero', 'info'); return; }
+  const sub = document.getElementById('enviarModalBoletaSub');
+  if (sub) sub.textContent = 'Boleta ' + (lastSavedRecord.boleta || '—') + ' · ' + (lastSavedRecord.nombre || '');
+  document.getElementById('enviarModal').classList.add('open');
+}
+function closeEnviarModal() {
+  document.getElementById('enviarModal').classList.remove('open');
+}
+
+/* ══ MODAL GUARDAR ══ */
 function closeSaveModal() {
   document.getElementById('saveModal').classList.remove('open');
 }
 
-/* ══ MENÚ ENVIAR (barra del formulario) ══ */
-function toggleEnviarMenu() {
-  const menu = document.getElementById('enviarMenu');
-  const chevron = document.getElementById('enviarChevron');
-  const open = menu.style.display !== 'none';
-  menu.style.display = open ? 'none' : 'block';
-  chevron.style.transform = open ? '' : 'rotate(180deg)';
-}
-function closeEnviarMenu() {
-  const menu = document.getElementById('enviarMenu');
-  const chevron = document.getElementById('enviarChevron');
-  if (menu) { menu.style.display = 'none'; }
-  if (chevron) { chevron.style.transform = ''; }
-}
-
-async function openEnviarCorreo() {
-  closeEnviarMenu();
-  if (!lastSavedRecord) { showToast('Guardá un registro primero','info'); return; }
-  const r = lastSavedRecord;
-  const boleta  = r.boleta || 'comprobante';
-  const tipo    = TIPO_LABELS[r.tipo]     || r.tipo     || '';
-  const cat     = CAT_LABELS[r.categoria] || r.categoria || '';
-  const ticket  = r.ticket ? 'Ticket #' + r.ticket : '';
-  const partes  = [tipo, cat, ticket].filter(Boolean);
-  const subject = encodeURIComponent(partes.join(' · ') + ' · Boleta ' + boleta);
-  const body = encodeURIComponent(
-    'Se adjunta el comprobante de garantía.\n\n' +
-    'Boleta:    ' + boleta + '\n' +
-    (r.nombre  ? 'Cliente:   ' + r.nombre  + '\n' : '') +
-    (r.ticket  ? 'Ticket:    ' + r.ticket  + '\n' : '') +
-    (r.factura ? 'Factura:   ' + r.factura + '\n' : '') +
-    (r.sede    ? 'Sede:      ' + r.sede    + '\n' : '') +
-    (tipo      ? 'Tipo:      ' + tipo      + '\n' : '') +
-    (cat       ? 'Categoría: ' + cat       + '\n' : '') +
-    '\n— Sekunet Garantías'
-  );
-  openPrintWindow(r);
-  setTimeout(() => {
-    window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
-    showToast('Comprobante abierto · Outlook iniciando', 'success', 'Imprimí el comprobante como PDF y adjuntalo');
-  }, 600);
-}
-
-async function openEnviarImprimir() {
-  closeEnviarMenu();
-  if (!lastSavedRecord) { showToast('Guardá un registro primero','info'); return; }
-  showToast('Abriendo vista de impresión…','info');
-  openPrintWindow(lastSavedRecord);
-}
-
-async function doSendEmail() {
-  const r = lastSavedRecord || {};
-  const boleta  = r.boleta || 'comprobante';
-  const tipo    = TIPO_LABELS[r.tipo]    || r.tipo    || '';
-  const cat     = CAT_LABELS[r.categoria] || r.categoria || '';
-  const ticket  = r.ticket ? 'Ticket #' + r.ticket : '';
-  const partes  = [tipo, cat, ticket].filter(Boolean);
-  const subject = encodeURIComponent(partes.join(' · ') + (boleta ? ' · Boleta ' + boleta : ''));
-  const body = encodeURIComponent(
-    'Se adjunta el comprobante de garantía.\n\n' +
-    'Boleta:    ' + boleta + '\n' +
-    (r.nombre  ? 'Cliente:   ' + r.nombre  + '\n' : '') +
-    (r.ticket  ? 'Ticket:    ' + r.ticket  + '\n' : '') +
-    (r.factura ? 'Factura:   ' + r.factura + '\n' : '') +
-    (r.sede    ? 'Sede:      ' + r.sede    + '\n' : '') +
-    (tipo      ? 'Tipo:      ' + tipo      + '\n' : '') +
-    (cat       ? 'Categoría: ' + cat       + '\n' : '') +
-    '\n— Sekunet Garantías'
-  );
-  openPrintWindow(r);
-  setTimeout(() => {
-    window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
-    closeSaveModal();
-    showToast('Comprobante abierto · Outlook iniciando', 'success', 'Guardá el comprobante como PDF y adjuntalo');
-  }, 600);
-}
-
-async function doSendPrint() {
-  closeSaveModal();
-  showToast('Abriendo vista de impresión…','info');
-  openPrintWindow(lastSavedRecord);
-}
-
-/* ══ REVERTIR BOLETA (pruebas) ══ */
-function revertBoleta() {
-  if (!confirm('¿Revertir el contador de boleta al número 29178? Esto es solo para pruebas. El próximo registro usará 29179.')) return;
-  consecutiveNum = 29178;
-  renderHeaderBoleta();
-  showToast('Contador revertido a 29178', 'info', 'El próximo número será 29179');
-}
-
-/* ══ ELIMINAR REGISTROS DE PRUEBA ══ */
-async function deleteTestRecords() {
-  const input = prompt('Ingresá el número de boleta o rango a eliminar (ej: 29179 o 29179-29185).\nTambién podés ingresar "ultimo" para eliminar solo el último registro.');
-  if (!input) return;
-  const trimmed = input.trim().toLowerCase();
-  let toDelete = [];
-  if (trimmed === 'ultimo') {
-    const last = allRecords[0];
-    if (!last) { showToast('No hay registros','info'); return; }
-    toDelete = [last];
-  } else if (trimmed.includes('-')) {
-    const [from, to] = trimmed.split('-').map(x => parseInt(x.trim()));
-    if (isNaN(from)||isNaN(to)) { showToast('Rango inválido','error'); return; }
-    toDelete = allRecords.filter(r => r.numero_consecutivo >= from && r.numero_consecutivo <= to);
-  } else {
-    const num = parseInt(trimmed);
-    if (isNaN(num)) { showToast('Número inválido','error'); return; }
-    toDelete = allRecords.filter(r => r.numero_consecutivo === num);
-  }
-  if (!toDelete.length) { showToast('No se encontraron registros con ese criterio','info'); return; }
-  if (!confirm('Se eliminarán ' + toDelete.length + ' registro(s):\n' + toDelete.map(r=>r.boleta||r.numero_consecutivo).join(', ') + '\n\n¿Continuar?')) return;
-  let deleted = 0;
-  for (const r of toDelete) {
-    try {
-      await sbFetch('DELETE', TABLE + '?id=eq.' + r.id, null);
-      allRecords = allRecords.filter(x => x.id !== r.id);
-      rawData.def = rawData.def.filter(x => x.id !== r.id);
-      rawData.temp = rawData.temp.filter(x => x.id !== r.id);
-      deleted++;
-    } catch(e) { showToast('Error eliminando '+r.boleta,'error',e.message); }
-  }
-  // Revert counter to max remaining
-  if (allRecords.length > 0) {
-    consecutiveNum = Math.max(...allRecords.map(r => r.numero_consecutivo || 0));
-  } else {
-    consecutiveNum = 29178;
-  }
-  updateTabCount(); adminUpdateBadges(); adminApplyFilters('def'); adminApplyFilters('temp');
-  renderHeaderBoleta();
-  showToast(deleted + ' registro(s) eliminados', 'success', 'Contador ajustado a ' + consecutiveNum);
-}
-
+/* ══ CAPTURA AJUSTADA AL CONTENIDO ══ */
 function buildPrintHTML(r) {
   if (!r) return '';
   const boleta   = r.boleta || '—';
@@ -1600,146 +1464,212 @@ function buildPrintHTML(r) {
   const fechaReg = new Date().toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric'});
   const fechaCompra = r.fecha_compra ? new Date(r.fecha_compra).toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric'}) : '—';
   const logoSrc = document.querySelector('#printForm .pf-logo')?.src || '';
-
   return `<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>Garantia ${boleta}</title>
+<html lang="es"><head><meta charset="UTF-8"><title>Garantia ${boleta}</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;color:#1A1108;background:#fff;padding:32px 36px;width:794px;margin:0 auto}
-  .pf-header{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #D1411E;padding-bottom:14px;margin-bottom:18px}
-  .pf-logo{height:36px}
-  .pf-title-area{text-align:right}
-  .pf-main-title{font-size:20px;font-weight:800;color:#D1411E;line-height:1}
-  .pf-boleta{font-size:13px;font-weight:700;color:#1A1108;margin-top:4px}
-  .pf-date{font-size:10px;color:#7A6E62;margin-top:2px}
-  .pf-section{margin-bottom:14px}
-  .pf-section-title{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#D1411E;border-bottom:1px solid #F2F0EC;padding-bottom:4px;margin-bottom:8px}
-  .pf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  .pf-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .pf-field{display:flex;flex-direction:column;gap:2px}
-  .pf-full{grid-column:1/-1}
-  .pf-label{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#A89E92}
-  .pf-value{font-size:11px;font-weight:500;color:#1A1108;border-bottom:1px solid #E8E5E0;padding-bottom:3px;min-height:18px}
-  .pf-text-area{min-height:36px;white-space:pre-wrap}
-  .pf-footer{margin-top:20px;border-top:1px solid #E8E5E0;padding-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
-  .pf-sig-line{border-bottom:1px solid #1A1108;margin-top:28px}
-  .pf-sig-label{font-size:8px;color:#A89E92;margin-top:4px}
-  @media print{@page{size:A4;margin:1.2cm} body{padding:0;width:100%} .no-print{display:none}}
-  .no-print{text-align:center;margin-bottom:16px}
-  .btn-print{font-family:'Plus Jakarta Sans',sans-serif;background:#D1411E;color:#fff;border:none;padding:8px 20px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;margin-right:8px}
-  .btn-close{font-family:'Plus Jakarta Sans',sans-serif;background:#eee;color:#333;border:none;padding:8px 16px;border-radius:6px;font-size:13px;cursor:pointer}
-</style>
-</head>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;color:#1A1108;background:#fff;padding:28px 32px;display:inline-block;min-width:680px}
+.pf-header{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #D1411E;padding-bottom:12px;margin-bottom:16px}
+.pf-logo{height:32px}.pf-title-area{text-align:right}
+.pf-main-title{font-size:18px;font-weight:800;color:#D1411E;line-height:1}
+.pf-boleta{font-size:12px;font-weight:700;color:#1A1108;margin-top:4px}
+.pf-date{font-size:9px;color:#7A6E62;margin-top:2px}
+.pf-section{margin-bottom:12px}
+.pf-section-title{font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#D1411E;border-bottom:1px solid #F2F0EC;padding-bottom:3px;margin-bottom:7px}
+.pf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pf-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pf-field{display:flex;flex-direction:column;gap:2px}
+.pf-full{grid-column:1/-1}
+.pf-label{font-size:7px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#A89E92}
+.pf-value{font-size:10px;font-weight:500;color:#1A1108;border-bottom:1px solid #E8E5E0;padding-bottom:3px;min-height:16px}
+.pf-text-area{min-height:32px;white-space:pre-wrap}
+.pf-footer{margin-top:16px;border-top:1px solid #E8E5E0;padding-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.pf-sig-line{border-bottom:1px solid #1A1108;margin-top:26px}
+.pf-sig-label{font-size:7px;color:#A89E92;margin-top:3px}
+.no-print{text-align:center;padding:10px;margin-bottom:10px}
+.btn-print{font-family:inherit;background:#D1411E;color:#fff;border:none;padding:7px 18px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;margin-right:6px}
+.btn-close{font-family:inherit;background:#eee;color:#333;border:none;padding:7px 14px;border-radius:5px;font-size:12px;cursor:pointer}
+@media print{.no-print{display:none}@page{size:A4;margin:1cm}}
+</style></head>
 <body>
 <div class="no-print">
-  <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+  <button class="btn-print" onclick="window.print()">🖨️ Imprimir / PDF</button>
   <button class="btn-close" onclick="window.close()">Cerrar</button>
 </div>
 <div class="pf-header">
-  ${logoSrc ? `<img class="pf-logo" src="${logoSrc}" alt="Sekunet">` : '<div style="font-size:18px;font-weight:800;color:#D1411E">Sekunet</div>'}
-  <div class="pf-title-area">
-    <div class="pf-main-title">Garantías · Sekunet</div>
-    <div class="pf-boleta">Boleta ${boleta}</div>
-    <div class="pf-date">${fecha}</div>
-  </div>
+  ${logoSrc?`<img class="pf-logo" src="${logoSrc}" alt="Sekunet">`:'<div style="font-size:16px;font-weight:800;color:#D1411E">Sekunet</div>'}
+  <div class="pf-title-area"><div class="pf-main-title">Garantías · Sekunet</div><div class="pf-boleta">Boleta ${boleta}</div><div class="pf-date">${fecha}</div></div>
 </div>
-<div class="pf-section">
-  <div class="pf-section-title">Clasificación</div>
-  <div class="pf-grid">
-    <div class="pf-field"><div class="pf-label">Tipo de Salida</div><div class="pf-value">${(TIPO_LABELS[r.tipo]||r.tipo||'—')}</div></div>
-    <div class="pf-field"><div class="pf-label">Categoría</div><div class="pf-value">${(CAT_LABELS[r.categoria]||r.categoria||'—')}</div></div>
-    <div class="pf-field"><div class="pf-label">Motivo</div><div class="pf-value">${(MOT_LABELS[r.motivo]||r.motivo||'—')}</div></div>
-  </div>
-</div>
-<div class="pf-section">
-  <div class="pf-section-title">Información del Cliente</div>
-  <div class="pf-grid">
-    <div class="pf-field"><div class="pf-label">Ticket N°</div><div class="pf-value">${r.ticket||'—'}</div></div>
-    <div class="pf-field"><div class="pf-label">Sede</div><div class="pf-value">${r.sede||'—'}</div></div>
-    <div class="pf-field"><div class="pf-label">Nombre del Cliente</div><div class="pf-value">${r.nombre||'—'}</div></div>
-    <div class="pf-field"><div class="pf-label">Factura N°</div><div class="pf-value">${r.factura||'—'}</div></div>
-    <div class="pf-field"><div class="pf-label">Fecha de Registro</div><div class="pf-value">${fechaReg}</div></div>
-  </div>
-</div>
-<div class="pf-section">
-  <div class="pf-section-title">Información del Producto</div>
-  <div class="pf-grid">
-    <div class="pf-field"><div class="pf-label">Marca</div><div class="pf-value">${r.marca||'—'}</div></div>
-    <div class="pf-field"><div class="pf-label">Serie</div><div class="pf-value">${r.serie||'—'}</div></div>
-    <div class="pf-field"><div class="pf-label">Cantidad</div><div class="pf-value">${r.cantidad||'—'}</div></div>
-    <div class="pf-field"><div class="pf-label">Fecha de Compra</div><div class="pf-value">${fechaCompra}</div></div>
-  </div>
-</div>
-<div class="pf-section">
-  <div class="pf-section-title">Descripción y Falla</div>
-  <div class="pf-grid-2">
-    <div class="pf-field pf-full"><div class="pf-label">Descripción del Artículo</div><div class="pf-value pf-text-area">${r.descripcion||'—'}</div></div>
-    <div class="pf-field pf-full"><div class="pf-label">Descripción de la Falla</div><div class="pf-value pf-text-area">${r.falla||'—'}</div></div>
-  </div>
-</div>
+<div class="pf-section"><div class="pf-section-title">Clasificación</div><div class="pf-grid">
+  <div class="pf-field"><div class="pf-label">Tipo de Salida</div><div class="pf-value">${TIPO_LABELS[r.tipo]||r.tipo||'—'}</div></div>
+  <div class="pf-field"><div class="pf-label">Categoría</div><div class="pf-value">${CAT_LABELS[r.categoria]||r.categoria||'—'}</div></div>
+  <div class="pf-field"><div class="pf-label">Motivo</div><div class="pf-value">${MOT_LABELS[r.motivo]||r.motivo||'—'}</div></div>
+</div></div>
+<div class="pf-section"><div class="pf-section-title">Información del Cliente</div><div class="pf-grid">
+  <div class="pf-field"><div class="pf-label">Ticket N°</div><div class="pf-value">${r.ticket||'—'}</div></div>
+  <div class="pf-field"><div class="pf-label">Sede</div><div class="pf-value">${r.sede||'—'}</div></div>
+  <div class="pf-field"><div class="pf-label">Cliente</div><div class="pf-value">${r.nombre||'—'}</div></div>
+  <div class="pf-field"><div class="pf-label">Factura N°</div><div class="pf-value">${r.factura||'—'}</div></div>
+  <div class="pf-field"><div class="pf-label">Fecha de Registro</div><div class="pf-value">${fechaReg}</div></div>
+</div></div>
+<div class="pf-section"><div class="pf-section-title">Información del Producto</div><div class="pf-grid">
+  <div class="pf-field"><div class="pf-label">Marca</div><div class="pf-value">${r.marca||'—'}</div></div>
+  <div class="pf-field"><div class="pf-label">Serie</div><div class="pf-value">${r.serie||'—'}</div></div>
+  <div class="pf-field"><div class="pf-label">Cantidad</div><div class="pf-value">${r.cantidad||'—'}</div></div>
+  <div class="pf-field"><div class="pf-label">Fecha de Compra</div><div class="pf-value">${fechaCompra}</div></div>
+</div></div>
+<div class="pf-section"><div class="pf-section-title">Descripción y Falla</div><div class="pf-grid-2">
+  <div class="pf-field pf-full"><div class="pf-label">Descripción del Artículo</div><div class="pf-value pf-text-area">${r.descripcion||'—'}</div></div>
+  <div class="pf-field pf-full"><div class="pf-label">Descripción de la Falla</div><div class="pf-value pf-text-area">${r.falla||'—'}</div></div>
+</div></div>
 <div class="pf-footer">
   <div><div class="pf-sig-line"></div><div class="pf-sig-label">Firma del Cliente</div></div>
   <div><div class="pf-sig-line"></div><div class="pf-sig-label">Firma del Responsable · Sekunet</div></div>
 </div>
-</body>
-</html>`;
+</body></html>`;
+}
+
+async function captureRecord(r) {
+  // Construir HTML del comprobante y renderizarlo en un iframe oculto
+  // luego usar html2canvas con dimensiones exactas al contenido
+  const html = buildPrintHTML(r);
+  return new Promise((resolve, reject) => {
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;left:-9999px;top:0;border:none;visibility:hidden;';
+    document.body.appendChild(iframe);
+    iframe.onload = async () => {
+      try {
+        // Esperar a que el contenido se pinte
+        await new Promise(r => setTimeout(r, 400));
+        const doc = iframe.contentDocument;
+        const body = doc.body;
+        // Ocultar botones de impresión para la captura
+        const noPrint = doc.querySelector('.no-print');
+        if (noPrint) noPrint.style.display = 'none';
+        // Medir contenido real (sin espacio en blanco)
+        const contentEl = doc.documentElement;
+        const w = body.scrollWidth;
+        const h = body.scrollHeight;
+        const canvas = await iframe.contentWindow.html2canvas(contentEl, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+          width: w,
+          height: h,
+          windowWidth: w,
+          windowHeight: h,
+          x: 0,
+          y: 0
+        });
+        document.body.removeChild(iframe);
+        resolve(canvas);
+      } catch(err) {
+        document.body.removeChild(iframe);
+        reject(err);
+      }
+    };
+    iframe.srcdoc = html.replace('</head>', `<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script></head>`);
+  });
+}
+
+function buildMailtoUrl(r) {
+  const boleta  = r.boleta || 'comprobante';
+  const tipo    = TIPO_LABELS[r.tipo]     || r.tipo     || '';
+  const cat     = CAT_LABELS[r.categoria] || r.categoria || '';
+  const ticket  = r.ticket ? 'Ticket #' + r.ticket : '';
+  const partes  = [tipo, cat, ticket].filter(Boolean);
+  const subject = encodeURIComponent(partes.join(' · ') + ' · Boleta ' + boleta);
+  const body    = encodeURIComponent(
+    'Se adjunta el comprobante de garantía.\n\n' +
+    'Boleta:    ' + boleta + '\n' +
+    (r.nombre  ? 'Cliente:   ' + r.nombre  + '\n' : '') +
+    (r.ticket  ? 'Ticket:    ' + r.ticket  + '\n' : '') +
+    (r.factura ? 'Factura:   ' + r.factura + '\n' : '') +
+    (r.sede    ? 'Sede:      ' + r.sede    + '\n' : '') +
+    (tipo      ? 'Tipo:      ' + tipo      + '\n' : '') +
+    (cat       ? 'Categoría: ' + cat       + '\n' : '') +
+    '\n— Sekunet Garantías'
+  );
+  return 'mailto:?subject=' + subject + '&body=' + body;
 }
 
 function openPrintWindow(r) {
   const html = buildPrintHTML(r);
   const w = window.open('', '_blank');
-  if (!w) { showToast('Bloqueador de pop-ups activo', 'error', 'Permitir ventanas emergentes para este sitio'); return false; }
+  if (!w) { showToast('Bloqueador de pop-ups activo', 'error', 'Permití ventanas emergentes para este sitio'); return false; }
   w.document.write(html);
   w.document.close();
   return true;
 }
 
+/* ══ ACCIONES GUARDAR ══ */
 async function doSavePNG() {
   closeSaveModal();
-  showToast('Abriendo comprobante…', 'info', 'Usá Ctrl+P → "Guardar como PDF" o captura de pantalla');
-  openPrintWindow(lastSavedRecord);
+  showToast('Generando imagen…', 'info');
+  try {
+    const canvas = await captureRecord(lastSavedRecord);
+    const a = document.createElement('a');
+    a.download = 'Garantia_' + (lastSavedRecord?.boleta || 'comprobante') + '.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+    showToast('PNG descargado', 'success');
+  } catch(err) {
+    showToast('Error al generar imagen', 'error', err.message);
+  }
 }
 
 async function doSavePDF() {
   closeSaveModal();
-  showToast('Abriendo para imprimir / guardar PDF…', 'info');
+  showToast('Abriendo para guardar PDF…', 'info');
   openPrintWindow(lastSavedRecord);
 }
 
 async function doCopyImage() {
   closeSaveModal();
-  showToast('Abriendo comprobante…', 'info', 'Podés copiar o imprimir desde allí');
+  showToast('Copiando imagen…', 'info');
+  try {
+    const canvas = await captureRecord(lastSavedRecord);
+    canvas.toBlob(async blob => {
+      try {
+        await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+        showToast('Imagen copiada al portapapeles', 'success');
+      } catch {
+        // fallback: descargar
+        const a = document.createElement('a');
+        a.download = 'Garantia_' + (lastSavedRecord?.boleta || 'comprobante') + '.png';
+        a.href = URL.createObjectURL(blob);
+        a.click();
+        showToast('No se pudo copiar — imagen descargada', 'info');
+      }
+    }, 'image/png');
+  } catch(err) {
+    showToast('Error al copiar imagen', 'error', err.message);
+  }
+}
+
+/* ══ ACCIONES ENVIAR ══ */
+async function doSendEmail() {
+  closeEnviarModal();
+  openPrintWindow(lastSavedRecord);
+  setTimeout(() => {
+    window.location.href = buildMailtoUrl(lastSavedRecord || {});
+    showToast('Comprobante abierto · Outlook iniciando', 'success', 'Adjuntá el PDF al correo');
+  }, 600);
+}
+
+async function doSendPrint() {
+  closeEnviarModal();
   openPrintWindow(lastSavedRecord);
 }
 
-// kept for legacy compatibility
-async function captureForm() {
-  // fallback: return a dummy canvas-like object (not used with new flow)
-  throw new Error('captureForm ya no se usa');
-}
-
-// DUMMY - kept so old references don't crash
-async function _doCopyImageOld() {
-  closeSaveModal(); showToast('Copiando imagen…','info');
-  try {
-    const canvas = await captureForm();
-    canvas.toBlob(async blob => {
-      try {
-        await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
-        showToast('Imagen copiada al portapapeles','success');
-      } catch {
-        const a = document.createElement('a');
-        a.download='Garantia_'+(lastSavedRecord?.boleta||'comprobante')+'.png';
-        a.href=URL.createObjectURL(blob); a.click();
-        showToast('Portapapeles no disponible — imagen descargada','info');
-      }
-    });
-  } catch(err) { showToast('Error al copiar imagen','error',err.message); }
-}
+/* Compatibilidad legado */
+function toggleEnviarMenu() {}
+function closeEnviarMenu() {}
+function openEnviarCorreo() { openEnviarModal(); }
+function openEnviarImprimir() { openEnviarModal(); }
 
 function updateTabCount() {
   const el = document.getElementById('tabCount');
@@ -2011,6 +1941,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Modal close on backdrop
   document.getElementById('editModal').addEventListener('click', e => { if(e.target===document.getElementById('editModal'))closeModal(); });
   document.getElementById('saveModal').addEventListener('click', e => { if(e.target===document.getElementById('saveModal'))closeSaveModal(); });
+  document.getElementById('enviarModal').addEventListener('click', e => { if(e.target===document.getElementById('enviarModal'))closeEnviarModal(); });
 
   // Load
   await invLoad();
