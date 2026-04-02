@@ -3,171 +3,249 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard · Sekunet Garantías</title>
+  <title>Nuevo Registro · Sekunet</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 
   <style>
-    /* Aquí incluí tus estilos base y las mejoras de los badges */
     :root {
       --primary: #1B4F9C;
+      --secondary: #0f172a;
       --amber: #F7B24B;
-      --bg: #f4f7fa;
+      --success: #10b981;
+      --bg: #f8fafc;
+      --card-bg: rgba(255, 255, 255, 0.8);
+      --border: #e2e8f0;
     }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); margin: 0; display: flex; }
-    
-    /* Estilos rápidos para el layout */
-    .sidebar { width: 260px; background: white; height: 100vh; border-right: 1px solid #e0e0e0; }
-    .main-content { flex: 1; padding: 2rem; }
-    
-    /* Badges de colores (Mejora UX) */
-    .badge-definitiva { background: #fef3c7; color: #b45309; padding: 5px 10px; border-radius: 4px; font-weight: 600; font-size: 12px; }
-    .badge-temporal { background: #ccfbf1; color: #0f766e; padding: 5px 10px; border-radius: 4px; font-weight: 600; font-size: 12px; }
-    
-    .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
-    .status-pill.pendiente { background: #fee2e2; color: #991b1b; }
-    .status-pill.completado { background: #dcfce7; color: #166534; }
 
-    /* Stats Grid */
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-    .stat-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 1rem; }
-    .stat-value { font-size: 1.5rem; font-weight: bold; display: block; }
-    
-    table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
-    th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #f0f0f0; }
-    th { background: #fafafa; color: #666; font-size: 13px; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      margin: 0;
+      display: flex;
+      min-height: 100vh;
+      color: var(--secondary);
+    }
+
+    /* Sidebar minimalista */
+    .sidebar {
+      width: 280px;
+      background: white;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 2rem 1.5rem;
+    }
+
+    .brand {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 3rem;
+    }
+
+    .nav-link {
+      text-decoration: none;
+      color: #64748b;
+      padding: 0.8rem 1rem;
+      border-radius: 12px;
+      margin-bottom: 0.5rem;
+      transition: all 0.3s;
+      font-weight: 500;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: #f1f5f9;
+      color: var(--primary);
+    }
+
+    /* Contenedor Principal */
+    .main-content {
+      flex: 1;
+      padding: 3rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    header { margin-bottom: 2.5rem; }
+    header h1 { font-family: 'Syne', sans-serif; font-size: 2.2rem; margin: 0; }
+    header p { color: #64748b; margin-top: 0.5rem; }
+
+    /* Estilo Bento Grid para el Formulario */
+    .form-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-radius: 24px;
+      border: 1px solid white;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    .form-group.full { grid-column: span 2; }
+
+    label { font-size: 0.85rem; font-weight: 600; color: #475569; margin-left: 4px; }
+
+    input, select, textarea {
+      padding: 0.8rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: 1rem;
+      background: white;
+      transition: all 0.2s ease;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(27, 79, 156, 0.1);
+      transform: translateY(-1px);
+    }
+
+    /* Botón con efecto moderno */
+    .btn-submit {
+      grid-column: span 2;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 1.2rem;
+      border-radius: 16px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-top: 1rem;
+      box-shadow: 0 10px 15px -3px rgba(27, 79, 156, 0.3);
+    }
+
+    .btn-submit:hover {
+      background: #153e7a;
+      transform: translateY(-2px);
+      box-shadow: 0 20px 25px -5px rgba(27, 79, 156, 0.4);
+    }
+
+    .btn-submit:active { transform: translateY(0); }
+
+    /* Notificación de éxito */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--secondary);
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      display: none;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
   </style>
 </head>
 <body>
 
   <aside class="sidebar">
-    <div style="padding: 2rem; font-weight: 800; color: var(--primary); font-size: 24px;">SEKUNET</div>
-    <nav style="padding: 1rem;">
-       <div style="padding: 10px; color: var(--primary); font-weight: bold;">Dashboard</div>
-       <div style="padding: 10px; color: #666;">Inventario</div>
-    </nav>
+    <div class="brand">SEKUNET</div>
+    <a href="index.html" class="nav-link">Dashboard</a>
+    <a href="#" class="nav-link active">Nuevo Registro</a>
+    <a href="#" class="nav-link">Inventario</a>
   </aside>
 
   <main class="main-content">
-    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-      <div>
-        <h2 style="margin:0;">Panel de Control</h2>
-        <span id="currentDate" style="color: #888;"></span>
-      </div>
-      <div id="userInfo" style="display:flex; align-items:center; gap: 10px;">
-        <div id="userAvatar" style="background: var(--amber); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">?</div>
-        <span id="userName">Usuario</span>
-      </div>
+    <header>
+      <h1>Nuevo Formulario</h1>
+      <p>Ingresa los detalles de la salida de equipo para el control de garantías.</p>
     </header>
 
-    <section class="stats-grid">
-      <div class="stat-card">
-        <div><span style="color:#888;">Total Registros</span><span class="stat-value" id="statTotal">0</span></div>
+    <form id="registroForm" class="form-container">
+      <div class="form-group">
+        <label for="tipo">Tipo de Salida</label>
+        <select id="tipo" required>
+          <option value="definitiva">Definitiva</option>
+          <option value="temporal">Temporal</option>
+        </select>
       </div>
-      <div class="stat-card">
-        <div><span style="color:#888;">Definitivas</span><span class="stat-value" id="statDefinitivas">0</span></div>
-      </div>
-      <div class="stat-card">
-        <div><span style="color:#888;">Temporales</span><span class="stat-value" id="statTemporales">0</span></div>
-      </div>
-      <div class="stat-card">
-        <div><span style="color:#888;">Stock Inventario</span><span class="stat-value" id="statInventario">0</span></div>
-      </div>
-    </section>
 
-    <section style="background: white; padding: 1.5rem; border-radius: 12px;">
-      <h3>Registros Recientes</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Folio</th>
-            <th>Fecha</th>
-            <th>Tipo</th>
-            <th>Solicitante</th>
-            <th>Cliente</th>
-            <th>Sede</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody id="recentTableBody">
-          <tr><td colspan="7">Cargando datos...</td></tr>
-        </tbody>
-      </table>
-    </section>
+      <div class="form-group">
+        <label for="cliente">Cliente / Empresa</label>
+        <input type="text" id="cliente" placeholder="Ej: Corporativo ABC" required>
+      </div>
+
+      <div class="form-group">
+        <label for="solicitado_por">Solicitado por</label>
+        <input type="text" id="solicitado_por" placeholder="Nombre del técnico o encargado" required>
+      </div>
+
+      <div class="form-group">
+        <label for="sede">Sede / Ubicación</label>
+        <input type="text" id="sede" placeholder="Ej: San Pedro, San José" required>
+      </div>
+
+      <div class="form-group full">
+        <label for="notas">Detalles del Equipo / Notas</label>
+        <textarea id="notas" rows="4" placeholder="Especifique modelos, números de serie o motivo de la salida..."></textarea>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">Guardar Registro</button>
+    </form>
+    
+    <div id="toast">¡Registro guardado con éxito!</div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
-    // 1. CONFIGURACIÓN (Pon tus datos aquí)
+    // CONFIGURACIÓN DE SUPABASE
     const supabaseUrl = 'https://TU_PROYECTO.supabase.co';
     const supabaseKey = 'TU_ANON_KEY';
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // 2. INICIO
-    document.addEventListener('DOMContentLoaded', async () => {
-        mostrarFecha();
-        await cargarDatos();
+    const form = document.getElementById('registroForm');
+    const btn = document.getElementById('submitBtn');
+    const toast = document.getElementById('toast');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Bloquear botón para evitar doble envío
+      btn.disabled = true;
+      btn.innerText = 'Enviando...';
+
+      const datos = {
+        tipo: document.getElementById('tipo').value,
+        cliente: document.getElementById('cliente').value,
+        solicitado_por: document.getElementById('solicitado_por').value,
+        sede: document.getElementById('sede').value,
+        estado: 'pendiente' // Por defecto
+      };
+
+      try {
+        const { error } = await supabase.from('registros').insert([datos]);
+
+        if (error) throw error;
+
+        // Éxito
+        toast.style.display = 'block';
+        form.reset();
+        
+        setTimeout(() => {
+          toast.style.display = 'none';
+          window.location.href = 'index.html'; // Regresar al dashboard
+        }, 2500);
+
+      } catch (err) {
+        alert('Error al guardar: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Guardar Registro';
+      }
     });
-
-    function mostrarFecha() {
-        const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-ES', opciones);
-    }
-
-    async function cargarDatos() {
-        try {
-            // Consultar estadísticas
-            const [total, def, temp, inv] = await Promise.all([
-                supabase.from('registros').select('*', { count: 'exact', head: true }),
-                supabase.from('registros').select('*', { count: 'exact', head: true }).eq('tipo', 'definitiva'),
-                supabase.from('registros').select('*', { count: 'exact', head: true }).eq('tipo', 'temporal'),
-                supabase.from('inventario').select('cantidad')
-            ]);
-
-            document.getElementById('statTotal').textContent = total.count || 0;
-            document.getElementById('statDefinitivas').textContent = def.count || 0;
-            document.getElementById('statTemporales').textContent = temp.count || 0;
-            
-            const totalStock = inv.data?.reduce((acc, item) => acc + item.cantidad, 0) || 0;
-            document.getElementById('statInventario').textContent = totalStock;
-
-            // Consultar tabla
-            const { data: registros, error } = await supabase
-                .from('registros')
-                .select('*')
-                .order('fecha', { ascending: false })
-                .limit(8);
-
-            if (error) throw error;
-            renderTable(registros);
-
-        } catch (err) {
-            console.error("Error cargando Supabase:", err);
-            document.getElementById('recentTableBody').innerHTML = '<tr><td colspan="7">Error al conectar con Supabase. Revisa las llaves.</td></tr>';
-        }
-    }
-
-    function renderTable(data) {
-        const tbody = document.getElementById('recentTableBody');
-        if (!data || data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7">No hay registros.</td></tr>';
-            return;
-        }
-
-        tbody.innerHTML = data.map(reg => `
-            <tr>
-                <td>#${reg.folio}</td>
-                <td>${new Date(reg.fecha).toLocaleDateString()}</td>
-                <td><span class="badge-${reg.tipo}">${reg.tipo}</span></td>
-                <td>${reg.solicitado_por}</td>
-                <td>${reg.cliente}</td>
-                <td>${reg.sede}</td>
-                <td><span class="status-pill ${reg.estado}">${reg.estado}</span></td>
-            </tr>
-        `).join('');
-    }
   </script>
 </body>
 </html>
