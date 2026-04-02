@@ -3,292 +3,566 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Formulario de Garantías · SEKUNET</title>
+  <title>Formulario de Garantías · Sekunet</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary-blue: #1B4F9C;
-      --sekunet-orange: #F7B24B;
-      --bg-light: #ffffff;
-      --text-dark: #000000;
+      /* Brand */
+      --blue-900: #0f2a5c;
+      --blue-800: #1B4F9C;
+      --blue-700: #2563c4;
+      --blue-600: #3b7de8;
+      --blue-100: #dbeafe;
+      --blue-50:  #eff6ff;
+
+      --orange-500: #F7B24B;
+      --orange-400: #fbbf6a;
+      --orange-100: #fef3cd;
+
+      --gray-900: #111827;
+      --gray-800: #1f2937;
+      --gray-700: #374151;
+      --gray-500: #6b7280;
+      --gray-400: #9ca3af;
+      --gray-300: #d1d5db;
+      --gray-200: #e5e7eb;
+      --gray-100: #f3f4f6;
+      --gray-50:  #f9fafb;
+
+      --red-500: #ef4444;
+      --red-100: #fee2e2;
+      --green-500: #10b981;
+
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+      --shadow-md: 0 4px 12px rgba(0,0,0,.10);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,.12);
+
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'DM Mono', monospace;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body { background: #f0f0f0; padding: 20px; display: flex; justify-content: center; }
-
-    .form-container {
-      width: 100%;
-      max-width: 1000px;
-      background: var(--bg-light);
-      padding: 30px;
-      border: 2px solid var(--primary-blue);
-      position: relative;
+    body {
+      font-family: var(--font-body);
+      background: var(--blue-50);
+      min-height: 100vh;
+      color: var(--gray-900);
+      line-height: 1.5;
     }
 
-    /* Header */
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .logo img { height: 60px; }
-    .main-title { color: var(--primary-blue); font-size: 28px; font-weight: normal; text-transform: uppercase; }
-
-    .meta-data { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 20px; }
-
-    /* Estilo de Secciones e Inputs */
-    .section-title {
-      text-align: center;
-      text-transform: uppercase;
-      font-weight: bold;
-      margin: 20px 0 10px 0;
-      font-size: 18px;
+    /* ── Layout ────────────────────────────── */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 0 3rem;
     }
 
-    .form-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px; margin-bottom: 10px; }
-    
-    .input-group { display: flex; align-items: center; border: 1px solid var(--primary-blue); height: 35px; }
-    .label {
-      background: var(--sekunet-orange);
-      color: var(--text-dark);
-      font-size: 11px;
-      font-weight: bold;
-      padding: 0 10px;
-      height: 100%;
+    /* ── Header ────────────────────────────── */
+    .header {
+      background: var(--blue-900);
+      padding: 1rem 1.5rem;
       display: flex;
       align-items: center;
-      text-transform: uppercase;
-      min-width: 130px;
-      border-right: 1px solid var(--primary-blue);
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
 
-    input, select, textarea {
-      flex: 1;
-      border: none;
-      padding: 5px 10px;
-      font-size: 14px;
-      outline: none;
-      height: 100%;
-    }
-
-    textarea { height: auto; min-height: 60px; }
-    .full-row { grid-column: span 12; height: auto; }
-
-    /* Botones Inferiores */
-    .footer-buttons {
-      margin-top: 30px;
+    .logo {
       display: flex;
-      gap: 0;
-      height: 40px;
-      background: var(--primary-blue);
+      align-items: center;
+      gap: .625rem;
+      text-decoration: none;
+    }
+
+    .logo-img {
+      height: 38px;
+      width: auto;
+      display: block;
+      
+    }
+
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-pill {
+      display: flex;
+      align-items: center;
+      gap: .375rem;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius-sm);
+      padding: .3rem .625rem;
+    }
+
+    .meta-pill-label {
+      font-size: .6875rem;
+      font-weight: 600;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .meta-pill-value {
+      font-family: var(--font-mono);
+      font-size: .8125rem;
+      font-weight: 500;
+      color: #fff;
+    }
+
+    /* ── Form title ────────────────────────── */
+    .form-title {
+      background: var(--blue-800);
+      color: #fff;
+      text-align: center;
+      padding: .75rem 1.5rem;
+      font-size: .9375rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      border-bottom: 3px solid var(--orange-500);
+    }
+
+    /* ── Card wrapper ──────────────────────── */
+    .form-card {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-top: none;
+      padding: 1.75rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* ── Section ───────────────────────────── */
+    .section-title {
+      background: var(--blue-800);
+      color: #fff;
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      padding: .5rem .875rem;
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--orange-500);
+      margin-bottom: 1rem;
+    }
+
+    /* ── Grid rows ─────────────────────────── */
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: .875rem;
+    }
+
+    .form-row + .form-row { margin-top: .875rem; }
+
+    .col-full { grid-column: 1 / -1; }
+
+    /* ── Field ─────────────────────────────── */
+    .field { display: flex; flex-direction: column; gap: .25rem; }
+
+    .field-label {
+      font-size: .6875rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #fff;
+      background: var(--orange-500);
+      padding: .3125rem .625rem;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      width: fit-content;
+      max-width: 100%;
+    }
+
+    .field-input,
+    .field-select,
+    .field-textarea {
+      font-family: var(--font-body);
+      font-size: .875rem;
+      color: var(--gray-900);
+      background: var(--gray-50);
+      border: 1.5px solid var(--gray-300);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) var(--radius-sm);
+      padding: .5rem .75rem;
+      transition: border-color .15s, background .15s, box-shadow .15s;
+      width: 100%;
+    }
+
+    .field-select { appearance: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right .625rem center; padding-right: 2rem; }
+
+    .field-textarea { resize: vertical; min-height: 90px; }
+
+    .field-input:focus,
+    .field-select:focus,
+    .field-textarea:focus {
+      outline: none;
+      border-color: var(--blue-600);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(59,125,232,.12);
+    }
+
+    .field-input.error,
+    .field-select.error,
+    .field-textarea.error {
+      border-color: var(--red-500);
+      background: var(--red-100);
+    }
+
+    /* ── Buttons ───────────────────────────── */
+    .form-actions {
+      display: flex;
+      justify-content: center;
+      gap: .875rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--gray-200);
+      flex-wrap: wrap;
     }
 
     .btn {
-      flex: 1;
-      border: 1px solid #000;
-      background: transparent;
-      color: white;
-      font-weight: bold;
+      font-family: var(--font-body);
+      font-size: .8125rem;
+      font-weight: 700;
+      letter-spacing: .06em;
       text-transform: uppercase;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: .625rem 1.75rem;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      transition: transform .15s, box-shadow .15s, background .15s;
+      min-width: 130px;
     }
 
-    .btn:hover { background: rgba(255,255,255,0.1); }
+    .btn:active { transform: translateY(1px); }
 
-    /* Alertas */
-    #status {
+    .btn-primary {
+      background: var(--blue-800);
+      color: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-primary:hover { background: var(--blue-700); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+    .btn-primary:disabled { background: var(--gray-400); cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .btn-secondary {
+      background: var(--gray-100);
+      color: var(--gray-700);
+      border: 1.5px solid var(--gray-300);
+    }
+    .btn-secondary:hover { background: var(--gray-200); transform: translateY(-1px); }
+
+    /* ── Toast ─────────────────────────────── */
+    .toast {
       position: fixed;
-      top: 10px;
-      right: 10px;
-      padding: 15px;
-      border-radius: 5px;
-      display: none;
-      color: white;
-      font-weight: bold;
-      z-index: 100;
+      top: 1.25rem;
+      right: 1.25rem;
+      padding: .75rem 1.125rem;
+      border-radius: var(--radius-md);
+      font-size: .875rem;
+      font-weight: 600;
+      color: #fff;
+      box-shadow: var(--shadow-lg);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      animation: toastIn .25s ease;
+      max-width: 320px;
+    }
+
+    .toast-success { background: var(--green-500); }
+    .toast-error   { background: var(--red-500); }
+    .toast-info    { background: var(--blue-800); }
+
+    .toast-dot {
+      width: 8px; height: 8px;
+      background: rgba(255,255,255,.6);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(24px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ── Responsive ────────────────────────── */
+    @media (max-width: 600px) {
+      .header { flex-direction: column; align-items: flex-start; }
+      .form-card { padding: 1.25rem 1rem; }
+      .form-row { grid-template-columns: 1fr; }
+      .btn { width: 100%; }
     }
   </style>
 </head>
 <body>
 
-  <div id="status"></div>
+<div class="page">
 
-  <div class="form-container">
-    <div class="header">
-      <div class="logo">
-        <h2 style="color:var(--primary-blue); font-weight: 900;">SEKUNET</h2>
+  <!-- Header -->
+  <header class="header">
+    <a class="logo" href="#">
+      <img class="logo-img" src="data:image/png;base64,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" alt="Sekunet">
+    </a>
+    <div class="header-meta">
+      <div class="meta-pill">
+        <span class="meta-pill-label">Fecha</span>
+        <span class="meta-pill-value" id="headerDate">—</span>
       </div>
-      <h1 class="main-title">Formulario de Garantías</h1>
+      <div class="meta-pill">
+        <span class="meta-pill-label">Consecutivo/Boleta</span>
+        <span class="meta-pill-value" id="headerBoleta">—</span>
+      </div>
     </div>
+  </header>
 
-    <div class="meta-data">
-      <div id="currentDate">1 de abril de 2026</div>
-      <div style="display:flex; align-items:center; gap:10px;">
-        <span style="background:var(--sekunet-orange); padding:2px 10px; font-weight:bold;">CONSECUTIVO:</span>
-        <span id="displayID">202603-006</span>
-      </div>
-    </div>
+  <h1 class="form-title">Formulario de Garantías</h1>
 
-    <form id="warrantyForm">
-      <div class="form-grid">
-        <div class="input-group" style="grid-column: span 6;">
-          <div class="label">TIPO:</div>
-          <select id="tipo" required>
-            <option value="">Seleccione...</option>
-            <option value="definitiva">Salida Definitiva (G)</option>
-            <option value="temporal">Salida Temporal (T)</option>
-          </select>
+  <!-- Form -->
+  <div class="form-card">
+    <form id="warrantyForm" novalidate>
+
+      <!-- Datos del formulario -->
+      <section>
+        <h2 class="section-title">Datos del Formulario</h2>
+        <div class="form-row">
+          <div class="field">
+            <label class="field-label" for="tipo">Tipo</label>
+            <select id="tipo" name="tipo" class="field-select" required>
+              <option value="">Seleccione…</option>
+              <option value="salida_definitiva">Salida Definitiva</option>
+              <option value="salida_temporal">Salida Temporal</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label" for="categoria">Categoría</label>
+            <select id="categoria" name="categoria" class="field-select" required>
+              <option value="">Seleccione…</option>
+              <option value="nota_credito">Nota De Crédito</option>
+              <option value="garantia_1">Garantía 1%</option>
+              <option value="rma">RMA</option>
+              <option value="reparacion">Reparación</option>
+              <option value="rma_nota_credito">RMA - Nota de Crédito</option>
+              <option value="garantia_1_nota_credito">Garantía 1% con Nota de Crédito</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label" for="motivo">Motivo</label>
+            <select id="motivo" name="motivo" class="field-select" required>
+              <option value="">Seleccione…</option>
+              <option value="sin_existencias">Sin Existencias</option>
+              <option value="solicitud_cliente">Solicitud del Cliente</option>
+              <option value="reemplazo">Reemplazo</option>
+            </select>
+          </div>
         </div>
-        <div class="input-group" style="grid-column: span 6;">
-          <div class="label">CATEGORÍA</div>
-          <select id="categoria" required>
-            <option value="Normal">Normal</option>
-            <option value="Nota De Crédito">Nota de Crédito (NC)</option>
-            <option value="RMA">RMA</option>
-          </select>
+      </section>
+
+      <!-- Información del cliente -->
+      <section>
+        <h2 class="section-title">Información del Cliente</h2>
+        <div class="form-row">
+          <div class="field">
+            <label class="field-label" for="ticket">Ticket N°</label>
+            <input id="ticket" name="ticket" type="text" class="field-input" required>
+          </div>
+          <div class="field">
+            <label class="field-label" for="sede">Sede</label>
+            <input id="sede" name="sede" type="text" class="field-input" required>
+          </div>
+          <div class="field">
+            <label class="field-label" for="nombre">Nombre</label>
+            <input id="nombre" name="nombre" type="text" class="field-input" required>
+          </div>
+          <div class="field">
+            <label class="field-label" for="factura">Factura N°</label>
+            <input id="factura" name="factura" type="text" class="field-input" required>
+          </div>
         </div>
+      </section>
+
+      <!-- Información del producto -->
+      <section>
+        <h2 class="section-title">Información del Producto</h2>
+        <div class="form-row">
+          <div class="field">
+            <label class="field-label" for="cantidad">Cantidad</label>
+            <input id="cantidad" name="cantidad" type="number" min="1" class="field-input" required>
+          </div>
+          <div class="field">
+            <label class="field-label" for="fechaCompra">Fecha de Compra</label>
+            <input id="fechaCompra" name="fechaCompra" type="date" class="field-input" required>
+          </div>
+          <div class="field">
+            <label class="field-label" for="marca">Marca</label>
+            <input id="marca" name="marca" type="text" class="field-input" required>
+          </div>
+          <div class="field">
+            <label class="field-label" for="codigo">Código de Artículo</label>
+            <input id="codigo" name="codigo" type="text" class="field-input" required>
+          </div>
+        </div>
+        <div class="form-row" style="margin-top:.875rem">
+          <div class="field">
+            <label class="field-label" for="serie">Serie</label>
+            <input id="serie" name="serie" type="text" class="field-input">
+          </div>
+          <div class="field col-full">
+            <label class="field-label" for="descripcion">Descripción</label>
+            <textarea id="descripcion" name="descripcion" class="field-textarea" rows="3" required></textarea>
+          </div>
+        </div>
+        <div class="form-row" style="margin-top:.875rem">
+          <div class="field col-full">
+            <label class="field-label" for="falla">Falla</label>
+            <textarea id="falla" name="falla" class="field-textarea" rows="3" required></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" id="submitBtn">Guardar</button>
+        <button type="button" class="btn btn-secondary" id="clearBtn">Limpiar</button>
       </div>
 
-      <div class="form-grid">
-        <div class="input-group" style="grid-column: span 6;">
-          <div class="label">BOLETA Nº:</div>
-          <input type="text" id="boleta_num">
-        </div>
-        <div class="input-group" style="grid-column: span 6;">
-          <div class="label">MOTIVO</div>
-          <input type="text" id="motivo" required>
-        </div>
-      </div>
-
-      <div class="section-title">Información del Cliente</div>
-      <div class="form-grid">
-        <div class="input-group" style="grid-column: span 6;">
-          <div class="label">TICKET Nº:</div>
-          <input type="text" id="ticket" required>
-        </div>
-        <div class="input-group" style="grid-column: span 6;">
-          <div class="label">SEDE</div>
-          <input type="text" id="sede" required>
-        </div>
-        <div class="input-group" style="grid-column: span 6;">
-          <div class="label">NOMBRE:</div>
-          <input type="text" id="nombre" required>
-        </div>
-        <div class="input-group" style="grid-column: span 6;">
-          <div class="label">FACTURA Nº:</div>
-          <input type="text" id="factura">
-        </div>
-      </div>
-
-      <div class="section-title">Información del Producto</div>
-      <div class="form-grid">
-        <div class="input-group" style="grid-column: span 6;">
-          <div class="label">CANTIDAD:</div>
-          <input type="number" id="cantidad" value="1">
-        </div>
-        <div class="input-group" style="grid-column: span 6;">
-          <div class="label">FECHA DE COMPRA</div>
-          <input type="date" id="fechaCompra">
-        </div>
-        <div class="input-group" style="grid-column: span 4;">
-          <div class="label">MARCA:</div>
-          <input type="text" id="marca" required>
-        </div>
-        <div class="input-group" style="grid-column: span 4;">
-          <div class="label" style="min-width:110px;">CÓDIGO ARTÍCULO</div>
-          <input type="text" id="codigo" required>
-        </div>
-        <div class="input-group" style="grid-column: span 4;">
-          <div class="label" style="min-width:80px;">SERIE:</div>
-          <input type="text" id="serie" required>
-        </div>
-      </div>
-
-      <div class="input-group full-row">
-        <div class="label" style="height:auto;">DESCRIPCIÓN</div>
-        <textarea id="descripcion" required></textarea>
-      </div>
-
-      <div class="input-group full-row" style="margin-top:10px;">
-        <div class="label" style="height:auto;">FALLA</div>
-        <textarea id="falla" required></textarea>
-      </div>
-
-      <div class="form-grid" style="margin-top:20px;">
-        <div class="input-group" style="grid-column: span 6;">
-          <div class="label">SOLICITADO POR:</div>
-          <input type="text" id="solicitante" required>
-        </div>
-        <div class="input-group" style="grid-column: span 6;">
-          <div class="label">APROBADO POR:</div>
-          <input type="text" id="aprobador" value="Jorge Montenegro" readonly>
-        </div>
-      </div>
-
-      <div class="footer-buttons">
-        <button type="submit" class="btn" id="btnGuardar">GUARDAR</button>
-        <button type="reset" class="btn">LIMPIAR</button>
-      </div>
     </form>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // CONFIGURACIÓN SUPABASE - REEMPLAZAR CON TUS LLAVES
-    const SB_URL = 'https://TU_URL_AQUI.supabase.co';
-    const SB_KEY = 'TU_KEY_AQUI';
-    const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+</div><!-- /page -->
 
-    let baseConsecutivo = 21180;
+<script>
+  /* ── State ─────────────────────────────────────────────── */
+  // Formato boleta: AAAAMM-NNN  (se reinicia por mes en producción real)
+  let consecutiveNum = 29177; // último usado; el próximo será 29178
 
-    // Actualizar ID y Fecha
-    function refreshMeta() {
-      const t = document.getElementById('tipo').value;
-      const c = document.getElementById('categoria').value;
-      let p = t === "definitiva" ? "G" : (t === "temporal" ? "T" : "");
-      if(c === "Nota De Crédito") p += "NC";
-      document.getElementById('displayID').textContent = p ? `${p}${baseNumber}` : "---";
-      document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-CR', {day:'numeric', month:'long', year:'numeric'});
+  /* ── Init ──────────────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', () => {
+    renderHeaderDate();
+    renderHeaderBoleta();
+
+    document.getElementById('tipo').addEventListener('change', renderHeaderBoleta);
+    document.getElementById('categoria').addEventListener('change', renderHeaderBoleta);
+    document.getElementById('warrantyForm').addEventListener('submit', handleSubmit);
+    document.getElementById('clearBtn').addEventListener('click', clearForm);
+  });
+
+  /* ── Fecha ─────────────────────────────────────────────── */
+  function renderHeaderDate() {
+    const today = new Date();
+    const opts = { day: 'numeric', month: 'long', year: 'numeric' };
+    document.getElementById('headerDate').textContent =
+      today.toLocaleDateString('es-CR', opts);
+  }
+
+  /* ── Consecutivo (boleta) ──────────────────────────────── */
+  function buildBoletaPrefix() {
+    const tipo      = document.getElementById('tipo').value;
+    const categoria = document.getElementById('categoria').value;
+
+    let prefix = '';
+    if (tipo === 'salida_definitiva') prefix = 'G';
+    else if (tipo === 'salida_temporal') prefix = 'T';
+
+    if (categoria === 'nota_credito') {
+      prefix = prefix ? prefix + 'NC' : 'NC';
+    }
+    return prefix;
+  }
+
+  function formatBoleta(num) {
+    const prefix = buildBoletaPrefix();
+    // Ej: G29178, GNC29178, T29178, TNC29178, o solo 29178 si no hay tipo
+    return prefix ? `${prefix}${num}` : String(num);
+  }
+
+  function renderHeaderBoleta() {
+    // Muestra el PRÓXIMO número (el que se asignará al guardar)
+    document.getElementById('headerBoleta').textContent =
+      formatBoleta(consecutiveNum + 1);
+  }
+
+  /* ── Submit ────────────────────────────────────────────── */
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!validateForm()) {
+      showToast('Completá todos los campos requeridos.', 'error');
+      return;
     }
 
-    document.getElementById('tipo').addEventListener('change', refreshMeta);
-    document.getElementById('categoria').addEventListener('change', refreshMeta);
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Guardando…';
 
-    // Guardar Datos
-    document.getElementById('warrantyForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const b = document.getElementById('btnGuardar');
-      const s = document.getElementById('status');
-      
-      b.disabled = true;
-      b.textContent = "PROCESANDO...";
+    // Incrementar consecutivo y capturar boleta asignada
+    consecutiveNum++;
+    const boletaAsignada = formatBoleta(consecutiveNum);
 
-      const data = {
-        folio: document.getElementById('displayID').textContent,
-        tipo: document.getElementById('tipo').value,
-        cliente: document.getElementById('nombre').value,
-        sede: document.getElementById('sede').value,
-        marca: document.getElementById('marca').value,
-        serie: document.getElementById('serie').value,
-        falla: document.getElementById('falla').value,
-        ticket_no: document.getElementById('ticket').value,
-        fecha: new Date().toISOString()
-      };
+    const data = collectFormData(boletaAsignada);
+    console.log('Registro guardado:', data);
 
-      const { error } = await supabaseClient.from('registros').insert([data]);
+    setTimeout(() => {
+      showToast(`Consecutivo ${boletaAsignada} guardado correctamente.`, 'success');
+      clearForm(false); // limpiar sin toast duplicado
+      renderHeaderBoleta(); // actualizar preview a próxima boleta
 
-      if (error) {
-        s.style.background = "#ef4444";
-        s.textContent = "Error: " + error.message;
-        s.style.display = "block";
-        b.disabled = false;
-        b.textContent = "GUARDAR";
-      } else {
-        s.style.background = "#10b981";
-        s.textContent = "¡GUARDADO EXITOSAMENTE!";
-        s.style.display = "block";
-        setTimeout(() => window.location.reload(), 2000);
-      }
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Guardar';
+    }, 800);
+  }
+
+  /* ── Validación ────────────────────────────────────────── */
+  function validateForm() {
+    const form     = document.getElementById('warrantyForm');
+    const required = form.querySelectorAll('[required]');
+    let valid = true;
+
+    required.forEach(el => {
+      const isEmpty = !el.value.trim();
+      el.classList.toggle('error', isEmpty);
+      if (isEmpty) valid = false;
     });
-  </script>
+
+    return valid;
+  }
+
+  /* ── Recolectar datos ──────────────────────────────────── */
+  function collectFormData(boleta) {
+    const form = document.getElementById('warrantyForm');
+    const fd   = new FormData(form);
+    const data = { boleta, fecha_creacion: new Date().toISOString() };
+    for (const [k, v] of fd.entries()) data[k] = v;
+    return data;
+  }
+
+  /* ── Limpiar formulario ────────────────────────────────── */
+  function clearForm(showMsg = true) {
+    const form = document.getElementById('warrantyForm');
+    form.reset();
+    form.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+    if (showMsg) showToast('Formulario limpiado.', 'info');
+  }
+
+  /* ── Toast ─────────────────────────────────────────────── */
+  function showToast(message, type = 'info') {
+    document.querySelectorAll('.toast').forEach(t => t.remove());
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `<span class="toast-dot"></span>${message}`;
+    document.body.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 3500);
+  }
+</script>
 </body>
 </html>
