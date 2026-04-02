@@ -3,247 +3,326 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Nuevo Registro · Sekunet</title>
+  <title>Registro de Garantías · Sekunet</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --primary: #1B4F9C;
-      --secondary: #0f172a;
-      --amber: #F7B24B;
-      --success: #10b981;
-      --bg: #f8fafc;
-      --card-bg: rgba(255, 255, 255, 0.8);
-      --border: #e2e8f0;
+      --sekunet-blue: #1B4F9C;
+      --sekunet-amber: #F7B24B;
+      --text-dark: #2d3748;
+      --bg-gray: #f1f5f9;
+      --border-color: #cbd5e1;
     }
 
     body {
       font-family: 'DM Sans', sans-serif;
-      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      background-color: var(--bg-gray);
       margin: 0;
+      padding: 20px;
       display: flex;
-      min-height: 100vh;
-      color: var(--secondary);
+      justify-content: center;
     }
 
-    /* Sidebar minimalista */
-    .sidebar {
-      width: 280px;
+    .form-sheet {
       background: white;
-      border-right: 1px solid var(--border);
+      width: 100%;
+      max-width: 1100px;
+      padding: 40px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      border-radius: 4px; /* Estilo hoja técnica */
+    }
+
+    /* HEADER */
+    .header-table {
       display: flex;
-      flex-direction: column;
-      padding: 2rem 1.5rem;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
     }
 
-    .brand {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.5rem;
+    .brand-section img { height: 60px; } /* Aquí iría tu logo */
+    
+    .title-section { text-align: center; flex: 1; }
+    .title-section h1 { 
+      font-family: 'Syne', sans-serif; 
+      color: var(--sekunet-blue); 
+      margin: 0; 
+      font-size: 28px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .meta-info { font-size: 14px; color: var(--text-dark); }
+    .consecutivo-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .label-amber-small {
+      background: var(--sekunet-amber);
+      color: var(--sekunet-blue);
+      font-weight: bold;
+      padding: 4px 12px;
+      font-size: 12px;
+      border-radius: 2px;
+    }
+
+    /* GRID SISTEMA */
+    .section-title {
+      text-align: center;
       font-weight: 800;
-      color: var(--primary);
-      margin-bottom: 3rem;
+      color: var(--text-dark);
+      border-bottom: 2px solid var(--sekunet-blue);
+      margin: 25px 0 15px 0;
+      padding-bottom: 5px;
+      text-transform: uppercase;
+      font-size: 16px;
     }
 
-    .nav-link {
-      text-decoration: none;
-      color: #64748b;
-      padding: 0.8rem 1rem;
-      border-radius: 12px;
-      margin-bottom: 0.5rem;
-      transition: all 0.3s;
-      font-weight: 500;
-    }
-
-    .nav-link:hover, .nav-link.active {
-      background: #f1f5f9;
-      color: var(--primary);
-    }
-
-    /* Contenedor Principal */
-    .main-content {
-      flex: 1;
-      padding: 3rem;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    header { margin-bottom: 2.5rem; }
-    header h1 { font-family: 'Syne', sans-serif; font-size: 2.2rem; margin: 0; }
-    header p { color: #64748b; margin-top: 0.5rem; }
-
-    /* Estilo Bento Grid para el Formulario */
-    .form-container {
+    .row {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
-      background: var(--card-bg);
-      backdrop-filter: blur(10px);
-      padding: 2rem;
-      border-radius: 24px;
-      border: 1px solid white;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      grid-template-columns: repeat(12, 1fr);
+      gap: 10px;
+      margin-bottom: 8px;
     }
 
-    .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
-    .form-group.full { grid-column: span 2; }
+    .input-group {
+      display: flex;
+      align-items: stretch;
+      border: 1px solid var(--sekunet-blue);
+      border-radius: 3px;
+      overflow: hidden;
+    }
 
-    label { font-size: 0.85rem; font-weight: 600; color: #475569; margin-left: 4px; }
+    .label-amber {
+      background: var(--sekunet-amber);
+      color: var(--sekunet-blue);
+      font-weight: 700;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8px;
+      min-width: 100px;
+      text-align: center;
+      text-transform: uppercase;
+    }
 
     input, select, textarea {
-      padding: 0.8rem 1rem;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      font-family: inherit;
-      font-size: 1rem;
-      background: white;
-      transition: all 0.2s ease;
-    }
-
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 4px rgba(27, 79, 156, 0.1);
-      transform: translateY(-1px);
-    }
-
-    /* Botón con efecto moderno */
-    .btn-submit {
-      grid-column: span 2;
-      background: var(--primary);
-      color: white;
+      flex: 1;
       border: none;
-      padding: 1.2rem;
-      border-radius: 16px;
-      font-weight: 700;
-      font-size: 1.1rem;
+      padding: 8px 12px;
+      font-size: 13px;
+      outline: none;
+      color: var(--text-dark);
+    }
+
+    textarea { resize: vertical; }
+
+    /* FOOTER / BUTTONS */
+    .footer-actions {
+      margin-top: 40px;
+      display: flex;
+      gap: 0;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 15px;
+      border: 1px solid var(--sekunet-blue);
+      font-weight: 800;
+      text-transform: uppercase;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      margin-top: 1rem;
-      box-shadow: 0 10px 15px -3px rgba(27, 79, 156, 0.3);
+      transition: 0.3s;
+      font-family: 'Syne', sans-serif;
     }
 
-    .btn-submit:hover {
-      background: #153e7a;
-      transform: translateY(-2px);
-      box-shadow: 0 20px 25px -5px rgba(27, 79, 156, 0.4);
-    }
+    .btn-save { background: var(--sekunet-blue); color: white; }
+    .btn-save:hover { background: #133a75; }
 
-    .btn-submit:active { transform: translateY(0); }
+    .btn-clear { background: white; color: var(--sekunet-blue); }
+    .btn-clear:hover { background: #f8fafc; }
 
-    /* Notificación de éxito */
-    #toast {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      background: var(--secondary);
-      color: white;
-      padding: 1rem 2rem;
-      border-radius: 12px;
-      display: none;
-      animation: slideIn 0.3s ease-out;
-    }
+    /* Responsive */
+    .col-6 { grid-column: span 6; }
+    .col-4 { grid-column: span 4; }
+    .col-3 { grid-column: span 3; }
+    .col-12 { grid-column: span 12; }
 
-    @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
   </style>
 </head>
 <body>
 
-  <aside class="sidebar">
-    <div class="brand">SEKUNET</div>
-    <a href="index.html" class="nav-link">Dashboard</a>
-    <a href="#" class="nav-link active">Nuevo Registro</a>
-    <a href="#" class="nav-link">Inventario</a>
-  </aside>
+  <div class="form-sheet">
+    <div class="header-table">
+      <div class="brand-section">
+        <div style="font-family:'Syne'; font-weight:800; color:var(--sekunet-blue); font-size:32px;">SEKUNET</div>
+      </div>
+      <div class="title-section">
+        <h1>Formulario de Garantías</h1>
+        <div id="currentDate" style="margin-top:10px; font-weight:bold;"></div>
+      </div>
+      <div class="meta-info">
+        <div class="consecutivo-box">
+          <span class="label-amber-small">CONSECUTIVO:</span>
+          <span style="font-family:monospace; font-weight:bold;" id="folio">202604-001</span>
+        </div>
+      </div>
+    </div>
 
-  <main class="main-content">
-    <header>
-      <h1>Nuevo Formulario</h1>
-      <p>Ingresa los detalles de la salida de equipo para el control de garantías.</p>
-    </header>
-
-    <form id="registroForm" class="form-container">
-      <div class="form-group">
-        <label for="tipo">Tipo de Salida</label>
-        <select id="tipo" required>
-          <option value="definitiva">Definitiva</option>
-          <option value="temporal">Temporal</option>
-        </select>
+    <form id="garantiaForm">
+      <div class="row">
+        <div class="input-group col-3">
+          <div class="label-amber">Tipo</div>
+          <select id="tipo">
+            <option value="definitiva">Definitiva</option>
+            <option value="temporal">Temporal</option>
+          </select>
+        </div>
+        <div class="input-group col-3">
+          <div class="label-amber">Categoría</div>
+          <input type="text" id="categoria">
+        </div>
+        <div class="input-group col-3">
+          <div class="label-amber">Boleta Nº</div>
+          <input type="text" id="boleta_no">
+        </div>
+        <div class="input-group col-3">
+          <div class="label-amber">Motivo</div>
+          <input type="text" id="motivo">
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="cliente">Cliente / Empresa</label>
-        <input type="text" id="cliente" placeholder="Ej: Corporativo ABC" required>
+      <div class="section-title">Información del Cliente</div>
+      <div class="row">
+        <div class="input-group col-4">
+          <div class="label-amber">Ticket Nº</div>
+          <input type="text" id="ticket_no">
+        </div>
+        <div class="input-group col-8">
+          <div class="label-amber">Sede</div>
+          <input type="text" id="sede">
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-group col-8">
+          <div class="label-amber">Nombre</div>
+          <input type="text" id="nombre_cliente">
+        </div>
+        <div class="input-group col-4">
+          <div class="label-amber">Factura Nº</div>
+          <input type="text" id="factura_no">
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="solicitado_por">Solicitado por</label>
-        <input type="text" id="solicitado_por" placeholder="Nombre del técnico o encargado" required>
+      <div class="section-title">Información del Producto</div>
+      <div class="row">
+        <div class="input-group col-3">
+          <div class="label-amber">Cantidad</div>
+          <input type="number" id="cantidad">
+        </div>
+        <div class="input-group col-9">
+          <div class="label-amber">Fecha de Compra</div>
+          <input type="date" id="fecha_compra">
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-group col-4">
+          <div class="label-amber">Marca</div>
+          <input type="text" id="marca">
+        </div>
+        <div class="input-group col-4">
+          <div class="label-amber">Código Artículo</div>
+          <input type="text" id="codigo_articulo">
+        </div>
+        <div class="input-group col-4">
+          <div class="label-amber">Serie</div>
+          <input type="text" id="serie">
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="sede">Sede / Ubicación</label>
-        <input type="text" id="sede" placeholder="Ej: San Pedro, San José" required>
+      <div class="section-title">Detalle Técnico</div>
+      <div class="row">
+        <div class="input-group col-12">
+          <div class="label-amber" style="min-width: 140px;">Descripción</div>
+          <textarea id="descripcion" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-group col-12">
+          <div class="label-amber" style="min-width: 140px;">Falla</div>
+          <textarea id="falla" rows="3"></textarea>
+        </div>
       </div>
 
-      <div class="form-group full">
-        <label for="notas">Detalles del Equipo / Notas</label>
-        <textarea id="notas" rows="4" placeholder="Especifique modelos, números de serie o motivo de la salida..."></textarea>
+      <div class="row" style="margin-top: 20px;">
+        <div class="input-group col-6">
+          <div class="label-amber">Solicitado Por</div>
+          <input type="text" id="solicitado_por">
+        </div>
+        <div class="input-group col-6">
+          <div class="label-amber">Aprobado Por</div>
+          <input type="text" id="aprobado_por" value="Jorge Montenegro" readonly>
+        </div>
       </div>
 
-      <button type="submit" class="btn-submit" id="submitBtn">Guardar Registro</button>
+      <div class="footer-actions">
+        <button type="button" class="btn btn-clear" onclick="window.location.href='index.html'">LIMPIAR / VOLVER</button>
+        <button type="submit" class="btn btn-save">GUARDAR REGISTRO</button>
+      </div>
     </form>
-    
-    <div id="toast">¡Registro guardado con éxito!</div>
-  </main>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <script>
-    // CONFIGURACIÓN DE SUPABASE
+    // CONFIGURACIÓN SUPABASE
     const supabaseUrl = 'https://TU_PROYECTO.supabase.co';
     const supabaseKey = 'TU_ANON_KEY';
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    const form = document.getElementById('registroForm');
-    const btn = document.getElementById('submitBtn');
-    const toast = document.getElementById('toast');
+    // FECHA ACTUAL
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-ES', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    });
 
+    // LÓGICA DE ENVÍO
+    const form = document.getElementById('garantiaForm');
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
-      // Bloquear botón para evitar doble envío
-      btn.disabled = true;
-      btn.innerText = 'Enviando...';
 
-      const datos = {
+      const payload = {
         tipo: document.getElementById('tipo').value,
-        cliente: document.getElementById('cliente').value,
-        solicitado_por: document.getElementById('solicitado_por').value,
+        categoria: document.getElementById('categoria').value,
+        boleta_no: document.getElementById('boleta_no').value,
+        motivo: document.getElementById('motivo').value,
+        ticket_no: document.getElementById('ticket_no').value,
         sede: document.getElementById('sede').value,
-        estado: 'pendiente' // Por defecto
+        nombre_cliente: document.getElementById('nombre_cliente').value,
+        factura_no: document.getElementById('factura_no').value,
+        cantidad: document.getElementById('cantidad').value,
+        fecha_compra: document.getElementById('fecha_compra').value,
+        marca: document.getElementById('marca').value,
+        codigo_articulo: document.getElementById('codigo_articulo').value,
+        serie: document.getElementById('serie').value,
+        descripcion: document.getElementById('descripcion').value,
+        falla: document.getElementById('falla').value,
+        solicitado_por: document.getElementById('solicitado_por').value,
+        aprobado_por: document.getElementById('aprobado_por').value,
+        estado: 'pendiente'
       };
 
-      try {
-        const { error } = await supabase.from('registros').insert([datos]);
+      const { data, error } = await supabase.from('registros').insert([payload]);
 
-        if (error) throw error;
-
-        // Éxito
-        toast.style.display = 'block';
-        form.reset();
-        
-        setTimeout(() => {
-          toast.style.display = 'none';
-          window.location.href = 'index.html'; // Regresar al dashboard
-        }, 2500);
-
-      } catch (err) {
-        alert('Error al guardar: ' + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerText = 'Guardar Registro';
+      if (error) {
+        alert("Error: " + error.message);
+      } else {
+        alert("Formulario Guardado Exitosamente");
+        window.location.href = 'index.html';
       }
     });
   </script>
