@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Formulario de Garantías · Sekunet</title>
+  <title>Garantías · Sekunet</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -63,8 +63,25 @@
       height: 60px; gap: 1rem;
     }
     .topbar-left { display: flex; align-items: center; gap: 1rem; }
-    .logo-mark { display: flex; align-items: center; gap: .75rem; text-decoration: none; }
-    .logo-mark img { height: 32px; width: auto; }
+    .logo-mark {
+      display: flex; align-items: center; gap: .625rem; text-decoration: none;
+      padding: .25rem .5rem .25rem .25rem;
+      border-radius: var(--radius-md);
+      transition: var(--transition);
+    }
+    .logo-mark:hover { background: var(--bg-2); }
+    .logo-img-wrap {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, #D1411E 0%, #8B1A06 100%);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(209,65,30,.35);
+      flex-shrink: 0; overflow: hidden;
+    }
+    .logo-img-wrap img { height: 26px; width: auto; filter: brightness(0) invert(1); }
+    .logo-text-wrap { display: flex; flex-direction: column; gap: 0; line-height: 1; }
+    .logo-brand { font-size: .9375rem; font-weight: 800; color: var(--ink-1); letter-spacing: -.01em; }
+    .logo-sub { font-size: .6rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--brand); margin-top: 1px; }
     .logo-divider { width: 1px; height: 22px; background: var(--border-2); }
     .logo-label { font-size: .6875rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-4); }
     .pill-nav {
@@ -428,9 +445,15 @@
 <!-- TOPBAR -->
 <header class="topbar">
   <div class="topbar-left">
-    <a class="logo-mark" href="#"><img src="data:image/png;base64,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" alt="Sekunet"></a>
-    <div class="logo-divider"></div>
-    <span class="logo-label">Formulario de Garantías</span>
+    <a class="logo-mark" href="#">
+      <div class="logo-img-wrap">
+        <img src="data:image/png;base64,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" alt="Sekunet">
+      </div>
+      <div class="logo-text-wrap">
+        <span class="logo-brand">Sekunet</span>
+        <span class="logo-sub">Garantías</span>
+      </div>
+    </a>
   </div>
   <nav class="pill-nav" role="tablist">
     <button class="pill-btn active" data-tab="formulario" role="tab">
@@ -1571,7 +1594,7 @@ async function captureRecord(r) {
         reject(err);
       }
     };
-    iframe.srcdoc = html.replace('</head>', `<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script></head>`);
+    iframe.srcdoc = html.replace('<\/head>', '<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script><\/head>');
   });
 }
 
@@ -1858,6 +1881,28 @@ async function doDelete(id,boleta){
     updateTabCount();adminUpdateBadges();adminApplyFilters('def');adminApplyFilters('temp');
     showToast('Registro eliminado','info',boleta||id);
   }catch(err){showToast('Error al eliminar','error',err.message);}
+}
+
+
+/* ══ UTILIDADES DE DESARROLLO (stub) ══ */
+function revertBoleta() {
+  consecutiveNum = 29178;
+  renderHeaderBoleta();
+  showToast('Consecutivo revertido a 29178', 'info');
+}
+
+async function deleteTestRecords() {
+  if (!confirm('¿Eliminar registros de prueba (numero_consecutivo > 29300)?')) return;
+  showToast('Eliminando registros de prueba…', 'info');
+  try {
+    await sbFetch('DELETE', TABLE + '?numero_consecutivo=gt.29300', null);
+    allRecords = allRecords.filter(r => (r.numero_consecutivo || 0) <= 29300);
+    rawData.def  = rawData.def.filter(r  => (r.numero_consecutivo || 0) <= 29300);
+    rawData.temp = rawData.temp.filter(r => (r.numero_consecutivo || 0) <= 29300);
+    updateTabCount();
+    if (adminLoaded) { adminUpdateBadges(); adminApplyFilters('def'); adminApplyFilters('temp'); }
+    showToast('Registros de prueba eliminados', 'success');
+  } catch(err) { showToast('Error al eliminar', 'error', err.message); }
 }
 
 /* ══ INIT ══ */
