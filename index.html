@@ -8,18 +8,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    /* ══════════════════════════════════════════
-       DESIGN TOKENS — Light theme from Sekunet logo
-       Primary: #D1411E (logo orange-red)
-       Secondary: #1A1A1A (near black)
-    ══════════════════════════════════════════ */
     :root {
       --brand:        #D1411E;
       --brand-2:      #B5360F;
-      --brand-3:      #F05A32;
       --brand-dim:    rgba(209,65,30,.1);
       --brand-glow:   rgba(209,65,30,.25);
-
       --bg:           #F5F4F2;
       --bg-2:         #EFEDE9;
       --bg-3:         #E8E5E0;
@@ -29,12 +22,10 @@
       --border:       rgba(30,20,10,.08);
       --border-2:     rgba(30,20,10,.13);
       --border-3:     rgba(30,20,10,.22);
-
       --ink-1:        #1A1108;
       --ink-2:        #4A3F32;
       --ink-3:        #7A6E62;
       --ink-4:        #A89E92;
-
       --blue:         #2563EB;
       --blue-dim:     rgba(37,99,235,.1);
       --amber:        #D97706;
@@ -45,230 +36,160 @@
       --red-dim:      rgba(220,38,38,.1);
       --purple:       #7C3AED;
       --purple-dim:   rgba(124,58,237,.1);
-
       --font:         'Plus Jakarta Sans', system-ui, sans-serif;
       --mono:         'DM Mono', monospace;
-
       --radius-xs:    4px;
       --radius-sm:    8px;
       --radius-md:    12px;
       --radius-lg:    16px;
       --radius-xl:    22px;
-
       --shadow-sm:    0 1px 3px rgba(30,20,10,.08), 0 1px 2px rgba(30,20,10,.05);
       --shadow-md:    0 4px 16px rgba(30,20,10,.1), 0 2px 6px rgba(30,20,10,.06);
       --shadow-lg:    0 20px 50px rgba(30,20,10,.15), 0 8px 20px rgba(30,20,10,.08);
       --shadow-brand: 0 4px 16px var(--brand-glow);
-
       --transition:   all .18s cubic-bezier(.4,0,.2,1);
     }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body {
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--ink-1);
-      min-height: 100vh;
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-    }
+    body { font-family: var(--font); background: var(--bg); color: var(--ink-1); min-height: 100vh; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 
-    /* ══════════════════════════════════════════
-       TOPBAR
-    ══════════════════════════════════════════ */
+    /* ── TOPBAR ── */
     .topbar {
       position: sticky; top: 0; z-index: 50;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
+      background: var(--surface); border-bottom: 1px solid var(--border);
       box-shadow: var(--shadow-sm);
       padding: 0 1.75rem;
       display: flex; align-items: center; justify-content: space-between;
       height: 60px; gap: 1rem;
     }
     .topbar-left { display: flex; align-items: center; gap: 1rem; }
-
     .logo-mark { display: flex; align-items: center; gap: .75rem; text-decoration: none; }
-    .logo-mark img {
-      height: 32px; width: auto;
-      /* No filter — show logo as-is */
-    }
+    .logo-mark img { height: 32px; width: auto; }
     .logo-divider { width: 1px; height: 22px; background: var(--border-2); }
-    .logo-label {
-      font-size: .6875rem; font-weight: 700;
-      letter-spacing: .1em; text-transform: uppercase;
-      color: var(--ink-4);
-    }
-
-    /* Pill nav */
+    .logo-label { font-size: .6875rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-4); }
     .pill-nav {
       display: flex; align-items: center;
-      background: var(--bg-2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 3px; gap: 2px;
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 3px; gap: 2px;
     }
     .pill-btn {
       font-family: var(--font); font-size: .8125rem; font-weight: 600;
       color: var(--ink-3); background: none; border: none;
-      padding: .375rem .9rem;
-      border-radius: var(--radius-md); cursor: pointer;
-      transition: var(--transition);
-      display: flex; align-items: center; gap: .4rem;
+      padding: .375rem .9rem; border-radius: var(--radius-md); cursor: pointer;
+      transition: var(--transition); display: flex; align-items: center; gap: .4rem;
       white-space: nowrap; position: relative;
     }
     .pill-btn svg { width: 14px; height: 14px; }
     .pill-btn:hover { color: var(--ink-1); background: var(--surface); }
-    .pill-btn.active {
-      color: var(--ink-1);
-      background: var(--surface);
-      box-shadow: var(--shadow-sm);
-    }
+    .pill-btn.active { color: var(--ink-1); background: var(--surface); box-shadow: var(--shadow-sm); }
     .pill-btn .badge-count {
       background: var(--brand); color: #fff;
-      font-size: .6rem; font-weight: 700;
-      padding: 1px 5px; border-radius: 999px;
+      font-size: .6rem; font-weight: 700; padding: 1px 5px; border-radius: 999px;
       min-width: 16px; text-align: center; line-height: 1.4;
     }
-
     .topbar-right { display: flex; align-items: center; gap: .75rem; }
     .meta-chip {
       display: flex; align-items: center; gap: .5rem;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: .3rem .75rem;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: .3rem .75rem;
     }
     .meta-chip-label { font-size: .6rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-4); }
     .meta-chip-value { font-family: var(--mono); font-size: .75rem; color: var(--ink-2); }
     #boletaChip .meta-chip-value { color: var(--brand); font-weight: 600; }
 
-    /* ══════════════════════════════════════════
-       PANELS
-    ══════════════════════════════════════════ */
+    /* ── PANELS ── */
     .panel { display: none; }
     .panel.active { display: block; }
 
-    /* ══════════════════════════════════════════
-       FORM PANEL
-    ══════════════════════════════════════════ */
-    .form-shell {
-      max-width: 860px; margin: 2rem auto;
-      padding: 0 1.5rem 4rem;
-    }
-
-    /* Progress bar */
-    .progress-bar {
-      display: flex; align-items: center;
-      margin-bottom: 2rem; position: relative;
-    }
+    /* ── FORM ── */
+    .form-shell { max-width: 860px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+    .progress-bar { display: flex; align-items: center; margin-bottom: 2rem; position: relative; }
     .progress-bar::before {
-      content: ''; position: absolute;
-      top: 14px; left: 14px; right: 14px;
+      content: ''; position: absolute; top: 14px; left: 14px; right: 14px;
       height: 1px; background: var(--border-2); z-index: 0;
     }
-    .progress-step {
-      display: flex; flex-direction: column; align-items: center;
-      gap: .375rem; flex: 1; position: relative; z-index: 1;
-    }
+    .progress-step { display: flex; flex-direction: column; align-items: center; gap: .375rem; flex: 1; position: relative; z-index: 1; }
     .step-dot {
       width: 28px; height: 28px; border-radius: 50%;
       border: 2px solid var(--border-2); background: var(--surface);
       display: flex; align-items: center; justify-content: center;
-      font-size: .7rem; font-weight: 700; color: var(--ink-4);
-      transition: var(--transition);
+      font-size: .7rem; font-weight: 700; color: var(--ink-4); transition: var(--transition);
     }
     .step-dot.done { background: var(--green); border-color: var(--green); color: #fff; }
     .step-dot.current { background: var(--brand-dim); border-color: var(--brand); color: var(--brand); box-shadow: 0 0 0 4px var(--brand-dim); }
     .step-label { font-size: .65rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-4); }
     .progress-step.current-step .step-label { color: var(--brand); }
 
-    /* Form section cards */
     .form-section {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      overflow: hidden; margin-bottom: 1rem;
-      box-shadow: var(--shadow-sm);
-      animation: sectionFade .4s ease both;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-xl); overflow: hidden; margin-bottom: 1rem;
+      box-shadow: var(--shadow-sm); animation: sectionFade .4s ease both;
     }
     .form-section:nth-child(2) { animation-delay: .07s; }
     .form-section:nth-child(3) { animation-delay: .14s; }
     @keyframes sectionFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-    .form-section:focus-within {
-      border-color: var(--border-2);
-      box-shadow: var(--shadow-md);
-    }
-
+    .form-section:focus-within { border-color: var(--border-2); box-shadow: var(--shadow-md); }
     .section-head {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 1rem 1.25rem;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface-2);
+      padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); background: var(--surface-2);
     }
     .section-head-left { display: flex; align-items: center; gap: .75rem; }
-    .section-icon {
-      width: 32px; height: 32px; border-radius: var(--radius-sm);
-      display: flex; align-items: center; justify-content: center;
-    }
+    .section-icon { width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; }
     .section-icon svg { width: 16px; height: 16px; }
-    .section-icon-brand  { background: var(--brand-dim); color: var(--brand); }
-    .section-icon-amber  { background: var(--amber-dim); color: var(--amber); }
-    .section-icon-green  { background: var(--green-dim); color: var(--green); }
-
-    .section-name {
-      font-size: .9375rem; font-weight: 700; color: var(--ink-1); line-height: 1.2;
-    }
+    .section-icon-brand { background: var(--brand-dim); color: var(--brand); }
+    .section-icon-amber { background: var(--amber-dim); color: var(--amber); }
+    .section-icon-green { background: var(--green-dim); color: var(--green); }
+    .section-name { font-size: .9375rem; font-weight: 700; color: var(--ink-1); line-height: 1.2; }
     .section-sub { font-size: .75rem; color: var(--ink-3); }
-    .section-req {
-      font-size: .6rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
-      color: var(--brand); padding: .2rem .6rem;
-      border: 1px solid var(--brand-dim); border-radius: var(--radius-xs);
-      background: var(--brand-dim);
-    }
-
+    .section-req { font-size: .6rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--brand); padding: .2rem .6rem; border: 1px solid var(--brand-dim); border-radius: var(--radius-xs); background: var(--brand-dim); }
     .section-body { padding: 1.25rem; }
     .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .75rem; }
     .form-grid + .form-grid { margin-top: .75rem; }
     .col-full { grid-column: 1 / -1; }
-
-    /* Fields */
-    .field { display: flex; flex-direction: column; gap: 0; }
-    .field-label {
-      font-size: .65rem; font-weight: 700;
-      letter-spacing: .08em; text-transform: uppercase;
-      color: var(--ink-3); padding: 0 0 .375rem;
-    }
+    .field { display: flex; flex-direction: column; gap: 0; position: relative; }
+    .field-label { font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); padding: 0 0 .375rem; }
     .field-input, .field-select, .field-textarea {
-      font-family: var(--font); font-size: .875rem;
-      color: var(--ink-1);
-      background: var(--bg-2);
-      border: 1.5px solid var(--border-2);
-      border-radius: var(--radius-sm);
-      padding: .5625rem .8rem;
-      transition: var(--transition);
-      width: 100%; outline: none;
+      font-family: var(--font); font-size: .875rem; color: var(--ink-1);
+      background: var(--bg-2); border: 1.5px solid var(--border-2);
+      border-radius: var(--radius-sm); padding: .5625rem .8rem;
+      transition: var(--transition); width: 100%; outline: none;
     }
-    .field-select {
-      appearance: none; cursor: pointer;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237A6E62' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right .75rem center; padding-right: 2.25rem;
-    }
+    .field-select { appearance: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237A6E62' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right .75rem center; padding-right: 2.25rem; }
     .field-textarea { resize: vertical; min-height: 76px; }
-    /* NO placeholder text */
     .field-input::placeholder, .field-textarea::placeholder { color: transparent; }
     .field-input:hover, .field-select:hover, .field-textarea:hover { border-color: var(--border-3); }
-    .field-input:focus, .field-select:focus, .field-textarea:focus {
-      border-color: var(--brand); background: var(--surface);
-      box-shadow: 0 0 0 3px var(--brand-dim);
-    }
-    .field-input.error, .field-select.error, .field-textarea.error {
-      border-color: var(--red); box-shadow: 0 0 0 3px var(--red-dim);
-    }
-    .field-input.filled, .field-select.filled, .field-textarea.filled {
-      border-color: rgba(5,150,105,.3); background: var(--surface);
-    }
+    .field-input:focus, .field-select:focus, .field-textarea:focus { border-color: var(--brand); background: var(--surface); box-shadow: 0 0 0 3px var(--brand-dim); }
+    .field-input.error, .field-select.error, .field-textarea.error { border-color: var(--red); box-shadow: 0 0 0 3px var(--red-dim); }
+    .field-input.filled, .field-select.filled, .field-textarea.filled { border-color: rgba(5,150,105,.3); background: var(--surface); }
+    .field-input:disabled, .field-textarea:disabled { background: var(--bg-3); color: var(--ink-3); cursor: not-allowed; border-color: var(--border); opacity: 1; }
     select option { background: #fff; color: #1A1108; }
+
+    /* Serie autocomplete */
+    .serie-wrapper { position: relative; }
+    .serie-status {
+      position: absolute; right: .75rem; top: 50%; transform: translateY(-50%);
+      font-size: .65rem; font-weight: 700; letter-spacing: .05em;
+      padding: .15rem .4rem; border-radius: var(--radius-xs);
+      pointer-events: none;
+    }
+    .serie-status.found { background: var(--green-dim); color: var(--green); }
+    .serie-status.notfound { background: var(--red-dim); color: var(--red); }
+    .autocomplete-dropdown {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 100;
+      background: var(--surface); border: 1.5px solid var(--border-2);
+      border-radius: var(--radius-md); box-shadow: var(--shadow-md);
+      max-height: 220px; overflow-y: auto;
+    }
+    .autocomplete-item {
+      padding: .625rem .875rem; cursor: pointer; border-bottom: 1px solid var(--border);
+      transition: background .1s;
+    }
+    .autocomplete-item:last-child { border-bottom: none; }
+    .autocomplete-item:hover, .autocomplete-item.highlighted { background: var(--brand-dim); }
+    .ac-serie { font-family: var(--mono); font-size: .8rem; font-weight: 600; color: var(--ink-1); }
+    .ac-desc { font-size: .75rem; color: var(--ink-3); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ac-marca { font-size: .7rem; color: var(--brand); font-weight: 600; margin-top: 1px; }
+    .autocomplete-empty { padding: .75rem .875rem; font-size: .8rem; color: var(--ink-4); text-align: center; }
 
     /* Form actions */
     .form-actions {
@@ -281,138 +202,94 @@
     .form-actions-left { display: flex; align-items: center; gap: .5rem; }
     .form-actions-right { display: flex; align-items: center; gap: .5rem; }
     .form-hint { font-size: .75rem; color: var(--ink-4); }
-    .form-hint strong { color: var(--ink-3); font-family: var(--mono); }
+    .form-hint strong { color: var(--brand); font-family: var(--mono); font-size: .8rem; }
 
-    /* ══════════════════════════════════════════
-       BUTTONS
-    ══════════════════════════════════════════ */
+    /* ── BUTTONS ── */
     .btn {
       font-family: var(--font); font-size: .8125rem; font-weight: 700;
-      letter-spacing: .01em;
-      border: none; border-radius: var(--radius-sm);
-      padding: .5rem 1rem;
-      cursor: pointer;
-      display: inline-flex; align-items: center; gap: .4rem;
-      transition: var(--transition);
-      white-space: nowrap; position: relative; overflow: hidden;
+      border: none; border-radius: var(--radius-sm); padding: .5rem 1rem;
+      cursor: pointer; display: inline-flex; align-items: center; gap: .4rem;
+      transition: var(--transition); white-space: nowrap; position: relative; overflow: hidden;
     }
     .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
     .btn:active { transform: scale(.97); }
-
-    .btn-primary {
-      background: var(--brand); color: #fff;
-      box-shadow: var(--shadow-brand);
-    }
+    .btn-primary { background: var(--brand); color: #fff; box-shadow: var(--shadow-brand); }
     .btn-primary:hover { background: var(--brand-2); box-shadow: 0 6px 20px var(--brand-glow); transform: translateY(-1px); }
     .btn-primary:disabled { background: var(--ink-4); color: #fff; cursor: not-allowed; box-shadow: none; transform: none; opacity: .6; }
-
     .btn-ghost { background: var(--bg-3); color: var(--ink-2); border: 1px solid var(--border-2); }
     .btn-ghost:hover { background: var(--bg-2); color: var(--ink-1); }
-
     .btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid rgba(220,38,38,.2); }
     .btn-danger:hover { background: var(--red); color: #fff; }
-
     .btn-success { background: var(--green-dim); color: var(--green); border: 1px solid rgba(5,150,105,.2); }
     .btn-success:hover { background: var(--green); color: #fff; }
-
     .btn-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(217,119,6,.2); }
     .btn-amber:hover { background: var(--amber); color: #fff; }
-
+    .btn-blue { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(37,99,235,.2); }
+    .btn-blue:hover { background: var(--blue); color: #fff; }
     .btn-lg { padding: .6875rem 1.5rem; font-size: .9375rem; border-radius: var(--radius-md); }
     .btn-sm { padding: .3rem .625rem; font-size: .7rem; border-radius: var(--radius-xs); }
-    .btn-icon { padding: .4rem; border-radius: var(--radius-sm); }
 
-    /* Save modal buttons */
-    .save-modal-backdrop {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,.4); backdrop-filter: blur(6px);
-      z-index: 400; align-items: center; justify-content: center; padding: 1rem;
-    }
+    /* ── SAVE MODAL ── */
+    .save-modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); backdrop-filter: blur(6px); z-index: 400; align-items: center; justify-content: center; padding: 1rem; }
     .save-modal-backdrop.open { display: flex; animation: fadeIn .2s ease; }
-    .save-modal {
-      background: var(--surface); border: 1px solid var(--border-2);
-      border-radius: var(--radius-xl); padding: 2rem;
-      max-width: 360px; width: 100%;
-      box-shadow: var(--shadow-lg);
-      animation: slideUp .25s cubic-bezier(.4,0,.2,1);
-      text-align: center;
-    }
-    .save-modal-title {
-      font-size: 1.0625rem; font-weight: 800; color: var(--ink-1);
-      margin-bottom: .375rem;
-    }
-    .save-modal-sub {
-      font-size: .8125rem; color: var(--ink-3); margin-bottom: 1.5rem;
-    }
+    .save-modal { background: var(--surface); border: 1px solid var(--border-2); border-radius: var(--radius-xl); padding: 2rem; max-width: 360px; width: 100%; box-shadow: var(--shadow-lg); animation: slideUp .25s cubic-bezier(.4,0,.2,1); text-align: center; }
+    .save-modal-title { font-size: 1.0625rem; font-weight: 800; color: var(--ink-1); margin-bottom: .375rem; }
+    .save-modal-sub { font-size: .8125rem; color: var(--ink-3); margin-bottom: 1.5rem; }
     .save-options { display: flex; flex-direction: column; gap: .625rem; }
-    .save-opt-btn {
-      display: flex; align-items: center; gap: .875rem;
-      padding: .875rem 1.125rem;
-      border-radius: var(--radius-md);
-      border: 1.5px solid var(--border-2);
-      background: var(--surface-2);
-      cursor: pointer; text-align: left;
-      transition: var(--transition); width: 100%; font-family: var(--font);
-    }
+    .save-opt-btn { display: flex; align-items: center; gap: .875rem; padding: .875rem 1.125rem; border-radius: var(--radius-md); border: 1.5px solid var(--border-2); background: var(--surface-2); cursor: pointer; text-align: left; transition: var(--transition); width: 100%; font-family: var(--font); }
     .save-opt-btn:hover { border-color: var(--brand); background: var(--brand-dim); }
-    .save-opt-icon {
-      width: 36px; height: 36px; border-radius: var(--radius-sm);
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
+    .save-opt-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .save-opt-icon svg { width: 18px; height: 18px; }
-    .save-opt-icon.ic-img { background: var(--blue-dim); color: var(--blue); }
-    .save-opt-icon.ic-pdf { background: var(--red-dim); color: var(--red); }
-    .save-opt-icon.ic-copy { background: var(--green-dim); color: var(--green); }
+    .save-opt-icon.ic-img  { background: var(--blue-dim); color: var(--blue); }
+    .save-opt-icon.ic-pdf  { background: var(--red-dim);  color: var(--red); }
+    .save-opt-icon.ic-copy { background: var(--green-dim);color: var(--green); }
     .save-opt-label { font-size: .875rem; font-weight: 700; color: var(--ink-1); }
-    .save-opt-desc { font-size: .7rem; color: var(--ink-4); margin-top: .1rem; }
+    .save-opt-desc  { font-size: .7rem; color: var(--ink-4); margin-top: .1rem; }
     .save-cancel { margin-top: 1rem; font-size: .8125rem; color: var(--ink-4); cursor: pointer; background: none; border: none; font-family: var(--font); }
     .save-cancel:hover { color: var(--ink-2); }
 
-    /* ══════════════════════════════════════════
-       PANEL: REGISTROS
-    ══════════════════════════════════════════ */
-    .records-shell {
-      max-width: 1100px; margin: 2rem auto;
-      padding: 0 1.5rem 4rem;
-    }
-    .toolbar {
+    /* ── INVENTARIO PANEL ── */
+    .inv-shell { max-width: 1200px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+    .inv-toolbar {
       display: flex; align-items: center; justify-content: space-between;
-      gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;
+      gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap;
     }
+    .inv-toolbar-left { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+    .inv-toolbar-right { display: flex; align-items: center; gap: .5rem; }
+    .inv-title { font-size: 1.125rem; font-weight: 800; color: var(--ink-1); }
+    .inv-sub   { font-size: .8125rem; color: var(--ink-4); margin-top: .1rem; }
+    .inv-stats { display: flex; gap: .5rem; align-items: center; }
+    .inv-stat-chip { font-size: .7rem; color: var(--ink-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: .2rem .6rem; font-family: var(--mono); }
     .search-box {
       display: flex; align-items: center; gap: .5rem;
       background: var(--surface); border: 1.5px solid var(--border-2);
-      border-radius: var(--radius-md); padding: .4rem .875rem;
-      transition: var(--transition);
+      border-radius: var(--radius-md); padding: .4rem .875rem; transition: var(--transition);
     }
     .search-box:focus-within { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-dim); }
     .search-box svg { width: 14px; height: 14px; color: var(--ink-4); flex-shrink: 0; }
-    .search-box input {
-      background: none; border: none; outline: none;
-      font-family: var(--font); font-size: .875rem; color: var(--ink-1); width: 240px;
-    }
+    .search-box input { background: none; border: none; outline: none; font-family: var(--font); font-size: .875rem; color: var(--ink-1); width: 240px; }
     .search-box input::placeholder { color: var(--ink-4); }
 
-    .table-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius-xl); overflow: hidden;
-      box-shadow: var(--shadow-sm);
+    /* Upload area */
+    .upload-zone {
+      border: 2px dashed var(--border-2); border-radius: var(--radius-xl);
+      background: var(--surface-2); padding: 2.5rem;
+      text-align: center; transition: var(--transition); cursor: pointer;
+      margin-bottom: 1.25rem;
     }
+    .upload-zone:hover, .upload-zone.drag-over { border-color: var(--brand); background: var(--brand-dim); }
+    .upload-zone-icon { width: 48px; height: 48px; background: var(--brand-dim); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto .875rem; }
+    .upload-zone-icon svg { width: 24px; height: 24px; color: var(--brand); }
+    .upload-zone-title { font-size: .9375rem; font-weight: 700; color: var(--ink-1); margin-bottom: .25rem; }
+    .upload-zone-sub { font-size: .8125rem; color: var(--ink-3); }
+    .upload-zone-sub strong { color: var(--brand); }
+    #invFileInput { display: none; }
 
-    /* ══════════════════════════════════════════
-       TABLE
-    ══════════════════════════════════════════ */
+    .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-sm); }
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: .8125rem; }
     thead { border-bottom: 1.5px solid var(--border-2); }
-    thead th {
-      padding: .75rem 1rem; text-align: left;
-      font-size: .6rem; font-weight: 800;
-      letter-spacing: .1em; text-transform: uppercase;
-      color: var(--ink-4); white-space: nowrap;
-      background: var(--surface-2);
-    }
+    thead th { padding: .75rem 1rem; text-align: left; font-size: .6rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-4); white-space: nowrap; background: var(--surface-2); }
     thead th.sortable { cursor: pointer; user-select: none; }
     thead th.sortable:hover { color: var(--ink-2); }
     thead th.sorted { color: var(--brand); }
@@ -427,68 +304,35 @@
     .td-actions { display: flex; gap: .375rem; }
     .empty-row td { padding: 3rem 1rem; text-align: center; color: var(--ink-4); }
     .empty-row svg { display: block; margin: 0 auto .75rem; opacity: .25; }
-    tbody tr { animation: rowFade .3s ease both; }
+    tbody tr { animation: rowFade .25s ease both; }
     @keyframes rowFade { from { opacity: 0; transform: translateX(-4px); } to { opacity: 1; transform: none; } }
 
-    /* ══════════════════════════════════════════
-       BADGES
-    ══════════════════════════════════════════ */
-    .badge {
-      display: inline-flex; align-items: center; gap: .3rem;
-      font-size: .65rem; font-weight: 700;
-      padding: .2rem .5rem; border-radius: 999px;
-      letter-spacing: .04em; white-space: nowrap;
-    }
+    /* ── BADGES ── */
+    .badge { display: inline-flex; align-items: center; gap: .3rem; font-size: .65rem; font-weight: 700; padding: .2rem .5rem; border-radius: 999px; letter-spacing: .04em; white-space: nowrap; }
     .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
     .badge-brand  { background: var(--brand-dim); color: var(--brand); }
     .badge-blue   { background: var(--blue-dim);  color: var(--blue); }
     .badge-amber  { background: var(--amber-dim); color: var(--amber); }
     .badge-green  { background: var(--green-dim); color: var(--green); }
-    .badge-red    { background: var(--red-dim);   color: var(--red); }
     .badge-purple { background: var(--purple-dim);color: var(--purple); }
     .badge-muted  { background: var(--bg-3);      color: var(--ink-3); }
 
-    /* ══════════════════════════════════════════
-       PANEL: ADMIN
-    ══════════════════════════════════════════ */
+    /* ── ADMIN ── */
     .admin-shell { display: flex; min-height: calc(100vh - 60px); }
-    .admin-rail {
-      width: 200px; flex-shrink: 0;
-      background: var(--surface); border-right: 1px solid var(--border);
-      padding: 1.25rem .75rem;
-      display: flex; flex-direction: column; gap: .25rem;
-      position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto;
-    }
-    .rail-label {
-      font-size: .6rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
-      color: var(--ink-4); padding: 0 .5rem .5rem;
-    }
-    .rail-item {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: .5rem .75rem; border-radius: var(--radius-md);
-      color: var(--ink-3); font-size: .8125rem; font-weight: 600;
-      cursor: pointer; border: none; background: none; width: 100%;
-      text-align: left; transition: var(--transition);
-    }
+    .admin-rail { width: 200px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); padding: 1.25rem .75rem; display: flex; flex-direction: column; gap: .25rem; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto; }
+    .rail-label { font-size: .6rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-4); padding: 0 .5rem .5rem; }
+    .rail-item { display: flex; align-items: center; justify-content: space-between; padding: .5rem .75rem; border-radius: var(--radius-md); color: var(--ink-3); font-size: .8125rem; font-weight: 600; cursor: pointer; border: none; background: none; width: 100%; text-align: left; transition: var(--transition); }
     .rail-item-left { display: flex; align-items: center; gap: .5rem; }
     .rail-item svg { width: 15px; height: 15px; }
     .rail-item:hover { background: var(--bg-2); color: var(--ink-1); }
     .rail-item.active { background: var(--brand-dim); color: var(--brand); font-weight: 700; }
     .rail-count { font-family: var(--mono); font-size: .6875rem; color: var(--ink-4); }
     .rail-item.active .rail-count { color: var(--brand); }
-
     .admin-content { flex: 1; padding: 1.75rem; min-width: 0; }
     .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
-    .stat-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius-lg); padding: 1.125rem 1.25rem;
-      position: relative; overflow: hidden;
-      box-shadow: var(--shadow-sm); transition: var(--transition);
-    }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.125rem 1.25rem; position: relative; overflow: hidden; box-shadow: var(--shadow-sm); transition: var(--transition); }
     .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
-    .stat-card::after {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    }
+    .stat-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
     .stat-card.c-brand::after { background: linear-gradient(90deg, var(--brand), transparent); }
     .stat-card.c-blue::after  { background: linear-gradient(90deg, var(--blue),  transparent); }
     .stat-card.c-green::after { background: linear-gradient(90deg, var(--green), transparent); }
@@ -500,13 +344,8 @@
     .stat-card.c-green .stat-value { color: var(--green); }
     .stat-card.c-purple .stat-value { color: var(--purple); }
     .stat-sub { font-size: .7rem; color: var(--ink-4); margin-top: .25rem; }
-
     .data-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); overflow: hidden; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); }
-    .data-panel-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: .875rem 1.25rem; border-bottom: 1.5px solid var(--border-2);
-      gap: 1rem; flex-wrap: wrap; background: var(--surface-2);
-    }
+    .data-panel-header { display: flex; align-items: center; justify-content: space-between; padding: .875rem 1.25rem; border-bottom: 1.5px solid var(--border-2); gap: 1rem; flex-wrap: wrap; background: var(--surface-2); }
     .data-panel-title { display: flex; align-items: center; gap: .625rem; }
     .panel-dot { width: 8px; height: 8px; border-radius: 50%; }
     .dot-brand { background: var(--brand); box-shadow: 0 0 6px var(--brand-glow); }
@@ -514,77 +353,38 @@
     .data-panel-actions { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
     .date-filter { display: flex; align-items: center; gap: .375rem; }
     .date-filter label { font-size: .7rem; color: var(--ink-4); font-weight: 600; }
-    .date-input {
-      font-family: var(--mono); font-size: .7rem;
-      background: var(--bg-2); border: 1px solid var(--border-2);
-      border-radius: var(--radius-xs);
-      padding: .3rem .5rem; color: var(--ink-2); outline: none; width: 125px;
-    }
+    .date-input { font-family: var(--mono); font-size: .7rem; background: var(--bg-2); border: 1px solid var(--border-2); border-radius: var(--radius-xs); padding: .3rem .5rem; color: var(--ink-2); outline: none; width: 125px; }
     .date-input:focus { border-color: var(--brand); }
 
-    /* ══════════════════════════════════════════
-       MODALS
-    ══════════════════════════════════════════ */
-    .modal-backdrop {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,.4); backdrop-filter: blur(8px);
-      z-index: 200; align-items: center; justify-content: center; padding: 1rem;
-    }
+    /* ── MODALS ── */
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); backdrop-filter: blur(8px); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
     .modal-backdrop.open { display: flex; animation: fadeIn .2s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .modal {
-      background: var(--surface); border: 1.5px solid var(--border-2);
-      border-radius: var(--radius-xl); width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto;
-      box-shadow: var(--shadow-lg);
-      animation: slideUp .25s cubic-bezier(.4,0,.2,1);
-    }
+    .modal { background: var(--surface); border: 1.5px solid var(--border-2); border-radius: var(--radius-xl); width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); animation: slideUp .25s cubic-bezier(.4,0,.2,1); }
     @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: none; opacity: 1; } }
-    .modal-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
-      background: var(--surface-2); border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-    }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); background: var(--surface-2); border-radius: var(--radius-xl) var(--radius-xl) 0 0; }
     .modal-title-row { display: flex; align-items: center; gap: .625rem; }
     .modal-icon { width: 30px; height: 30px; background: var(--amber-dim); border-radius: var(--radius-xs); display: flex; align-items: center; justify-content: center; }
     .modal-icon svg { width: 15px; height: 15px; color: var(--amber); }
     .modal-title { font-size: .9375rem; font-weight: 800; color: var(--ink-1); }
-    .modal-close {
-      background: var(--bg-3); border: none; border-radius: var(--radius-xs);
-      color: var(--ink-3); cursor: pointer; font-size: 1rem;
-      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-      transition: var(--transition);
-    }
+    .modal-close { background: var(--bg-3); border: none; border-radius: var(--radius-xs); color: var(--ink-3); cursor: pointer; font-size: 1rem; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
     .modal-close:hover { background: var(--red-dim); color: var(--red); }
     .modal-body { padding: 1.25rem; }
     .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
     .modal-grid .field-full { grid-column: 1 / -1; }
     .modal-footer { padding: 1rem 1.25rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: .5rem; }
-
-    /* Confirm */
     .confirm-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); backdrop-filter: blur(8px); z-index: 300; align-items: center; justify-content: center; }
     .confirm-backdrop.open { display: flex; animation: fadeIn .2s ease; }
-    .confirm-box {
-      background: var(--surface); border: 1.5px solid var(--border-2);
-      border-radius: var(--radius-xl); padding: 2rem; max-width: 360px; width: 90%;
-      box-shadow: var(--shadow-lg); animation: slideUp .25s cubic-bezier(.4,0,.2,1); text-align: center;
-    }
+    .confirm-box { background: var(--surface); border: 1.5px solid var(--border-2); border-radius: var(--radius-xl); padding: 2rem; max-width: 360px; width: 90%; box-shadow: var(--shadow-lg); animation: slideUp .25s cubic-bezier(.4,0,.2,1); text-align: center; }
     .confirm-icon-wrap { width: 48px; height: 48px; border-radius: 50%; background: var(--red-dim); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
     .confirm-icon-wrap svg { width: 22px; height: 22px; color: var(--red); }
     .confirm-title { font-size: 1rem; font-weight: 800; color: var(--ink-1); margin-bottom: .4rem; }
     .confirm-msg { font-size: .8125rem; color: var(--ink-3); margin-bottom: 1.5rem; line-height: 1.6; }
     .confirm-btns { display: flex; justify-content: center; gap: .5rem; }
 
-    /* ══════════════════════════════════════════
-       TOAST
-    ══════════════════════════════════════════ */
+    /* ── TOAST ── */
     #toastContainer { position: fixed; top: 76px; right: 1.25rem; z-index: 9999; display: flex; flex-direction: column; gap: .5rem; }
-    .toast {
-      display: flex; align-items: flex-start; gap: .625rem;
-      background: var(--surface); border: 1.5px solid var(--border-2);
-      border-radius: var(--radius-lg); padding: .75rem 1rem;
-      box-shadow: var(--shadow-lg); min-width: 260px; max-width: 340px;
-      animation: slideInRight .25s cubic-bezier(.4,0,.2,1);
-    }
+    .toast { display: flex; align-items: flex-start; gap: .625rem; background: var(--surface); border: 1.5px solid var(--border-2); border-radius: var(--radius-lg); padding: .75rem 1rem; box-shadow: var(--shadow-lg); min-width: 260px; max-width: 340px; animation: slideInRight .25s cubic-bezier(.4,0,.2,1); }
     @keyframes slideInRight { from { transform: translateX(20px); opacity: 0; } to { transform: none; opacity: 1; } }
     .toast-icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: .1rem; }
     .toast-icon svg { width: 11px; height: 11px; }
@@ -594,87 +394,41 @@
     .toast-body { flex: 1; }
     .toast-title { font-size: .8rem; font-weight: 700; color: var(--ink-1); line-height: 1.3; }
     .toast-sub   { font-size: .75rem; color: var(--ink-3); margin-top: .1rem; }
-
-    /* Spinner */
     .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(0,0,0,.15); border-top-color: currentColor; border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ══════════════════════════════════════════
-       PRINT / PDF FORM (compact)
-    ══════════════════════════════════════════ */
-    #printForm {
-      position: fixed; left: -9999px; top: 0;
-      width: 794px; /* A4 width at 96dpi */
-      background: #fff; padding: 32px 36px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 11px; color: #1A1108;
-    }
-    #printForm .pf-header {
-      display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 2px solid #D1411E; padding-bottom: 14px; margin-bottom: 18px;
-    }
-    #printForm .pf-logo-area { display: flex; align-items: center; gap: 12px; }
+    /* ── PRINT FORM ── */
+    #printForm { position: fixed; left: -9999px; top: 0; width: 794px; background: #fff; padding: 32px 36px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; color: #1A1108; }
+    #printForm .pf-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #D1411E; padding-bottom: 14px; margin-bottom: 18px; }
     #printForm .pf-logo { height: 36px; }
     #printForm .pf-title-area { text-align: right; }
     #printForm .pf-main-title { font-size: 20px; font-weight: 800; color: #D1411E; line-height: 1; }
     #printForm .pf-boleta { font-size: 13px; font-weight: 700; color: #1A1108; margin-top: 4px; }
     #printForm .pf-date { font-size: 10px; color: #7A6E62; margin-top: 2px; }
     #printForm .pf-section { margin-bottom: 14px; }
-    #printForm .pf-section-title {
-      font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
-      color: #D1411E; border-bottom: 1px solid #F2F0EC; padding-bottom: 4px; margin-bottom: 8px;
-    }
-    #printForm .pf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    #printForm .pf-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    #printForm .pf-section-title { font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #D1411E; border-bottom: 1px solid #F2F0EC; padding-bottom: 4px; margin-bottom: 8px; }
+    #printForm .pf-grid  { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    #printForm .pf-grid-2{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     #printForm .pf-field { display: flex; flex-direction: column; gap: 2px; }
     #printForm .pf-field.pf-full { grid-column: 1 / -1; }
     #printForm .pf-label { font-size: 8px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #A89E92; }
-    #printForm .pf-value {
-      font-size: 11px; font-weight: 500; color: #1A1108;
-      border-bottom: 1px solid #E8E5E0; padding-bottom: 3px; min-height: 18px;
-    }
+    #printForm .pf-value { font-size: 11px; font-weight: 500; color: #1A1108; border-bottom: 1px solid #E8E5E0; padding-bottom: 3px; min-height: 18px; }
     #printForm .pf-value.pf-text-area { min-height: 36px; white-space: pre-wrap; }
-    #printForm .pf-footer {
-      margin-top: 20px; border-top: 1px solid #E8E5E0; padding-top: 12px;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
-    }
+    #printForm .pf-footer { margin-top: 20px; border-top: 1px solid #E8E5E0; padding-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     #printForm .pf-sig-line { border-bottom: 1px solid #1A1108; margin-top: 28px; }
     #printForm .pf-sig-label { font-size: 8px; color: #A89E92; margin-top: 4px; }
-    #printForm .pf-badge {
-      display: inline-block; font-size: 9px; font-weight: 700;
-      padding: 2px 8px; border-radius: 999px; margin-left: 6px;
-    }
-    #printForm .pf-badge-brand { background: rgba(209,65,30,.12); color: #D1411E; }
-    #printForm .pf-badge-blue  { background: rgba(37,99,235,.12);  color: #2563EB; }
-    #printForm .pf-badge-green { background: rgba(5,150,105,.12);  color: #059669; }
 
-    /* ══════════════════════════════════════════
-       RESPONSIVE
-    ══════════════════════════════════════════ */
-    @media (max-width: 768px) {
-      .admin-rail { display: none; }
-      .stat-grid { grid-template-columns: 1fr 1fr; }
-      .modal-grid { grid-template-columns: 1fr; }
-      .modal-grid .field-full { grid-column: 1; }
-    }
-    @media (max-width: 600px) {
-      .topbar { padding: 0 1rem; }
-      .pill-btn { padding: .35rem .625rem; font-size: .7rem; }
-      .pill-btn span.label { display: none; }
-      .form-grid { grid-template-columns: 1fr; }
-      .form-actions { flex-direction: column; }
-      .meta-chip { display: none; }
-      .search-box input { width: 160px; }
-    }
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) { .admin-rail { display: none; } .stat-grid { grid-template-columns: 1fr 1fr; } .modal-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .topbar { padding: 0 1rem; } .pill-btn { padding: .35rem .625rem; font-size: .7rem; } .pill-btn span.label { display: none; } .form-grid { grid-template-columns: 1fr; } .form-actions { flex-direction: column; } .meta-chip { display: none; } .search-box input { width: 160px; } }
   </style>
 </head>
 <body>
 
+<!-- TOPBAR -->
 <header class="topbar">
   <div class="topbar-left">
-    <a class="logo-mark" href="#">
-      <img src="data:image/png;base64,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" alt="Sekunet">
-    </a>
+    <a class="logo-mark" href="#"><img src="data:image/png;base64,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" alt="Sekunet"></a>
     <div class="logo-divider"></div>
     <span class="logo-label">Garantías</span>
   </div>
@@ -683,10 +437,10 @@
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
       <span class="label">Nuevo Registro</span>
     </button>
-    <button class="pill-btn" data-tab="registros" role="tab">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-      <span class="label">Registros</span>
-      <span class="badge-count" id="tabCount" style="display:none">0</span>
+    <button class="pill-btn" data-tab="inventario" role="tab">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+      <span class="label">Inventario</span>
+      <span class="badge-count" id="invCount" style="display:none">0</span>
     </button>
     <button class="pill-btn" data-tab="admin" role="tab">
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
@@ -699,7 +453,7 @@
       <span class="meta-chip-value" id="headerDate">—</span>
     </div>
     <div class="meta-chip" id="boletaChip">
-      <span class="meta-chip-label">Próxima Boleta</span>
+      <span class="meta-chip-label">Número de Boleta</span>
       <span class="meta-chip-value" id="headerBoleta">—</span>
     </div>
   </div>
@@ -711,33 +465,18 @@
 <div class="panel active" id="panel-formulario">
   <div class="form-shell">
     <div class="progress-bar" id="progressBar">
-      <div class="progress-step current-step" data-step="0">
-        <div class="step-dot current">1</div>
-        <span class="step-label">Tipo</span>
-      </div>
-      <div class="progress-step" data-step="1">
-        <div class="step-dot">2</div>
-        <span class="step-label">Cliente</span>
-      </div>
-      <div class="progress-step" data-step="2">
-        <div class="step-dot">3</div>
-        <span class="step-label">Producto</span>
-      </div>
+      <div class="progress-step current-step"><div class="step-dot current">1</div><span class="step-label">Tipo</span></div>
+      <div class="progress-step"><div class="step-dot">2</div><span class="step-label">Cliente</span></div>
+      <div class="progress-step"><div class="step-dot">3</div><span class="step-label">Producto</span></div>
     </div>
-
     <form id="warrantyForm" novalidate>
 
-      <!-- SECCIÓN 1: Clasificación -->
+      <!-- Sección 1: Clasificación -->
       <div class="form-section">
         <div class="section-head">
           <div class="section-head-left">
-            <div class="section-icon section-icon-brand">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
-            </div>
-            <div>
-              <div class="section-name">Clasificación</div>
-              <div class="section-sub">Tipo, categoría y motivo</div>
-            </div>
+            <div class="section-icon section-icon-brand"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg></div>
+            <div><div class="section-name">Clasificación</div><div class="section-sub">Tipo, categoría y motivo</div></div>
           </div>
           <span class="section-req">Requerido</span>
         </div>
@@ -776,53 +515,31 @@
         </div>
       </div>
 
-      <!-- SECCIÓN 2: Cliente -->
+      <!-- Sección 2: Cliente -->
       <div class="form-section">
         <div class="section-head">
           <div class="section-head-left">
-            <div class="section-icon section-icon-amber">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-            </div>
-            <div>
-              <div class="section-name">Información del Cliente</div>
-              <div class="section-sub">Ticket, sede, nombre y factura</div>
-            </div>
+            <div class="section-icon section-icon-amber"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>
+            <div><div class="section-name">Información del Cliente</div><div class="section-sub">Ticket, sede, nombre y factura</div></div>
           </div>
           <span class="section-req">Requerido</span>
         </div>
         <div class="section-body">
           <div class="form-grid">
-            <div class="field">
-              <label class="field-label" for="ticket">Ticket N°</label>
-              <input id="ticket" name="ticket" type="text" class="field-input" required>
-            </div>
-            <div class="field">
-              <label class="field-label" for="sede">Sede</label>
-              <input id="sede" name="sede" type="text" class="field-input" required>
-            </div>
-            <div class="field">
-              <label class="field-label" for="nombre">Nombre del Cliente</label>
-              <input id="nombre" name="nombre" type="text" class="field-input" required>
-            </div>
-            <div class="field">
-              <label class="field-label" for="factura">Factura N°</label>
-              <input id="factura" name="factura" type="text" class="field-input" required>
-            </div>
+            <div class="field"><label class="field-label" for="ticket">Ticket N°</label><input id="ticket" name="ticket" type="text" class="field-input" required></div>
+            <div class="field"><label class="field-label" for="sede">Sede</label><input id="sede" name="sede" type="text" class="field-input" required></div>
+            <div class="field"><label class="field-label" for="nombre">Nombre del Cliente</label><input id="nombre" name="nombre" type="text" class="field-input" required></div>
+            <div class="field"><label class="field-label" for="factura">Factura N°</label><input id="factura" name="factura" type="text" class="field-input" required></div>
           </div>
         </div>
       </div>
 
-      <!-- SECCIÓN 3: Producto -->
+      <!-- Sección 3: Producto -->
       <div class="form-section">
         <div class="section-head">
           <div class="section-head-left">
-            <div class="section-icon section-icon-green">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-            </div>
-            <div>
-              <div class="section-name">Información del Producto</div>
-              <div class="section-sub">Artículo, falla y descripción</div>
-            </div>
+            <div class="section-icon section-icon-green"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div>
+            <div><div class="section-name">Información del Producto</div><div class="section-sub">Buscar por serie — marca y descripción se llenan desde el inventario</div></div>
           </div>
           <span class="section-req">Requerido</span>
         </div>
@@ -836,22 +553,32 @@
               <label class="field-label" for="fechaCompra">Fecha de Compra</label>
               <input id="fechaCompra" name="fechaCompra" type="date" class="field-input" required>
             </div>
+            <!-- Serie con autocomplete -->
+            <div class="field col-full">
+              <label class="field-label" for="serie">
+                Número de Serie
+                <span id="serieInventoryHint" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-4);margin-left:.5rem;display:none">— buscando en inventario</span>
+              </label>
+              <div class="serie-wrapper">
+                <input id="serie" name="serie" type="text" class="field-input" autocomplete="off" required>
+                <span class="serie-status" id="serieStatus" style="display:none"></span>
+                <div class="autocomplete-dropdown" id="serieDropdown" style="display:none"></div>
+              </div>
+            </div>
+            <!-- Marca (autofill from inventory) -->
             <div class="field">
-              <label class="field-label" for="marca">Marca</label>
+              <label class="field-label" for="marca">
+                Marca
+                <span id="marcaLock" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--green);margin-left:.4rem;display:none">· desde inventario</span>
+              </label>
               <input id="marca" name="marca" type="text" class="field-input" required>
             </div>
-            <div class="field">
-              <label class="field-label" for="codigo">Código de Artículo</label>
-              <input id="codigo" name="codigo" type="text" class="field-input" required>
-            </div>
-          </div>
-          <div class="form-grid" style="margin-top:.75rem">
-            <div class="field">
-              <label class="field-label" for="serie">Serie <span style="opacity:.5;font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
-              <input id="serie" name="serie" type="text" class="field-input">
-            </div>
+            <!-- Descripción (autofill from inventory) -->
             <div class="field col-full">
-              <label class="field-label" for="descripcion">Descripción del Artículo</label>
+              <label class="field-label" for="descripcion">
+                Descripción del Artículo
+                <span id="descLock" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--green);margin-left:.4rem;display:none">· desde inventario</span>
+              </label>
               <textarea id="descripcion" name="descripcion" class="field-textarea" rows="2" required></textarea>
             </div>
           </div>
@@ -867,7 +594,7 @@
       <!-- Actions -->
       <div class="form-actions">
         <div class="form-actions-left">
-          <p class="form-hint">Próxima boleta: <strong id="hintBoleta">—</strong></p>
+          <p class="form-hint">Número de Boleta: <strong id="hintBoleta">—</strong></p>
         </div>
         <div class="form-actions-right">
           <button type="button" class="btn btn-ghost" id="clearBtn">
@@ -884,34 +611,57 @@
   </div>
 </div>
 
-<!-- PANEL: REGISTROS -->
-<div class="panel" id="panel-registros">
-  <div class="records-shell">
-    <div class="toolbar">
-      <div class="search-box">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
-        <input id="searchInput" type="text" placeholder="Buscar por nombre, ticket, boleta, marca…">
+<!-- PANEL: INVENTARIO -->
+<div class="panel" id="panel-inventario">
+  <div class="inv-shell">
+    <div class="inv-toolbar">
+      <div class="inv-toolbar-left">
+        <div>
+          <div class="inv-title">Inventario</div>
+          <div class="inv-sub" id="invSubtitle">Cargá un archivo Excel para comenzar</div>
+        </div>
+        <div class="inv-stats" id="invStatsBar" style="display:none">
+          <span class="inv-stat-chip" id="invStatTotal">0 artículos</span>
+          <span class="inv-stat-chip" id="invStatBodegas">0 bodegas</span>
+        </div>
       </div>
-      <span id="recordsCount" style="font-size:.75rem;color:var(--ink-4);"></span>
+      <div class="inv-toolbar-right">
+        <div class="search-box" id="invSearchBox" style="display:none">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
+          <input id="invSearch" type="text" placeholder="Buscar artículo, serie, marca…">
+        </div>
+        <button class="btn btn-primary" id="uploadBtn" onclick="document.getElementById('invFileInput').click()">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+          Subir Excel
+        </button>
+        <input type="file" id="invFileInput" accept=".xlsx,.xls,.csv">
+      </div>
     </div>
-    <div class="table-card">
+
+    <!-- Upload zone (shown when no inventory) -->
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('invFileInput').click()">
+      <div class="upload-zone-icon">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+      </div>
+      <div class="upload-zone-title">Subir inventario desde Excel</div>
+      <div class="upload-zone-sub">Arrastrá o hacé clic · Columnas esperadas: <strong>Bodega · Unidad de Medida · Disponible · Marca · Artículo · Descripción del Artículo</strong></div>
+    </div>
+
+    <!-- Table (hidden until data loaded) -->
+    <div class="table-card" id="invTableCard" style="display:none">
       <div class="table-wrap">
-        <table>
+        <table id="invTable">
           <thead>
             <tr>
-              <th>Consecutivo</th>
-              <th>Fecha</th>
-              <th>Tipo</th>
-              <th>Categoría</th>
-              <th>Ticket</th>
-              <th>Cliente</th>
-              <th>Marca</th>
-              <th>Acciones</th>
+              <th class="sortable" data-col="Bodega">Bodega <span class="sort-icon">↕</span></th>
+              <th class="sortable" data-col="Artículo">Artículo <span class="sort-icon">↕</span></th>
+              <th class="sortable" data-col="Descripción del Artículo">Descripción <span class="sort-icon">↕</span></th>
+              <th class="sortable" data-col="Marca">Marca <span class="sort-icon">↕</span></th>
+              <th class="sortable" data-col="Unidad de Medida Almacén">Unidad <span class="sort-icon">↕</span></th>
+              <th class="sortable" data-col="Disponible Almacén">Disponible <span class="sort-icon">↕</span></th>
             </tr>
           </thead>
-          <tbody id="recordsTbody">
-            <tr class="empty-row"><td colspan="8" style="text-align:center;padding:3rem;color:var(--ink-4)">Cargando…</td></tr>
-          </tbody>
+          <tbody id="invTbody"></tbody>
         </table>
       </div>
     </div>
@@ -924,17 +674,11 @@
     <aside class="admin-rail">
       <div class="rail-label">Vistas</div>
       <button class="rail-item active" data-section="salidas-definitivas">
-        <div class="rail-item-left">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          Definitivas
-        </div>
+        <div class="rail-item-left"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Definitivas</div>
         <span class="rail-count" id="nb-def">0</span>
       </button>
       <button class="rail-item" data-section="salidas-temporales">
-        <div class="rail-item-left">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          Temporales
-        </div>
+        <div class="rail-item-left"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Temporales</div>
         <span class="rail-count" id="nb-temp">0</span>
       </button>
     </aside>
@@ -946,10 +690,7 @@
         </div>
         <div style="display:flex;gap:.5rem;align-items:center;">
           <span id="adminDate" style="font-size:.75rem;color:var(--ink-4);"></span>
-          <button class="btn btn-ghost btn-sm" onclick="adminLoadAll()">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-            Actualizar
-          </button>
+          <button class="btn btn-ghost btn-sm" onclick="adminLoadAll()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Actualizar</button>
         </div>
       </div>
       <div class="stat-grid">
@@ -960,93 +701,47 @@
       </div>
       <div class="data-panel" id="panel-salidas-definitivas">
         <div class="data-panel-header">
-          <div class="data-panel-title">
-            <span class="panel-dot dot-brand"></span>
-            <span style="font-size:.9375rem;font-weight:700;color:var(--ink-1)">Salidas Definitivas</span>
-            <span style="font-size:.75rem;color:var(--ink-4)" id="count-def"></span>
-          </div>
+          <div class="data-panel-title"><span class="panel-dot dot-brand"></span><span style="font-size:.9375rem;font-weight:700;color:var(--ink-1)">Salidas Definitivas</span><span style="font-size:.75rem;color:var(--ink-4)" id="count-def"></span></div>
           <div class="data-panel-actions">
-            <div class="date-filter">
-              <label>Desde</label>
-              <input type="date" class="date-input" id="def-from" onchange="adminApplyFilters('def')">
-              <label>Hasta</label>
-              <input type="date" class="date-input" id="def-to" onchange="adminApplyFilters('def')">
-            </div>
-            <div class="search-box" style="padding:.3rem .625rem;">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
-              <input type="text" id="search-def" placeholder="Buscar…" oninput="adminApplyFilters('def')" style="width:140px;">
-            </div>
-            <button class="btn btn-success btn-sm" onclick="exportExcel('def')">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-              Excel
-            </button>
+            <div class="date-filter"><label>Desde</label><input type="date" class="date-input" id="def-from" onchange="adminApplyFilters('def')"><label>Hasta</label><input type="date" class="date-input" id="def-to" onchange="adminApplyFilters('def')"></div>
+            <div class="search-box" style="padding:.3rem .625rem;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg><input type="text" id="search-def" placeholder="Buscar…" oninput="adminApplyFilters('def')" style="width:140px;"></div>
+            <button class="btn btn-success btn-sm" onclick="exportExcel('def')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Excel</button>
           </div>
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr>
-              <th class="sortable" onclick="adminSortTable('def','boleta')">Consecutivo <span class="sort-icon">↕</span></th>
-              <th class="sortable" onclick="adminSortTable('def','fecha_creacion')">Fecha <span class="sort-icon">↕</span></th>
-              <th class="sortable" onclick="adminSortTable('def','categoria')">Categoría <span class="sort-icon">↕</span></th>
-              <th class="sortable" onclick="adminSortTable('def','motivo')">Motivo <span class="sort-icon">↕</span></th>
-              <th class="sortable" onclick="adminSortTable('def','ticket')">Ticket <span class="sort-icon">↕</span></th>
-              <th class="sortable" onclick="adminSortTable('def','nombre')">Cliente <span class="sort-icon">↕</span></th>
-              <th class="sortable" onclick="adminSortTable('def','sede')">Sede <span class="sort-icon">↕</span></th>
-              <th class="sortable" onclick="adminSortTable('def','factura')">Factura <span class="sort-icon">↕</span></th>
-              <th class="sortable" onclick="adminSortTable('def','marca')">Marca <span class="sort-icon">↕</span></th>
-              <th class="sortable" onclick="adminSortTable('def','codigo')">Código <span class="sort-icon">↕</span></th>
-              <th>Acciones</th>
-            </tr></thead>
-            <tbody id="tbody-def">
-              <tr class="empty-row"><td colspan="11"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <div class="table-wrap"><table><thead><tr>
+          <th class="sortable" onclick="adminSortTable('def','boleta')">Consecutivo <span class="sort-icon">↕</span></th>
+          <th class="sortable" onclick="adminSortTable('def','fecha_creacion')">Fecha <span class="sort-icon">↕</span></th>
+          <th class="sortable" onclick="adminSortTable('def','categoria')">Categoría <span class="sort-icon">↕</span></th>
+          <th class="sortable" onclick="adminSortTable('def','motivo')">Motivo <span class="sort-icon">↕</span></th>
+          <th class="sortable" onclick="adminSortTable('def','ticket')">Ticket <span class="sort-icon">↕</span></th>
+          <th class="sortable" onclick="adminSortTable('def','nombre')">Cliente <span class="sort-icon">↕</span></th>
+          <th class="sortable" onclick="adminSortTable('def','sede')">Sede <span class="sort-icon">↕</span></th>
+          <th class="sortable" onclick="adminSortTable('def','factura')">Factura <span class="sort-icon">↕</span></th>
+          <th class="sortable" onclick="adminSortTable('def','marca')">Marca <span class="sort-icon">↕</span></th>
+          <th>Acciones</th>
+        </tr></thead><tbody id="tbody-def"><tr class="empty-row"><td colspan="10"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
       </div>
       <div class="data-panel" id="panel-salidas-temporales" style="display:none">
         <div class="data-panel-header">
-          <div class="data-panel-title">
-            <span class="panel-dot dot-green"></span>
-            <span style="font-size:.9375rem;font-weight:700;color:var(--ink-1)">Salidas Temporales</span>
-            <span style="font-size:.75rem;color:var(--ink-4)" id="count-temp"></span>
-          </div>
+          <div class="data-panel-title"><span class="panel-dot dot-green"></span><span style="font-size:.9375rem;font-weight:700;color:var(--ink-1)">Salidas Temporales</span><span style="font-size:.75rem;color:var(--ink-4)" id="count-temp"></span></div>
           <div class="data-panel-actions">
-            <div class="date-filter">
-              <label>Desde</label>
-              <input type="date" class="date-input" id="temp-from" onchange="adminApplyFilters('temp')">
-              <label>Hasta</label>
-              <input type="date" class="date-input" id="temp-to" onchange="adminApplyFilters('temp')">
-            </div>
-            <div class="search-box" style="padding:.3rem .625rem;">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
-              <input type="text" id="search-temp" placeholder="Buscar…" oninput="adminApplyFilters('temp')" style="width:140px;">
-            </div>
-            <button class="btn btn-success btn-sm" onclick="exportExcel('temp')">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-              Excel
-            </button>
+            <div class="date-filter"><label>Desde</label><input type="date" class="date-input" id="temp-from" onchange="adminApplyFilters('temp')"><label>Hasta</label><input type="date" class="date-input" id="temp-to" onchange="adminApplyFilters('temp')"></div>
+            <div class="search-box" style="padding:.3rem .625rem;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg><input type="text" id="search-temp" placeholder="Buscar…" oninput="adminApplyFilters('temp')" style="width:140px;"></div>
+            <button class="btn btn-success btn-sm" onclick="exportExcel('temp')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Excel</button>
           </div>
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr>
-              <th class="sortable" onclick="adminSortTable('temp','boleta')">Consecutivo <span class="sort-icon">↕</span></th>
-              <th class="sortable" onclick="adminSortTable('temp','fecha_creacion')">Fecha <span class="sort-icon">↕</span></th>
-              <th class="sortable" onclick="adminSortTable('temp','categoria')">Categoría <span class="sort-icon">↕</span></th>
-              <th class="sortable" onclick="adminSortTable('temp','motivo')">Motivo <span class="sort-icon">↕</span></th>
-              <th class="sortable" onclick="adminSortTable('temp','ticket')">Ticket <span class="sort-icon">↕</span></th>
-              <th class="sortable" onclick="adminSortTable('temp','nombre')">Cliente <span class="sort-icon">↕</span></th>
-              <th class="sortable" onclick="adminSortTable('temp','sede')">Sede <span class="sort-icon">↕</span></th>
-              <th class="sortable" onclick="adminSortTable('temp','factura')">Factura <span class="sort-icon">↕</span></th>
-              <th class="sortable" onclick="adminSortTable('temp','marca')">Marca <span class="sort-icon">↕</span></th>
-              <th class="sortable" onclick="adminSortTable('temp','codigo')">Código <span class="sort-icon">↕</span></th>
-              <th>Acciones</th>
-            </tr></thead>
-            <tbody id="tbody-temp">
-              <tr class="empty-row"><td colspan="11"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <div class="table-wrap"><table><thead><tr>
+          <th class="sortable" onclick="adminSortTable('temp','boleta')">Consecutivo <span class="sort-icon">↕</span></th>
+          <th class="sortable" onclick="adminSortTable('temp','fecha_creacion')">Fecha <span class="sort-icon">↕</span></th>
+          <th class="sortable" onclick="adminSortTable('temp','categoria')">Categoría <span class="sort-icon">↕</span></th>
+          <th class="sortable" onclick="adminSortTable('temp','motivo')">Motivo <span class="sort-icon">↕</span></th>
+          <th class="sortable" onclick="adminSortTable('temp','ticket')">Ticket <span class="sort-icon">↕</span></th>
+          <th class="sortable" onclick="adminSortTable('temp','nombre')">Cliente <span class="sort-icon">↕</span></th>
+          <th class="sortable" onclick="adminSortTable('temp','sede')">Sede <span class="sort-icon">↕</span></th>
+          <th class="sortable" onclick="adminSortTable('temp','factura')">Factura <span class="sort-icon">↕</span></th>
+          <th class="sortable" onclick="adminSortTable('temp','marca')">Marca <span class="sort-icon">↕</span></th>
+          <th>Acciones</th>
+        </tr></thead><tbody id="tbody-temp"><tr class="empty-row"><td colspan="10"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
       </div>
     </div>
   </div>
@@ -1056,19 +751,13 @@
 <div class="modal-backdrop" id="editModal">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title-row">
-        <div class="modal-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></div>
-        <span class="modal-title" id="modalTitleText">Editar Registro</span>
-      </div>
+      <div class="modal-title-row"><div class="modal-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></div><span class="modal-title" id="modalTitleText">Editar Registro</span></div>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body"><div class="modal-grid" id="modalBody"></div></div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-primary" id="modalSaveBtn" onclick="saveEdit()">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-        Guardar Cambios
-      </button>
+      <button class="btn btn-primary" id="modalSaveBtn" onclick="saveEdit()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Guardar Cambios</button>
     </div>
   </div>
 </div>
@@ -1079,13 +768,7 @@
     <div class="confirm-icon-wrap"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></div>
     <div class="confirm-title">Eliminar registro</div>
     <div class="confirm-msg" id="confirmMsg">Esta acción no se puede deshacer.</div>
-    <div class="confirm-btns">
-      <button class="btn btn-ghost" onclick="closeConfirm()">Cancelar</button>
-      <button class="btn btn-danger" id="confirmOkBtn">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-        Eliminar
-      </button>
-    </div>
+    <div class="confirm-btns"><button class="btn btn-ghost" onclick="closeConfirm()">Cancelar</button><button class="btn btn-danger" id="confirmOkBtn"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Eliminar</button></div>
   </div>
 </div>
 
@@ -1095,93 +778,26 @@
     <div class="save-modal-title">Guardar Registro</div>
     <div class="save-modal-sub">Elegí cómo descargar el comprobante</div>
     <div class="save-options">
-      <button class="save-opt-btn" onclick="doSavePNG()">
-        <div class="save-opt-icon ic-img">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        </div>
-        <div>
-          <div class="save-opt-label">Guardar como PNG</div>
-          <div class="save-opt-desc">Imagen del formulario (alta calidad)</div>
-        </div>
-      </button>
-      <button class="save-opt-btn" onclick="doSavePDF()">
-        <div class="save-opt-icon ic-pdf">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-        </div>
-        <div>
-          <div class="save-opt-label">Guardar como PDF</div>
-          <div class="save-opt-desc">Documento listo para imprimir</div>
-        </div>
-      </button>
-      <button class="save-opt-btn" onclick="doCopyImage()">
-        <div class="save-opt-icon ic-copy">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-        </div>
-        <div>
-          <div class="save-opt-label">Copiar Imagen</div>
-          <div class="save-opt-desc">Pegá directamente en WhatsApp, email, etc.</div>
-        </div>
-      </button>
+      <button class="save-opt-btn" onclick="doSavePNG()"><div class="save-opt-icon ic-img"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div><div><div class="save-opt-label">Guardar como PNG</div><div class="save-opt-desc">Imagen del formulario (alta calidad)</div></div></button>
+      <button class="save-opt-btn" onclick="doSavePDF()"><div class="save-opt-icon ic-pdf"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg></div><div><div class="save-opt-label">Guardar como PDF</div><div class="save-opt-desc">Documento listo para imprimir</div></div></button>
+      <button class="save-opt-btn" onclick="doCopyImage()"><div class="save-opt-icon ic-copy"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></div><div><div class="save-opt-label">Copiar Imagen</div><div class="save-opt-desc">Pegá en WhatsApp, email, etc.</div></div></button>
     </div>
     <button class="save-cancel" onclick="closeSaveModal()">Cancelar</button>
   </div>
 </div>
 
-<!-- HIDDEN PRINT FORM (compact) -->
+<!-- PRINT FORM -->
 <div id="printForm">
-  <div class="pf-header">
-    <div class="pf-logo-area">
-      <img class="pf-logo" src="data:image/png;base64,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" alt="Sekunet">
-    </div>
-    <div class="pf-title-area">
-      <div class="pf-main-title">Garantías · Sekunet</div>
-      <div class="pf-boleta" id="pf-boleta">Boleta —</div>
-      <div class="pf-date" id="pf-date"></div>
-    </div>
-  </div>
-  <div class="pf-section">
-    <div class="pf-section-title">Clasificación</div>
-    <div class="pf-grid">
-      <div class="pf-field"><div class="pf-label">Tipo de Salida</div><div class="pf-value" id="pf-tipo"></div></div>
-      <div class="pf-field"><div class="pf-label">Categoría</div><div class="pf-value" id="pf-categoria"></div></div>
-      <div class="pf-field"><div class="pf-label">Motivo</div><div class="pf-value" id="pf-motivo"></div></div>
-    </div>
-  </div>
-  <div class="pf-section">
-    <div class="pf-section-title">Información del Cliente</div>
-    <div class="pf-grid">
-      <div class="pf-field"><div class="pf-label">Ticket N°</div><div class="pf-value" id="pf-ticket"></div></div>
-      <div class="pf-field"><div class="pf-label">Sede</div><div class="pf-value" id="pf-sede"></div></div>
-      <div class="pf-field"><div class="pf-label">Nombre del Cliente</div><div class="pf-value" id="pf-nombre"></div></div>
-      <div class="pf-field"><div class="pf-label">Factura N°</div><div class="pf-value" id="pf-factura"></div></div>
-      <div class="pf-field"><div class="pf-label">Fecha de Registro</div><div class="pf-value" id="pf-fecha-reg"></div></div>
-    </div>
-  </div>
-  <div class="pf-section">
-    <div class="pf-section-title">Información del Producto</div>
-    <div class="pf-grid">
-      <div class="pf-field"><div class="pf-label">Marca</div><div class="pf-value" id="pf-marca"></div></div>
-      <div class="pf-field"><div class="pf-label">Código de Artículo</div><div class="pf-value" id="pf-codigo"></div></div>
-      <div class="pf-field"><div class="pf-label">Serie</div><div class="pf-value" id="pf-serie"></div></div>
-      <div class="pf-field"><div class="pf-label">Cantidad</div><div class="pf-value" id="pf-cantidad"></div></div>
-      <div class="pf-field"><div class="pf-label">Fecha de Compra</div><div class="pf-value" id="pf-fecha-compra"></div></div>
-    </div>
-  </div>
-  <div class="pf-section">
-    <div class="pf-section-title">Descripción y Falla</div>
-    <div class="pf-grid-2">
-      <div class="pf-field pf-full"><div class="pf-label">Descripción del Artículo</div><div class="pf-value pf-text-area" id="pf-descripcion"></div></div>
-      <div class="pf-field pf-full"><div class="pf-label">Descripción de la Falla</div><div class="pf-value pf-text-area" id="pf-falla"></div></div>
-    </div>
-  </div>
-  <div class="pf-footer">
-    <div><div class="pf-sig-line"></div><div class="pf-sig-label">Firma del Cliente</div></div>
-    <div><div class="pf-sig-line"></div><div class="pf-sig-label">Firma del Responsable · Sekunet</div></div>
-  </div>
+  <div class="pf-header"><img class="pf-logo" src="data:image/png;base64,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" alt="Sekunet"><div class="pf-title-area"><div class="pf-main-title">Garantías · Sekunet</div><div class="pf-boleta" id="pf-boleta">Boleta —</div><div class="pf-date" id="pf-date"></div></div></div>
+  <div class="pf-section"><div class="pf-section-title">Clasificación</div><div class="pf-grid"><div class="pf-field"><div class="pf-label">Tipo de Salida</div><div class="pf-value" id="pf-tipo"></div></div><div class="pf-field"><div class="pf-label">Categoría</div><div class="pf-value" id="pf-categoria"></div></div><div class="pf-field"><div class="pf-label">Motivo</div><div class="pf-value" id="pf-motivo"></div></div></div></div>
+  <div class="pf-section"><div class="pf-section-title">Información del Cliente</div><div class="pf-grid"><div class="pf-field"><div class="pf-label">Ticket N°</div><div class="pf-value" id="pf-ticket"></div></div><div class="pf-field"><div class="pf-label">Sede</div><div class="pf-value" id="pf-sede"></div></div><div class="pf-field"><div class="pf-label">Nombre del Cliente</div><div class="pf-value" id="pf-nombre"></div></div><div class="pf-field"><div class="pf-label">Factura N°</div><div class="pf-value" id="pf-factura"></div></div><div class="pf-field"><div class="pf-label">Fecha de Registro</div><div class="pf-value" id="pf-fecha-reg"></div></div></div></div>
+  <div class="pf-section"><div class="pf-section-title">Información del Producto</div><div class="pf-grid"><div class="pf-field"><div class="pf-label">Marca</div><div class="pf-value" id="pf-marca"></div></div><div class="pf-field"><div class="pf-label">Serie</div><div class="pf-value" id="pf-serie"></div></div><div class="pf-field"><div class="pf-label">Cantidad</div><div class="pf-value" id="pf-cantidad"></div></div><div class="pf-field"><div class="pf-label">Fecha de Compra</div><div class="pf-value" id="pf-fecha-compra"></div></div></div></div>
+  <div class="pf-section"><div class="pf-section-title">Descripción y Falla</div><div class="pf-grid-2"><div class="pf-field pf-full"><div class="pf-label">Descripción del Artículo</div><div class="pf-value pf-text-area" id="pf-descripcion"></div></div><div class="pf-field pf-full"><div class="pf-label">Descripción de la Falla</div><div class="pf-value pf-text-area" id="pf-falla"></div></div></div></div>
+  <div class="pf-footer"><div><div class="pf-sig-line"></div><div class="pf-sig-label">Firma del Cliente</div></div><div><div class="pf-sig-line"></div><div class="pf-sig-label">Firma del Responsable · Sekunet</div></div></div>
 </div>
 
 <script>
-/* CONFIG */
+/* ══ CONFIG ══ */
 const SB_URL = 'https://jwlavcjwuhdydmusqskx.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3bGF2Y2p3dWhkeWRtdXNxc2t4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwODM2OTcsImV4cCI6MjA5MDY1OTY5N30.bS1Uc-0m9teuxG2oKqAHMQ6vOr0HPoFwh49EYx3cROM';
 const TABLE  = 'garantias';
@@ -1201,7 +817,7 @@ const CAT_LABELS  = { nota_credito:'Nota de Crédito', garantia_1:'Garantía 1%'
 const MOT_LABELS  = { sin_existencias:'Sin Existencias', solicitud_cliente:'Solicitud del Cliente', reemplazo:'Reemplazo' };
 const TIPO_LABELS = { salida_definitiva:'Salida Definitiva', salida_temporal:'Salida Temporal' };
 
-/* TOAST */
+/* ══ TOAST ══ */
 const TOAST_ICONS = {
   success: '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>',
   error:   '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>',
@@ -1213,33 +829,32 @@ function showToast(title, type, sub) {
   t.className = 'toast toast-' + (type || 'info');
   t.innerHTML = `<div class="toast-icon">${TOAST_ICONS[type||'info']}</div><div class="toast-body"><div class="toast-title">${title}</div>${sub?`<div class="toast-sub">${sub}</div>`:''}</div>`;
   c.appendChild(t);
-  setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; setTimeout(() => t.remove(), 300); }, 3800);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 3800);
 }
 
-/* TABS */
+/* ══ TABS ══ */
 let adminLoaded = false;
 function switchTab(tab) {
   document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
   document.getElementById('boletaChip').style.display = tab === 'formulario' ? '' : 'none';
-  if (tab === 'registros') renderSimpleTable();
   if (tab === 'admin' && !adminLoaded) { adminLoaded = true; adminLoadAll(); }
 }
 
-/* DATE & BOLETA */
+/* ══ DATE & BOLETA ══ */
 function renderHeaderDate() {
   document.getElementById('headerDate').textContent = new Date().toLocaleDateString('es-CR', { day:'2-digit', month:'short', year:'numeric' });
-  document.getElementById('adminDate').textContent = new Date().toLocaleDateString('es-CR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  document.getElementById('adminDate').textContent  = new Date().toLocaleDateString('es-CR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
 }
 function buildPrefix() {
   const t = document.getElementById('tipo').value, c = document.getElementById('categoria').value;
   let p = t === 'salida_definitiva' ? 'G' : t === 'salida_temporal' ? 'T' : '';
-  if (c === 'nota_credito') p = p ? p + 'NC' : 'NC';
+  if (c === 'nota_credito') p = p ? p+'NC' : 'NC';
   return p;
 }
 function buildPrefixFrom(t, c) {
   let p = t === 'salida_definitiva' ? 'G' : t === 'salida_temporal' ? 'T' : '';
-  if (c === 'nota_credito') p = p ? p + 'NC' : 'NC';
+  if (c === 'nota_credito') p = p ? p+'NC' : 'NC';
   return p;
 }
 function formatBoleta(num, prefix) {
@@ -1249,31 +864,243 @@ function formatBoleta(num, prefix) {
 function renderHeaderBoleta() {
   const b = formatBoleta(consecutiveNum + 1);
   document.getElementById('headerBoleta').textContent = b;
-  document.getElementById('hintBoleta').textContent = b;
+  document.getElementById('hintBoleta').textContent   = b;
 }
 
-/* PROGRESS */
+/* ══ PROGRESS ══ */
 function updateProgress() {
   const s1 = document.getElementById('tipo').value && document.getElementById('categoria').value && document.getElementById('motivo').value;
   const s2 = document.getElementById('ticket').value && document.getElementById('sede').value && document.getElementById('nombre').value && document.getElementById('factura').value;
   const steps = document.querySelectorAll('.progress-step');
   const dots  = document.querySelectorAll('.step-dot');
   steps.forEach(s => s.classList.remove('current-step'));
-  dots.forEach(d => { d.classList.remove('current','done'); });
+  dots.forEach(d  => { d.classList.remove('current','done'); });
   if (!s1) {
     dots[0].classList.add('current'); steps[0].classList.add('current-step');
   } else if (!s2) {
-    dots[0].classList.add('done'); dots[0].innerHTML = '✓';
+    dots[0].classList.add('done'); dots[0].innerHTML='✓';
     dots[1].classList.add('current'); steps[1].classList.add('current-step');
   } else {
-    dots[0].classList.add('done'); dots[0].innerHTML = '✓';
-    dots[1].classList.add('done'); dots[1].innerHTML = '✓';
+    dots[0].classList.add('done'); dots[0].innerHTML='✓';
+    dots[1].classList.add('done'); dots[1].innerHTML='✓';
     dots[2].classList.add('current'); steps[2].classList.add('current-step');
   }
 }
 
-/* STATE */
-let consecutiveNum = 29177;
+/* ══ INVENTORY ══ */
+let inventory = []; // array of row objects from Excel
+let invFiltered = [];
+let invSortCol = '', invSortDir = 1;
+const INV_STORAGE_KEY = 'sekunet_inventory_v1';
+
+const INV_COLS = ['Bodega','Artículo','Descripción del Artículo','Marca','Unidad de Medida Almacén','Disponible Almacén'];
+
+function invLoad() {
+  try {
+    const raw = localStorage.getItem(INV_STORAGE_KEY);
+    if (raw) { inventory = JSON.parse(raw); invRender(); invUpdateUI(); }
+  } catch(e) { inventory = []; }
+}
+function invSave() {
+  try { localStorage.setItem(INV_STORAGE_KEY, JSON.stringify(inventory)); } catch(e) {}
+}
+
+function invParseExcel(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const wb = XLSX.read(e.target.result, { type:'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, { defval:'' });
+        resolve(rows);
+      } catch(err) { reject(err); }
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+async function invHandleFile(file) {
+  if (!file) return;
+  showToast('Procesando Excel…', 'info');
+  try {
+    const rows = await invParseExcel(file);
+    if (!rows.length) { showToast('El archivo está vacío', 'error'); return; }
+
+    // Detect how many were new vs overwritten
+    const newBySerie = {};
+    rows.forEach(r => {
+      const serie = String(r['Artículo'] || r['Serie'] || '').trim();
+      if (serie) newBySerie[serie] = r; else newBySerie['__noserie__' + Math.random()] = r;
+    });
+
+    // Merge: overwrite duplicates by Artículo key
+    const existing = {};
+    inventory.forEach(r => {
+      const k = String(r['Artículo'] || '').trim() || '__' + Math.random();
+      existing[k] = r;
+    });
+    let added = 0, overwritten = 0;
+    Object.entries(newBySerie).forEach(([k, r]) => {
+      if (existing[k]) overwritten++;
+      else added++;
+      existing[k] = r;
+    });
+    inventory = Object.values(existing);
+    invSave();
+    invRender();
+    invUpdateUI();
+    showToast('Inventario actualizado', 'success', `${added} nuevos · ${overwritten} reemplazados · ${inventory.length} total`);
+  } catch(err) { showToast('Error al leer el archivo', 'error', err.message); }
+}
+
+function invUpdateUI() {
+  const hasData = inventory.length > 0;
+  document.getElementById('uploadZone').style.display = hasData ? 'none' : '';
+  document.getElementById('invTableCard').style.display = hasData ? '' : 'none';
+  document.getElementById('invSearchBox').style.display = hasData ? '' : 'none';
+  document.getElementById('invStatsBar').style.display  = hasData ? '' : 'none';
+  if (hasData) {
+    document.getElementById('invSubtitle').textContent = 'Inventario activo · subí un nuevo Excel para actualizar';
+    document.getElementById('invStatTotal').textContent = inventory.length + ' artículos';
+    const bodegas = new Set(inventory.map(r => r['Bodega']||'').filter(Boolean)).size;
+    document.getElementById('invStatBodegas').textContent = bodegas + (bodegas===1?' bodega':' bodegas');
+    // update badge
+    const el = document.getElementById('invCount');
+    el.textContent = inventory.length; el.style.display = '';
+  }
+}
+
+function invRender() {
+  const q = (document.getElementById('invSearch')?.value || '').toLowerCase().trim();
+  let rows = q
+    ? inventory.filter(r => INV_COLS.some(c => String(r[c]||'').toLowerCase().includes(q)))
+    : [...inventory];
+
+  if (invSortCol) {
+    rows.sort((a,b) => {
+      const av = String(a[invSortCol]||''), bv = String(b[invSortCol]||'');
+      return av < bv ? -invSortDir : av > bv ? invSortDir : 0;
+    });
+  }
+  invFiltered = rows;
+
+  const tbody = document.getElementById('invTbody');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="6"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>Sin resultados</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.slice(0, 500).map((r, i) => `<tr style="animation-delay:${Math.min(i,30)*0.015}s">
+    <td class="td-mono">${r['Bodega']||'—'}</td>
+    <td><strong>${r['Artículo']||'—'}</strong></td>
+    <td style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r['Descripción del Artículo']||'—'}</td>
+    <td><span class="badge badge-brand">${r['Marca']||'—'}</span></td>
+    <td class="td-mono">${r['Unidad de Medida Almacén']||'—'}</td>
+    <td class="td-mono" style="font-weight:600;color:var(--ink-1)">${r['Disponible Almacén']||'—'}</td>
+  </tr>`).join('');
+  if (rows.length > 500) {
+    tbody.innerHTML += `<tr><td colspan="6" style="text-align:center;padding:.75rem;font-size:.75rem;color:var(--ink-4)">Mostrando 500 de ${rows.length} — refiná la búsqueda para ver más</td></tr>`;
+  }
+}
+
+function invSortBy(col) {
+  if (invSortCol === col) invSortDir *= -1;
+  else { invSortCol = col; invSortDir = 1; }
+  document.querySelectorAll('#invTable thead th').forEach(th => {
+    th.classList.remove('sorted');
+    const si = th.querySelector('.sort-icon'); if (si) si.textContent = '↕';
+  });
+  const th = document.querySelector(`#invTable thead th[data-col="${col}"]`);
+  if (th) { th.classList.add('sorted'); const si = th.querySelector('.sort-icon'); if (si) si.textContent = invSortDir===1?'↑':'↓'; }
+  invRender();
+}
+
+/* ══ SERIE AUTOCOMPLETE ══ */
+let serieMatchedItem = null;
+
+function serieSearch(val) {
+  const q = val.trim().toLowerCase();
+  const drop = document.getElementById('serieDropdown');
+  const status = document.getElementById('serieStatus');
+
+  if (!q || inventory.length === 0) {
+    drop.style.display = 'none';
+    status.style.display = 'none';
+    return;
+  }
+
+  // Search by Artículo column (serie)
+  const matches = inventory.filter(r => {
+    const serie = String(r['Artículo']||'').toLowerCase();
+    return serie.includes(q);
+  }).slice(0, 10);
+
+  if (!matches.length) {
+    drop.innerHTML = '<div class="autocomplete-empty">No encontrado en inventario</div>';
+    drop.style.display = '';
+    status.textContent = 'No encontrado'; status.className = 'serie-status notfound'; status.style.display = '';
+    return;
+  }
+
+  drop.innerHTML = matches.map((r, i) => `
+    <div class="autocomplete-item" data-idx="${i}" onmousedown="serieSelect(${i})">
+      <div class="ac-serie">${r['Artículo']||'—'}</div>
+      <div class="ac-desc">${r['Descripción del Artículo']||'—'}</div>
+      <div class="ac-marca">${r['Marca']||'—'}</div>
+    </div>`).join('');
+  drop.style.display = '';
+  drop._matches = matches;
+  status.style.display = 'none';
+}
+
+function serieSelect(idx) {
+  const drop = document.getElementById('serieDropdown');
+  const matches = drop._matches || [];
+  const item = matches[idx];
+  if (!item) return;
+
+  serieMatchedItem = item;
+  document.getElementById('serie').value = item['Artículo'] || '';
+  drop.style.display = 'none';
+
+  // Fill and lock Marca
+  const marcaEl = document.getElementById('marca');
+  marcaEl.value = item['Marca'] || '';
+  marcaEl.disabled = true;
+  marcaEl.classList.add('filled');
+  document.getElementById('marcaLock').style.display = '';
+
+  // Fill and lock Descripción
+  const descEl = document.getElementById('descripcion');
+  descEl.value = item['Descripción del Artículo'] || '';
+  descEl.disabled = true;
+  descEl.classList.add('filled');
+  document.getElementById('descLock').style.display = '';
+
+  // Show found badge
+  const status = document.getElementById('serieStatus');
+  status.textContent = '✓ Encontrado'; status.className = 'serie-status found'; status.style.display = '';
+
+  showToast('Serie encontrada en inventario', 'success', item['Marca'] + ' · ' + (item['Descripción del Artículo']||'').slice(0,40));
+  updateProgress();
+}
+
+function serieClear() {
+  serieMatchedItem = null;
+  const marcaEl = document.getElementById('marca');
+  marcaEl.value = ''; marcaEl.disabled = false; marcaEl.classList.remove('filled');
+  document.getElementById('marcaLock').style.display = 'none';
+  const descEl = document.getElementById('descripcion');
+  descEl.value = ''; descEl.disabled = false; descEl.classList.remove('filled');
+  document.getElementById('descLock').style.display = 'none';
+  const status = document.getElementById('serieStatus');
+  status.style.display = 'none';
+  document.getElementById('serieDropdown').style.display = 'none';
+}
+
+/* ══ FORM STATE ══ */
+let consecutiveNum = 29178; // last used boleta; next will be 29179
 let allRecords = [];
 let lastSavedRecord = null;
 
@@ -1290,10 +1117,13 @@ async function loadRecords() {
   } catch(e) { console.error(e); }
 }
 
-/* SUBMIT — validates all required, then opens save modal */
 async function handleSubmit(e) {
   e.preventDefault();
   const form = document.getElementById('warrantyForm');
+  // Re-enable disabled fields temporarily for validation/read
+  const disabledEls = form.querySelectorAll('[disabled]');
+  disabledEls.forEach(el => el.removeAttribute('disabled'));
+
   const required = form.querySelectorAll('[required]');
   let valid = true;
   required.forEach(el => {
@@ -1301,6 +1131,13 @@ async function handleSubmit(e) {
     el.classList.toggle('error', empty);
     if (empty) valid = false;
   });
+
+  // Re-disable if matched from inventory
+  if (serieMatchedItem) {
+    document.getElementById('marca').disabled = true;
+    document.getElementById('descripcion').disabled = true;
+  }
+
   if (!valid) {
     showToast('Campos incompletos', 'error', 'Completá todos los campos marcados en rojo');
     return;
@@ -1318,8 +1155,10 @@ async function handleSubmit(e) {
     tipo: fd.get('tipo'), categoria: fd.get('categoria'), motivo: fd.get('motivo'),
     ticket: fd.get('ticket'), sede: fd.get('sede'), nombre: fd.get('nombre'), factura: fd.get('factura'),
     cantidad: parseInt(fd.get('cantidad')) || 1, fecha_compra: fd.get('fechaCompra') || null,
-    marca: fd.get('marca'), codigo: fd.get('codigo'), serie: fd.get('serie') || null,
-    descripcion: fd.get('descripcion'), falla: fd.get('falla'),
+    marca: document.getElementById('marca').value,
+    serie: document.getElementById('serie').value || null,
+    descripcion: document.getElementById('descripcion').value,
+    falla: fd.get('falla'),
     fecha_creacion: new Date().toISOString()
   };
 
@@ -1332,11 +1171,10 @@ async function handleSubmit(e) {
     updateTabCount();
     showToast('Registro guardado', 'success', 'Boleta ' + boleta);
     lastSavedRecord = payload;
-    // Populate print form
     populatePrintForm(payload);
-    // Open save modal
     document.getElementById('saveModal').classList.add('open');
     form.reset();
+    serieClear();
     form.querySelectorAll('.error,.filled').forEach(el => el.classList.remove('error','filled'));
     renderHeaderBoleta(); updateProgress();
   } catch(err) {
@@ -1352,147 +1190,101 @@ async function handleSubmit(e) {
 function populatePrintForm(r) {
   document.getElementById('pf-boleta').textContent = 'Boleta ' + (r.boleta || '—');
   document.getElementById('pf-date').textContent = new Date().toLocaleDateString('es-CR', { day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
-  document.getElementById('pf-tipo').textContent = TIPO_LABELS[r.tipo] || r.tipo || '—';
-  document.getElementById('pf-categoria').textContent = CAT_LABELS[r.categoria] || r.categoria || '—';
-  document.getElementById('pf-motivo').textContent = MOT_LABELS[r.motivo] || r.motivo || '—';
-  document.getElementById('pf-ticket').textContent = r.ticket || '—';
-  document.getElementById('pf-sede').textContent = r.sede || '—';
-  document.getElementById('pf-nombre').textContent = r.nombre || '—';
-  document.getElementById('pf-factura').textContent = r.factura || '—';
-  document.getElementById('pf-fecha-reg').textContent = new Date().toLocaleDateString('es-CR', { day:'2-digit', month:'2-digit', year:'numeric' });
-  document.getElementById('pf-marca').textContent = r.marca || '—';
-  document.getElementById('pf-codigo').textContent = r.codigo || '—';
-  document.getElementById('pf-serie').textContent = r.serie || '—';
-  document.getElementById('pf-cantidad').textContent = r.cantidad || '—';
-  document.getElementById('pf-fecha-compra').textContent = r.fecha_compra ? new Date(r.fecha_compra).toLocaleDateString('es-CR', { day:'2-digit', month:'2-digit', year:'numeric' }) : '—';
-  document.getElementById('pf-descripcion').textContent = r.descripcion || '—';
-  document.getElementById('pf-falla').textContent = r.falla || '—';
+  document.getElementById('pf-tipo').textContent = TIPO_LABELS[r.tipo]||r.tipo||'—';
+  document.getElementById('pf-categoria').textContent = CAT_LABELS[r.categoria]||r.categoria||'—';
+  document.getElementById('pf-motivo').textContent = MOT_LABELS[r.motivo]||r.motivo||'—';
+  document.getElementById('pf-ticket').textContent = r.ticket||'—';
+  document.getElementById('pf-sede').textContent = r.sede||'—';
+  document.getElementById('pf-nombre').textContent = r.nombre||'—';
+  document.getElementById('pf-factura').textContent = r.factura||'—';
+  document.getElementById('pf-fecha-reg').textContent = new Date().toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric'});
+  document.getElementById('pf-marca').textContent = r.marca||'—';
+  document.getElementById('pf-serie').textContent = r.serie||'—';
+  document.getElementById('pf-cantidad').textContent = r.cantidad||'—';
+  document.getElementById('pf-fecha-compra').textContent = r.fecha_compra ? new Date(r.fecha_compra).toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric'}) : '—';
+  document.getElementById('pf-descripcion').textContent = r.descripcion||'—';
+  document.getElementById('pf-falla').textContent = r.falla||'—';
 }
 
-function closeSaveModal() {
-  document.getElementById('saveModal').classList.remove('open');
-}
+function closeSaveModal() { document.getElementById('saveModal').classList.remove('open'); }
 
 async function captureForm() {
   const el = document.getElementById('printForm');
   const orig = el.style.cssText;
-  // Temporarily make visible for capture
   el.style.cssText = 'position:fixed;left:0;top:0;width:794px;background:#fff;padding:32px 36px;z-index:9999;';
   await new Promise(r => setTimeout(r, 200));
-  const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#fff', logging: false });
+  const canvas = await html2canvas(el, { scale:2, useCORS:true, backgroundColor:'#fff', logging:false });
   el.style.cssText = orig;
   return canvas;
 }
 
 async function doSavePNG() {
-  closeSaveModal();
-  showToast('Generando imagen…', 'info');
+  closeSaveModal(); showToast('Generando imagen…','info');
   try {
     const canvas = await captureForm();
     const a = document.createElement('a');
-    a.download = 'Garantia_' + (lastSavedRecord?.boleta || 'comprobante') + '.png';
-    a.href = canvas.toDataURL('image/png');
-    a.click();
-    showToast('PNG descargado', 'success');
-  } catch(err) { showToast('Error al generar imagen', 'error', err.message); }
+    a.download = 'Garantia_' + (lastSavedRecord?.boleta||'comprobante') + '.png';
+    a.href = canvas.toDataURL('image/png'); a.click();
+    showToast('PNG descargado','success');
+  } catch(err) { showToast('Error al generar imagen','error',err.message); }
 }
 
 async function doSavePDF() {
-  closeSaveModal();
-  showToast('Generando PDF…', 'info');
+  closeSaveModal(); showToast('Generando PDF…','info');
   try {
     const canvas = await captureForm();
     const imgData = canvas.toDataURL('image/png');
-    // Use print API since jsPDF is not loaded — open as printable page
-    const w = window.open('', '_blank');
-    w.document.write('<html><head><title>Garantia ' + (lastSavedRecord?.boleta||'') + '</title><style>body{margin:0}img{width:100%;display:block}@media print{@page{size:A4;margin:0}}</style></head><body><img src="' + imgData + '"><script>window.onload=function(){window.print();window.close()}<\/script></body></html>');
+    const w = window.open('','_blank');
+    w.document.write('<html><head><title>Garantia '+(lastSavedRecord?.boleta||'')+'</title><style>body{margin:0}img{width:100%;display:block}@media print{@page{size:A4;margin:0}}</style></head><body><img src="'+imgData+'"><script>window.onload=function(){window.print();window.close()}<\/script></body></html>');
     w.document.close();
-    showToast('PDF listo para imprimir', 'success');
-  } catch(err) { showToast('Error al generar PDF', 'error', err.message); }
+    showToast('PDF listo para imprimir','success');
+  } catch(err) { showToast('Error al generar PDF','error',err.message); }
 }
 
 async function doCopyImage() {
-  closeSaveModal();
-  showToast('Copiando imagen…', 'info');
+  closeSaveModal(); showToast('Copiando imagen…','info');
   try {
     const canvas = await captureForm();
-    canvas.toBlob(async (blob) => {
+    canvas.toBlob(async blob => {
       try {
-        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-        showToast('Imagen copiada al portapapeles', 'success');
+        await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+        showToast('Imagen copiada al portapapeles','success');
       } catch {
-        // Fallback: download
         const a = document.createElement('a');
-        a.download = 'Garantia_' + (lastSavedRecord?.boleta||'comprobante') + '.png';
-        a.href = URL.createObjectURL(blob);
-        a.click();
-        showToast('Portapapeles no disponible — imagen descargada', 'info');
+        a.download='Garantia_'+(lastSavedRecord?.boleta||'comprobante')+'.png';
+        a.href=URL.createObjectURL(blob); a.click();
+        showToast('Portapapeles no disponible — imagen descargada','info');
       }
     });
-  } catch(err) { showToast('Error al copiar imagen', 'error', err.message); }
-}
-
-/* SIMPLE TABLE */
-function badgeForBoleta(b) {
-  if (!b) return 'badge-muted';
-  if (b.startsWith('GNC') || b.startsWith('TNC')) return 'badge-purple';
-  if (b.startsWith('G')) return 'badge-brand';
-  if (b.startsWith('T')) return 'badge-green';
-  return 'badge-muted';
-}
-
-function renderSimpleTable() {
-  const q = document.getElementById('searchInput').value.toLowerCase().trim();
-  const rows = allRecords.filter(r => !q || [r.nombre,r.ticket,r.boleta,r.marca,r.factura].map(x=>(x||'').toLowerCase()).join(' ').includes(q));
-  document.getElementById('recordsCount').textContent = rows.length + ' registro' + (rows.length !== 1 ? 's' : '');
-  const tbody = document.getElementById('recordsTbody');
-  if (!rows.length) {
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="8"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin resultados</td></tr>';
-    return;
-  }
-  tbody.innerHTML = rows.map((r, i) => {
-    const fecha = r.fecha_creacion ? new Date(r.fecha_creacion).toLocaleDateString('es-CR', {day:'2-digit',month:'2-digit',year:'numeric'}) : '—';
-    return `<tr style="animation-delay:${i*0.03}s">
-      <td><span class="badge ${badgeForBoleta(r.boleta)}">${r.boleta||'—'}</span></td>
-      <td class="td-mono">${fecha}</td>
-      <td><span class="badge ${r.tipo==='salida_definitiva'?'badge-brand':'badge-green'}">${TIPO_LABELS[r.tipo]||'—'}</span></td>
-      <td>${CAT_LABELS[r.categoria]||r.categoria||'—'}</td>
-      <td class="td-mono">${r.ticket||'—'}</td>
-      <td><strong>${r.nombre||'—'}</strong></td>
-      <td>${r.marca||'—'}</td>
-      <td><div class="td-actions">
-        <button class="btn btn-amber btn-sm" onclick="openEdit('${r.id}')">Editar</button>
-        <button class="btn btn-danger btn-sm" onclick="askDelete('${r.id}','${r.boleta}')">Eliminar</button>
-      </div></td>
-    </tr>`;
-  }).join('');
+  } catch(err) { showToast('Error al copiar imagen','error',err.message); }
 }
 
 function updateTabCount() {
   const el = document.getElementById('tabCount');
-  if (allRecords.length > 0) { el.textContent = allRecords.length; el.style.display = ''; }
-  else el.style.display = 'none';
+  if (el) {
+    if (allRecords.length > 0) { el.textContent = allRecords.length; el.style.display = ''; }
+    else el.style.display = 'none';
+  }
 }
 
-/* ADMIN */
-let records = { def:[], temp:[] };
-let rawData  = { def:[], temp:[] };
-let sortState = { def:{col:'fecha_creacion',dir:-1}, temp:{col:'fecha_creacion',dir:-1} };
-let currentSection = 'salidas-definitivas';
+/* ══ ADMIN ══ */
+let records = {def:[],temp:[]};
+let rawData  = {def:[],temp:[]};
+let sortState = {def:{col:'fecha_creacion',dir:-1},temp:{col:'fecha_creacion',dir:-1}};
 
 async function adminLoadAll() {
   try {
-    const all = await sbFetch('GET', TABLE + '?order=numero_consecutivo.desc&limit=1000', null) || [];
-    rawData.def  = all.filter(r => r.tipo === 'salida_definitiva');
-    rawData.temp = all.filter(r => r.tipo === 'salida_temporal');
-    if (all.length > allRecords.length) {
-      allRecords = [...all];
-      if (allRecords.length > 0) { const mx = Math.max(...allRecords.map(r=>r.numero_consecutivo||0)); if (mx>=29178) consecutiveNum=mx; }
+    const all = await sbFetch('GET', TABLE+'?order=numero_consecutivo.desc&limit=1000',null)||[];
+    rawData.def  = all.filter(r=>r.tipo==='salida_definitiva');
+    rawData.temp = all.filter(r=>r.tipo==='salida_temporal');
+    if (all.length>allRecords.length) {
+      allRecords=[...all];
+      if (allRecords.length>0){const mx=Math.max(...allRecords.map(r=>r.numero_consecutivo||0));if(mx>=29178)consecutiveNum=mx;}
       updateTabCount(); renderHeaderBoleta();
     }
     adminUpdateStats(all); adminUpdateBadges();
     adminApplyFilters('def'); adminApplyFilters('temp');
-  } catch(e) { showToast('Error al cargar datos', 'error', e.message); }
+  } catch(e) { showToast('Error al cargar datos','error',e.message); }
 }
 
 function adminUpdateStats(all) {
@@ -1500,7 +1292,7 @@ function adminUpdateStats(all) {
   document.getElementById('st-total').textContent = all.length;
   document.getElementById('st-def').textContent   = rawData.def.length;
   document.getElementById('st-temp').textContent  = rawData.temp.length;
-  document.getElementById('st-hoy').textContent   = all.filter(r => r.fecha_creacion && r.fecha_creacion.startsWith(today)).length;
+  document.getElementById('st-hoy').textContent   = all.filter(r=>r.fecha_creacion&&r.fecha_creacion.startsWith(today)).length;
 }
 function adminUpdateBadges() {
   document.getElementById('nb-def').textContent  = rawData.def.length;
@@ -1508,61 +1300,50 @@ function adminUpdateBadges() {
 }
 
 function adminSwitchSection(sec) {
-  currentSection = sec;
-  document.querySelectorAll('.rail-item[data-section]').forEach(b => b.classList.toggle('active', b.dataset.section === sec));
-  document.getElementById('panel-salidas-definitivas').style.display  = sec === 'salidas-definitivas' ? '' : 'none';
-  document.getElementById('panel-salidas-temporales').style.display   = sec === 'salidas-temporales'  ? '' : 'none';
-  document.getElementById('adminTitle').textContent = sec === 'salidas-definitivas' ? 'Salidas Definitivas' : 'Salidas Temporales';
-  document.getElementById('adminSub').textContent   = sec === 'salidas-definitivas' ? 'Registros con salida definitiva' : 'Registros con salida temporal';
+  document.querySelectorAll('.rail-item[data-section]').forEach(b=>b.classList.toggle('active',b.dataset.section===sec));
+  document.getElementById('panel-salidas-definitivas').style.display = sec==='salidas-definitivas'?'':'none';
+  document.getElementById('panel-salidas-temporales').style.display  = sec==='salidas-temporales' ?'':'none';
+  document.getElementById('adminTitle').textContent = sec==='salidas-definitivas'?'Salidas Definitivas':'Salidas Temporales';
+  document.getElementById('adminSub').textContent   = sec==='salidas-definitivas'?'Registros con salida definitiva':'Registros con salida temporal';
 }
 
 function adminApplyFilters(type) {
   const q = document.getElementById('search-'+type).value.toLowerCase();
   const from = document.getElementById(type+'-from').value;
   const to   = document.getElementById(type+'-to').value;
-  let rows = rawData[type].filter(r => {
-    if (q) { const hay=[r.boleta,r.nombre,r.ticket,r.marca,r.factura,r.codigo,r.sede].map(x=>(x||'').toLowerCase()).join(' '); if (!hay.includes(q)) return false; }
-    if (from && r.fecha_creacion && r.fecha_creacion.slice(0,10) < from) return false;
-    if (to   && r.fecha_creacion && r.fecha_creacion.slice(0,10) > to)   return false;
+  let rows = rawData[type].filter(r=>{
+    if(q){const hay=[r.boleta,r.nombre,r.ticket,r.marca,r.factura,r.serie,r.sede].map(x=>(x||'').toLowerCase()).join(' ');if(!hay.includes(q))return false;}
+    if(from&&r.fecha_creacion&&r.fecha_creacion.slice(0,10)<from)return false;
+    if(to&&r.fecha_creacion&&r.fecha_creacion.slice(0,10)>to)return false;
     return true;
   });
-  const { col, dir } = sortState[type];
-  rows.sort((a,b) => { const av=a[col]||'', bv=b[col]||''; return av<bv?-dir:av>bv?dir:0; });
-  records[type] = rows;
+  const{col,dir}=sortState[type];
+  rows.sort((a,b)=>{const av=a[col]||'',bv=b[col]||'';return av<bv?-dir:av>bv?dir:0;});
+  records[type]=rows;
   adminRenderTable(type);
-  document.getElementById('count-'+type).textContent = rows.length + ' de ' + rawData[type].length;
+  document.getElementById('count-'+type).textContent=rows.length+' de '+rawData[type].length;
 }
 
-function adminSortTable(type, col) {
-  if (sortState[type].col === col) sortState[type].dir *= -1;
-  else { sortState[type].col = col; sortState[type].dir = 1; }
-  const panelId = type==='def' ? 'panel-salidas-definitivas' : 'panel-salidas-temporales';
-  document.querySelectorAll('#'+panelId+' thead th').forEach(th => { th.classList.remove('sorted'); const si=th.querySelector('.sort-icon'); if(si)si.textContent='↕'; });
+function adminSortTable(type,col){
+  if(sortState[type].col===col)sortState[type].dir*=-1;
+  else{sortState[type].col=col;sortState[type].dir=1;}
+  const panelId=type==='def'?'panel-salidas-definitivas':'panel-salidas-temporales';
+  document.querySelectorAll('#'+panelId+' thead th').forEach(th=>{th.classList.remove('sorted');const si=th.querySelector('.sort-icon');if(si)si.textContent='↕';});
   event.currentTarget.classList.add('sorted');
-  const si = event.currentTarget.querySelector('.sort-icon');
-  if (si) si.textContent = sortState[type].dir===1?'↑':'↓';
+  const si=event.currentTarget.querySelector('.sort-icon');
+  if(si)si.textContent=sortState[type].dir===1?'↑':'↓';
   adminApplyFilters(type);
 }
 
-function catBadge(cat) {
-  const cls = { nota_credito:'badge-purple', garantia_1:'badge-brand', rma:'badge-amber', reparacion:'badge-muted', rma_nota_credito:'badge-amber', garantia_1_nota_credito:'badge-purple' };
-  return `<span class="badge ${cls[cat]||'badge-muted'}">${CAT_LABELS[cat]||cat||'—'}</span>`;
-}
-function boletaBadge(b) {
-  if (!b) return '<span class="badge badge-muted">—</span>';
-  const cls = b.startsWith('GNC')||b.startsWith('TNC')?'badge-purple':b.startsWith('G')?'badge-brand':b.startsWith('T')?'badge-green':'badge-muted';
-  return `<span class="badge ${cls}">${b}</span>`;
-}
-function fmtDate(iso) { if (!iso) return '—'; return new Date(iso).toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric'}); }
+function catBadge(cat){const cls={nota_credito:'badge-purple',garantia_1:'badge-brand',rma:'badge-amber',reparacion:'badge-muted',rma_nota_credito:'badge-amber',garantia_1_nota_credito:'badge-purple'};return`<span class="badge ${cls[cat]||'badge-muted'}">${CAT_LABELS[cat]||cat||'—'}</span>`;}
+function boletaBadge(b){if(!b)return'<span class="badge badge-muted">—</span>';const cls=b.startsWith('GNC')||b.startsWith('TNC')?'badge-purple':b.startsWith('G')?'badge-brand':b.startsWith('T')?'badge-green':'badge-muted';return`<span class="badge ${cls}">${b}</span>`;}
+function fmtDate(iso){if(!iso)return'—';return new Date(iso).toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric'});}
 
-function adminRenderTable(type) {
-  const tbody = document.getElementById('tbody-'+type);
-  const rows = records[type];
-  if (!rows.length) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="11"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;
-    return;
-  }
-  tbody.innerHTML = rows.map((r,i) => `<tr style="animation-delay:${i*0.02}s">
+function adminRenderTable(type){
+  const tbody=document.getElementById('tbody-'+type);
+  const rows=records[type];
+  if(!rows.length){tbody.innerHTML=`<tr class="empty-row"><td colspan="10"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;return;}
+  tbody.innerHTML=rows.map((r,i)=>`<tr style="animation-delay:${i*0.02}s">
     <td class="td-mono">${boletaBadge(r.boleta)}</td>
     <td>${fmtDate(r.fecha_creacion)}</td>
     <td>${catBadge(r.categoria)}</td>
@@ -1572,7 +1353,6 @@ function adminRenderTable(type) {
     <td style="color:var(--ink-3)">${r.sede||'—'}</td>
     <td class="td-mono">${r.factura||'—'}</td>
     <td>${r.marca||'—'}</td>
-    <td class="td-mono">${r.codigo||'—'}</td>
     <td><div class="td-actions">
       <button class="btn btn-amber btn-sm" onclick="openEdit('${r.id}')">Editar</button>
       <button class="btn btn-danger btn-sm" onclick="askDelete('${r.id}','${r.boleta||''}')">Eliminar</button>
@@ -1580,130 +1360,168 @@ function adminRenderTable(type) {
   </tr>`).join('');
 }
 
-/* EXCEL */
-function exportExcel(type) {
-  const rows = records[type];
-  if (!rows.length) { showToast('No hay registros', 'info', 'Nada para exportar'); return; }
-  const headers = ['Consecutivo','Fecha','Tipo','Categoría','Motivo','Ticket','Cliente','Sede','Factura','Cantidad','Fecha Compra','Marca','Código','Serie','Descripción','Falla'];
-  const data = rows.map(r => [r.boleta||'', r.fecha_creacion?new Date(r.fecha_creacion).toLocaleDateString('es-CR'):'', r.tipo==='salida_definitiva'?'Salida Definitiva':'Salida Temporal', CAT_LABELS[r.categoria]||r.categoria||'', MOT_LABELS[r.motivo]||r.motivo||'', r.ticket||'', r.nombre||'', r.sede||'', r.factura||'', r.cantidad||'', r.fecha_compra||'', r.marca||'', r.codigo||'', r.serie||'', r.descripcion||'', r.falla||'']);
-  const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
-  ws['!cols'] = [12,12,18,18,18,10,22,14,12,8,12,14,14,14,30,30].map(w=>({wch:w}));
-  const wb = XLSX.utils.book_new();
-  const sn = type==='def'?'Salidas Definitivas':'Salidas Temporales';
-  XLSX.utils.book_append_sheet(wb, ws, sn);
-  XLSX.writeFile(wb, `Sekunet_${sn.replace(/ /g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
-  showToast('Excel exportado', 'success');
+function exportExcel(type){
+  const rows=records[type];
+  if(!rows.length){showToast('No hay registros','info','Nada para exportar');return;}
+  const headers=['Consecutivo','Fecha','Tipo','Categoría','Motivo','Ticket','Cliente','Sede','Factura','Cantidad','Fecha Compra','Marca','Serie','Descripción','Falla'];
+  const data=rows.map(r=>[r.boleta||'',r.fecha_creacion?new Date(r.fecha_creacion).toLocaleDateString('es-CR'):'',r.tipo==='salida_definitiva'?'Salida Definitiva':'Salida Temporal',CAT_LABELS[r.categoria]||r.categoria||'',MOT_LABELS[r.motivo]||r.motivo||'',r.ticket||'',r.nombre||'',r.sede||'',r.factura||'',r.cantidad||'',r.fecha_compra||'',r.marca||'',r.serie||'',r.descripcion||'',r.falla||'']);
+  const ws=XLSX.utils.aoa_to_sheet([headers,...data]);
+  ws['!cols']=[12,12,18,18,18,10,22,14,12,8,12,14,14,30,30].map(w=>({wch:w}));
+  const wb=XLSX.utils.book_new();
+  const sn=type==='def'?'Salidas Definitivas':'Salidas Temporales';
+  XLSX.utils.book_append_sheet(wb,ws,sn);
+  XLSX.writeFile(wb,`Sekunet_${sn.replace(/ /g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  showToast('Excel exportado','success');
 }
 
-/* EDIT MODAL */
+/* ══ EDIT MODAL ══ */
 let editingId = null;
 const EDIT_FIELDS = [
-  { key:'tipo',        label:'Tipo',               type:'select', opts:[['salida_definitiva','Salida Definitiva'],['salida_temporal','Salida Temporal']] },
-  { key:'categoria',   label:'Categoría',          type:'select', opts:[['nota_credito','Nota De Crédito'],['garantia_1','Garantía 1%'],['rma','RMA'],['reparacion','Reparación'],['rma_nota_credito','RMA - NC'],['garantia_1_nota_credito','Garantía 1% + NC']] },
-  { key:'motivo',      label:'Motivo',             type:'select', opts:[['sin_existencias','Sin Existencias'],['solicitud_cliente','Solicitud del Cliente'],['reemplazo','Reemplazo']] },
-  { key:'ticket',      label:'Ticket N°',          type:'text' },
-  { key:'sede',        label:'Sede',               type:'text' },
-  { key:'nombre',      label:'Nombre del Cliente', type:'text' },
-  { key:'factura',     label:'Factura N°',         type:'text' },
-  { key:'cantidad',    label:'Cantidad',           type:'number' },
-  { key:'fecha_compra',label:'Fecha de Compra',    type:'date' },
-  { key:'marca',       label:'Marca',              type:'text' },
-  { key:'codigo',      label:'Código de Artículo', type:'text' },
-  { key:'serie',       label:'Serie',              type:'text' },
-  { key:'descripcion', label:'Descripción',        type:'textarea', full:true },
-  { key:'falla',       label:'Falla',              type:'textarea', full:true },
+  {key:'tipo',label:'Tipo',type:'select',opts:[['salida_definitiva','Salida Definitiva'],['salida_temporal','Salida Temporal']]},
+  {key:'categoria',label:'Categoría',type:'select',opts:[['nota_credito','Nota De Crédito'],['garantia_1','Garantía 1%'],['rma','RMA'],['reparacion','Reparación'],['rma_nota_credito','RMA - NC'],['garantia_1_nota_credito','Garantía 1% + NC']]},
+  {key:'motivo',label:'Motivo',type:'select',opts:[['sin_existencias','Sin Existencias'],['solicitud_cliente','Solicitud del Cliente'],['reemplazo','Reemplazo']]},
+  {key:'ticket',label:'Ticket N°',type:'text'},
+  {key:'sede',label:'Sede',type:'text'},
+  {key:'nombre',label:'Nombre del Cliente',type:'text'},
+  {key:'factura',label:'Factura N°',type:'text'},
+  {key:'cantidad',label:'Cantidad',type:'number'},
+  {key:'fecha_compra',label:'Fecha de Compra',type:'date'},
+  {key:'marca',label:'Marca',type:'text'},
+  {key:'serie',label:'Serie',type:'text'},
+  {key:'descripcion',label:'Descripción',type:'textarea',full:true},
+  {key:'falla',label:'Falla',type:'textarea',full:true},
 ];
 
-function openEdit(id) {
-  const r = allRecords.find(x=>x.id==id) || rawData.def.find(x=>x.id===id) || rawData.temp.find(x=>x.id===id);
-  if (!r) return;
-  editingId = id;
-  document.getElementById('modalTitleText').textContent = 'Editar · ' + (r.boleta || 'Registro');
-  document.getElementById('modalBody').innerHTML = EDIT_FIELDS.map(f => {
-    const val = r[f.key] !== null && r[f.key] !== undefined ? r[f.key] : '';
+function openEdit(id){
+  const r=allRecords.find(x=>x.id==id)||rawData.def.find(x=>x.id===id)||rawData.temp.find(x=>x.id===id);
+  if(!r)return;
+  editingId=id;
+  document.getElementById('modalTitleText').textContent='Editar · '+(r.boleta||'Registro');
+  document.getElementById('modalBody').innerHTML=EDIT_FIELDS.map(f=>{
+    const val=r[f.key]!==null&&r[f.key]!==undefined?r[f.key]:'';
     let inp;
-    if (f.type === 'textarea') {
-      inp = `<textarea id="e_${f.key}" class="field-textarea" rows="2">${val}</textarea>`;
-    } else if (f.type === 'select') {
-      const opts = f.opts.map(([v,l])=>`<option value="${v}"${v===val?' selected':''}>${l}</option>`).join('');
-      inp = `<select id="e_${f.key}" class="field-select"><option value="">Seleccionar</option>${opts}</select>`;
-    } else {
-      inp = `<input id="e_${f.key}" type="${f.type}" class="field-input" value="${val}">`;
-    }
-    return `<div class="field${f.full?' field-full':''}"><label class="field-label">${f.label}</label>${inp}</div>`;
+    if(f.type==='textarea'){inp=`<textarea id="e_${f.key}" class="field-textarea" rows="2">${val}</textarea>`;}
+    else if(f.type==='select'){const opts=f.opts.map(([v,l])=>`<option value="${v}"${v===val?' selected':''}>${l}</option>`).join('');inp=`<select id="e_${f.key}" class="field-select"><option value="">Seleccionar</option>${opts}</select>`;}
+    else{inp=`<input id="e_${f.key}" type="${f.type}" class="field-input" value="${val}">`;}
+    return`<div class="field${f.full?' field-full':''}"><label class="field-label">${f.label}</label>${inp}</div>`;
   }).join('');
   document.getElementById('editModal').classList.add('open');
 }
-
-function closeModal() { document.getElementById('editModal').classList.remove('open'); editingId = null; }
-
-async function saveEdit() {
-  const btn = document.getElementById('modalSaveBtn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Guardando…';
-  const payload = {};
-  EDIT_FIELDS.forEach(f => { const el = document.getElementById('e_'+f.key); if(el) payload[f.key] = el.value||null; });
-  if (payload.cantidad) payload.cantidad = parseInt(payload.cantidad)||null;
-  const allPool = [...allRecords, ...rawData.def, ...rawData.temp];
-  const orig = allPool.find(x => x.id == editingId);
-  if (orig) { const p = buildPrefixFrom(payload.tipo||'', payload.categoria||''); payload.boleta = p ? p + orig.numero_consecutivo : String(orig.numero_consecutivo); }
-  try {
-    await sbFetch('PATCH', TABLE + '?id=eq.' + editingId, payload);
-    const patch = x => x.id == editingId ? Object.assign({}, x, payload) : x;
-    allRecords = allRecords.map(patch);
-    const allM = [...rawData.def, ...rawData.temp].map(patch);
-    rawData.def = allM.filter(r=>r.tipo==='salida_definitiva');
-    rawData.temp= allM.filter(r=>r.tipo==='salida_temporal');
-    adminUpdateBadges(); adminApplyFilters('def'); adminApplyFilters('temp');
-    renderSimpleTable(); closeModal();
-    showToast('Registro actualizado', 'success');
-  } catch(err) { showToast('Error al actualizar', 'error', err.message); }
-  finally { btn.disabled=false; btn.innerHTML='<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Guardar Cambios'; }
+function closeModal(){document.getElementById('editModal').classList.remove('open');editingId=null;}
+async function saveEdit(){
+  const btn=document.getElementById('modalSaveBtn');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando…';
+  const payload={};
+  EDIT_FIELDS.forEach(f=>{const el=document.getElementById('e_'+f.key);if(el)payload[f.key]=el.value||null;});
+  if(payload.cantidad)payload.cantidad=parseInt(payload.cantidad)||null;
+  const allPool=[...allRecords,...rawData.def,...rawData.temp];
+  const orig=allPool.find(x=>x.id==editingId);
+  if(orig){const p=buildPrefixFrom(payload.tipo||'',payload.categoria||'');payload.boleta=p?p+orig.numero_consecutivo:String(orig.numero_consecutivo);}
+  try{
+    await sbFetch('PATCH',TABLE+'?id=eq.'+editingId,payload);
+    const patch=x=>x.id==editingId?Object.assign({},x,payload):x;
+    allRecords=allRecords.map(patch);
+    const allM=[...rawData.def,...rawData.temp].map(patch);
+    rawData.def=allM.filter(r=>r.tipo==='salida_definitiva');
+    rawData.temp=allM.filter(r=>r.tipo==='salida_temporal');
+    adminUpdateBadges();adminApplyFilters('def');adminApplyFilters('temp');closeModal();
+    showToast('Registro actualizado','success');
+  }catch(err){showToast('Error al actualizar','error',err.message);}
+  finally{btn.disabled=false;btn.innerHTML='<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Guardar Cambios';}
 }
 
-/* DELETE */
-function askDelete(id, boleta) {
-  document.getElementById('confirmMsg').textContent = '¿Eliminar el registro ' + (boleta||id) + '? Esta acción no se puede deshacer.';
-  document.getElementById('confirmOkBtn').onclick = () => doDelete(id, boleta);
+function askDelete(id,boleta){
+  document.getElementById('confirmMsg').textContent='¿Eliminar el registro '+(boleta||id)+'? Esta acción no se puede deshacer.';
+  document.getElementById('confirmOkBtn').onclick=()=>doDelete(id,boleta);
   document.getElementById('confirmModal').classList.add('open');
 }
-function closeConfirm() { document.getElementById('confirmModal').classList.remove('open'); }
-async function doDelete(id, boleta) {
+function closeConfirm(){document.getElementById('confirmModal').classList.remove('open');}
+async function doDelete(id,boleta){
   closeConfirm();
-  try {
-    await sbFetch('DELETE', TABLE + '?id=eq.' + id, null);
-    allRecords  = allRecords.filter(r => r.id != id);
-    rawData.def  = rawData.def.filter(r => r.id !== id);
-    rawData.temp = rawData.temp.filter(r => r.id !== id);
-    updateTabCount(); adminUpdateBadges(); adminApplyFilters('def'); adminApplyFilters('temp'); renderSimpleTable();
-    showToast('Registro eliminado', 'info', boleta || id);
-  } catch(err) { showToast('Error al eliminar', 'error', err.message); }
+  try{
+    await sbFetch('DELETE',TABLE+'?id=eq.'+id,null);
+    allRecords=allRecords.filter(r=>r.id!=id);
+    rawData.def=rawData.def.filter(r=>r.id!==id);
+    rawData.temp=rawData.temp.filter(r=>r.id!==id);
+    updateTabCount();adminUpdateBadges();adminApplyFilters('def');adminApplyFilters('temp');
+    showToast('Registro eliminado','info',boleta||id);
+  }catch(err){showToast('Error al eliminar','error',err.message);}
 }
 
-/* INIT */
+/* ══ INIT ══ */
 document.addEventListener('DOMContentLoaded', async () => {
   renderHeaderDate();
+
+  // Nav
   document.querySelectorAll('.pill-btn').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
   document.querySelectorAll('.rail-item[data-section]').forEach(btn => {
     btn.addEventListener('click', () => adminSwitchSection(btn.dataset.section));
   });
+
+  // Form events
   document.getElementById('tipo').addEventListener('change', () => { renderHeaderBoleta(); updateProgress(); });
   document.getElementById('categoria').addEventListener('change', () => { renderHeaderBoleta(); updateProgress(); });
   document.getElementById('warrantyForm').addEventListener('submit', handleSubmit);
   document.getElementById('clearBtn').addEventListener('click', () => {
     document.getElementById('warrantyForm').reset();
+    serieClear();
     document.getElementById('warrantyForm').querySelectorAll('.error,.filled').forEach(el=>el.classList.remove('error','filled'));
+    // Re-enable any locked fields
+    document.getElementById('marca').disabled = false;
+    document.getElementById('descripcion').disabled = false;
     renderHeaderBoleta(); updateProgress();
-    showToast('Formulario limpiado', 'info');
+    showToast('Formulario limpiado','info');
   });
-  document.querySelectorAll('.field-input, .field-select, .field-textarea').forEach(el => {
-    el.addEventListener('input', () => { el.classList.toggle('filled', !!el.value); el.classList.remove('error'); });
+  document.querySelectorAll('.field-input:not(#serie), .field-select, .field-textarea').forEach(el => {
+    el.addEventListener('input',  () => { el.classList.toggle('filled', !!el.value); el.classList.remove('error'); });
     el.addEventListener('change', () => { el.classList.toggle('filled', !!el.value); el.classList.remove('error'); updateProgress(); });
   });
-  document.getElementById('searchInput').addEventListener('input', renderSimpleTable);
-  document.getElementById('editModal').addEventListener('click', e => { if(e.target===document.getElementById('editModal')) closeModal(); });
-  document.getElementById('saveModal').addEventListener('click', e => { if(e.target===document.getElementById('saveModal')) closeSaveModal(); });
+
+  // Serie autocomplete
+  const serieInput = document.getElementById('serie');
+  serieInput.addEventListener('input', () => {
+    if (serieMatchedItem) serieClear(); // user changed serie, clear auto-fill
+    serieSearch(serieInput.value);
+  });
+  serieInput.addEventListener('blur', () => {
+    setTimeout(() => { document.getElementById('serieDropdown').style.display = 'none'; }, 200);
+  });
+  serieInput.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.getElementById('serieDropdown').style.display = 'none';
+  });
+
+  // Inventory file input
+  document.getElementById('invFileInput').addEventListener('change', e => {
+    if (e.target.files[0]) invHandleFile(e.target.files[0]);
+    e.target.value = '';
+  });
+
+  // Drag and drop on upload zone
+  const uploadZone = document.getElementById('uploadZone');
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault(); uploadZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) invHandleFile(file);
+  });
+
+  // Inventory table sort
+  document.querySelectorAll('#invTable thead th.sortable').forEach(th => {
+    th.addEventListener('click', () => invSortBy(th.dataset.col));
+  });
+
+  // Inventory search
+  document.getElementById('invSearch').addEventListener('input', invRender);
+
+  // Modal close on backdrop
+  document.getElementById('editModal').addEventListener('click', e => { if(e.target===document.getElementById('editModal'))closeModal(); });
+  document.getElementById('saveModal').addEventListener('click', e => { if(e.target===document.getElementById('saveModal'))closeSaveModal(); });
+
+  // Load
+  invLoad();
   await loadRecords();
   renderHeaderBoleta();
   updateProgress();
