@@ -1020,6 +1020,65 @@ function invParseExcel(file) {
   });
 }
 
+
+function invUpdateUI() {
+  const hasData = inventory.length > 0;
+  document.getElementById('uploadZone').style.display = hasData ? 'none' : '';
+  document.getElementById('invTableCard').style.display = hasData ? '' : 'none';
+  document.getElementById('invSearchBox').style.display = hasData ? '' : 'none';
+  document.getElementById('invStatsBar').style.display  = hasData ? '' : 'none';
+  if (hasData) {
+    document.getElementById('invSubtitle').textContent = 'Inventario activo · subí un nuevo Excel para actualizar';
+    document.getElementById('invStatTotal').textContent = inventory.length + ' artículos';
+    const bodegas = new Set(inventory.map(r => r['Bodega']||'').filter(Boolean)).size;
+    document.getElementById('invStatBodegas').textContent = bodegas + (bodegas===1?' bodega':' bodegas');
+    const el = document.getElementById('invCount');
+    el.textContent = inventory.length; el.style.display = '';
+  }
+}
+
+function invRender() {
+  const q = (document.getElementById('invSearch')?.value || '').toLowerCase().trim();
+  let rows = q
+    ? inventory.filter(r => INV_COLS.some(c => String(r[c]||'').toLowerCase().includes(q)))
+    : [...inventory];
+  if (invSortCol) {
+    rows.sort((a,b) => {
+      const av = String(a[invSortCol]||''), bv = String(b[invSortCol]||'');
+      return av < bv ? -invSortDir : av > bv ? invSortDir : 0;
+    });
+  }
+  invFiltered = rows;
+  const tbody = document.getElementById('invTbody');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="6"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>Sin resultados</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.slice(0, 500).map((r, i) => `<tr style="animation-delay:${Math.min(i,30)*0.015}s">
+    <td class="td-mono">${r['Bodega']||'—'}</td>
+    <td><strong>${r['Artículo']||'—'}</strong></td>
+    <td style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r['Descripción del Artículo']||'—'}</td>
+    <td><span class="badge badge-brand">${r['Marca']||'—'}</span></td>
+    <td class="td-mono">${r['Unidad de Medida Almacén']||'—'}</td>
+    <td class="td-mono" style="font-weight:600;color:var(--ink-1)">${r['Disponible Almacén']||'—'}</td>
+  </tr>`).join('');
+  if (rows.length > 500) {
+    tbody.innerHTML += `<tr><td colspan="6" style="text-align:center;padding:.75rem;font-size:.75rem;color:var(--ink-4)">Mostrando 500 de ${rows.length} — refiná la búsqueda para ver más</td></tr>`;
+  }
+}
+
+function invSortBy(col) {
+  if (invSortCol === col) invSortDir *= -1;
+  else { invSortCol = col; invSortDir = 1; }
+  document.querySelectorAll('#invTable thead th').forEach(th => {
+    th.classList.remove('sorted');
+    const si = th.querySelector('.sort-icon'); if (si) si.textContent = '↕';
+  });
+  const th = document.querySelector(`#invTable thead th[data-col="${col}"]`);
+  if (th) { th.classList.add('sorted'); const si = th.querySelector('.sort-icon'); if (si) si.textContent = invSortDir===1?'↑':'↓'; }
+  invRender();
+}
+
 async function invHandleFile(file) {
   if (!file) return;
   showToast('Procesando Excel…', 'info');
