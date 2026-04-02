@@ -4,262 +4,227 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Garantías · Sekunet</title>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     /* ══════════════════════════════════════════
-       DESIGN TOKENS
+       DESIGN TOKENS — Light theme from Sekunet logo
+       Primary: #D1411E (logo orange-red)
+       Secondary: #1A1A1A (near black)
     ══════════════════════════════════════════ */
     :root {
-      --bg:          #0a0d14;
-      --bg-2:        #0f1320;
-      --bg-3:        #161b2e;
-      --surface:     #1a2035;
-      --surface-2:   #1f2640;
-      --surface-3:   #252d4a;
-      --border:      rgba(255,255,255,.07);
-      --border-2:    rgba(255,255,255,.12);
-      --border-3:    rgba(255,255,255,.18);
+      --brand:        #D1411E;
+      --brand-2:      #B5360F;
+      --brand-3:      #F05A32;
+      --brand-dim:    rgba(209,65,30,.1);
+      --brand-glow:   rgba(209,65,30,.25);
 
-      --blue:        #3b82f6;
-      --blue-dim:    rgba(59,130,246,.15);
-      --blue-glow:   rgba(59,130,246,.3);
-      --amber:       #f59e0b;
-      --amber-dim:   rgba(245,158,11,.15);
-      --green:       #10b981;
-      --green-dim:   rgba(16,185,129,.15);
-      --red:         #ef4444;
-      --red-dim:     rgba(239,68,68,.15);
-      --purple:      #8b5cf6;
-      --purple-dim:  rgba(139,92,246,.15);
-      --teal:        #14b8a6;
-      --teal-dim:    rgba(20,184,166,.15);
+      --bg:           #F5F4F2;
+      --bg-2:         #EFEDE9;
+      --bg-3:         #E8E5E0;
+      --surface:      #FFFFFF;
+      --surface-2:    #FAF9F7;
+      --surface-3:    #F2F0EC;
+      --border:       rgba(30,20,10,.08);
+      --border-2:     rgba(30,20,10,.13);
+      --border-3:     rgba(30,20,10,.22);
 
-      --txt-1:       #f1f5f9;
-      --txt-2:       #94a3b8;
-      --txt-3:       #64748b;
-      --txt-4:       #3f4f6b;
+      --ink-1:        #1A1108;
+      --ink-2:        #4A3F32;
+      --ink-3:        #7A6E62;
+      --ink-4:        #A89E92;
 
-      --font:        'Geist', system-ui, sans-serif;
-      --mono:        'Geist Mono', monospace;
+      --blue:         #2563EB;
+      --blue-dim:     rgba(37,99,235,.1);
+      --amber:        #D97706;
+      --amber-dim:    rgba(217,119,6,.1);
+      --green:        #059669;
+      --green-dim:    rgba(5,150,105,.1);
+      --red:          #DC2626;
+      --red-dim:      rgba(220,38,38,.1);
+      --purple:       #7C3AED;
+      --purple-dim:   rgba(124,58,237,.1);
 
-      --radius-xs:   4px;
-      --radius-sm:   6px;
-      --radius-md:   10px;
-      --radius-lg:   14px;
-      --radius-xl:   20px;
+      --font:         'Plus Jakarta Sans', system-ui, sans-serif;
+      --mono:         'DM Mono', monospace;
 
-      --shadow-glow: 0 0 0 1px var(--blue-dim), 0 4px 24px rgba(59,130,246,.12);
-      --shadow-lg:   0 20px 60px rgba(0,0,0,.5);
-      --shadow-sm:   0 2px 8px rgba(0,0,0,.3);
+      --radius-xs:    4px;
+      --radius-sm:    8px;
+      --radius-md:    12px;
+      --radius-lg:    16px;
+      --radius-xl:    22px;
 
-      --transition:  all .2s cubic-bezier(.4,0,.2,1);
+      --shadow-sm:    0 1px 3px rgba(30,20,10,.08), 0 1px 2px rgba(30,20,10,.05);
+      --shadow-md:    0 4px 16px rgba(30,20,10,.1), 0 2px 6px rgba(30,20,10,.06);
+      --shadow-lg:    0 20px 50px rgba(30,20,10,.15), 0 8px 20px rgba(30,20,10,.08);
+      --shadow-brand: 0 4px 16px var(--brand-glow);
+
+      --transition:   all .18s cubic-bezier(.4,0,.2,1);
     }
 
-    /* ══════════════════════════════════════════
-       RESET & BASE
-    ══════════════════════════════════════════ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
       font-family: var(--font);
       background: var(--bg);
-      color: var(--txt-1);
+      color: var(--ink-1);
       min-height: 100vh;
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-
-    /* Ambient background */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(59,130,246,.08) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(245,158,11,.05) 0%, transparent 60%);
-      pointer-events: none;
-      z-index: 0;
     }
 
     /* ══════════════════════════════════════════
        TOPBAR
     ══════════════════════════════════════════ */
     .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: rgba(10,13,20,.8);
-      backdrop-filter: blur(20px) saturate(1.8);
-      -webkit-backdrop-filter: blur(20px) saturate(1.8);
+      position: sticky; top: 0; z-index: 50;
+      background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 0 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 56px;
-      gap: 1rem;
+      box-shadow: var(--shadow-sm);
+      padding: 0 1.75rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px; gap: 1rem;
     }
-
     .topbar-left { display: flex; align-items: center; gap: 1rem; }
 
-    .logo-mark {
-      display: flex; align-items: center; gap: .625rem;
-      text-decoration: none;
+    .logo-mark { display: flex; align-items: center; gap: .75rem; text-decoration: none; }
+    .logo-mark img {
+      height: 32px; width: auto;
+      /* No filter — show logo as-is */
     }
-    .logo-mark img { height: 28px; width: auto; filter: brightness(0) invert(1); opacity: .9; }
-    .logo-divider { width: 1px; height: 18px; background: var(--border-2); }
+    .logo-divider { width: 1px; height: 22px; background: var(--border-2); }
     .logo-label {
-      font-size: .75rem; font-weight: 600;
-      letter-spacing: .08em; text-transform: uppercase;
-      color: var(--txt-3);
+      font-size: .6875rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--ink-4);
     }
 
-    /* ── Pill nav ── */
+    /* Pill nav */
     .pill-nav {
       display: flex; align-items: center;
-      background: var(--surface);
+      background: var(--bg-2);
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
-      padding: 3px;
-      gap: 2px;
+      padding: 3px; gap: 2px;
     }
     .pill-btn {
-      font-family: var(--font);
-      font-size: .8125rem; font-weight: 500;
-      color: var(--txt-3);
-      background: none; border: none;
-      padding: .375rem .875rem;
-      border-radius: var(--radius-md);
-      cursor: pointer;
+      font-family: var(--font); font-size: .8125rem; font-weight: 600;
+      color: var(--ink-3); background: none; border: none;
+      padding: .375rem .9rem;
+      border-radius: var(--radius-md); cursor: pointer;
       transition: var(--transition);
       display: flex; align-items: center; gap: .4rem;
-      white-space: nowrap;
-      position: relative;
+      white-space: nowrap; position: relative;
     }
-    .pill-btn svg { width: 13px; height: 13px; }
-    .pill-btn:hover { color: var(--txt-1); background: var(--surface-2); }
+    .pill-btn svg { width: 14px; height: 14px; }
+    .pill-btn:hover { color: var(--ink-1); background: var(--surface); }
     .pill-btn.active {
-      color: var(--txt-1);
-      background: var(--surface-3);
-      box-shadow: 0 1px 3px rgba(0,0,0,.4);
+      color: var(--ink-1);
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
     }
     .pill-btn .badge-count {
-      background: var(--amber);
-      color: #000;
+      background: var(--brand); color: #fff;
       font-size: .6rem; font-weight: 700;
       padding: 1px 5px; border-radius: 999px;
-      min-width: 16px; text-align: center;
-      line-height: 1.4;
+      min-width: 16px; text-align: center; line-height: 1.4;
     }
 
-    /* ── Topbar right ── */
     .topbar-right { display: flex; align-items: center; gap: .75rem; }
     .meta-chip {
       display: flex; align-items: center; gap: .5rem;
-      background: var(--surface);
+      background: var(--surface-2);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
-      padding: .3rem .625rem;
+      padding: .3rem .75rem;
     }
-    .meta-chip-label { font-size: .65rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--txt-4); }
-    .meta-chip-value { font-family: var(--mono); font-size: .75rem; color: var(--txt-2); }
-    #boletaChip .meta-chip-value { color: var(--amber); font-weight: 600; }
+    .meta-chip-label { font-size: .6rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-4); }
+    .meta-chip-value { font-family: var(--mono); font-size: .75rem; color: var(--ink-2); }
+    #boletaChip .meta-chip-value { color: var(--brand); font-weight: 600; }
 
     /* ══════════════════════════════════════════
-       MAIN PANELS
+       PANELS
     ══════════════════════════════════════════ */
     .panel { display: none; }
     .panel.active { display: block; }
 
     /* ══════════════════════════════════════════
-       PANEL: FORMULARIO
+       FORM PANEL
     ══════════════════════════════════════════ */
     .form-shell {
-      max-width: 860px;
-      margin: 2rem auto;
+      max-width: 860px; margin: 2rem auto;
       padding: 0 1.5rem 4rem;
-      position: relative; z-index: 1;
     }
 
-    /* Progress bar (Zeigarnik effect) */
+    /* Progress bar */
     .progress-bar {
-      display: flex; align-items: center; gap: 0;
-      margin-bottom: 2rem;
-      position: relative;
+      display: flex; align-items: center;
+      margin-bottom: 2rem; position: relative;
     }
     .progress-bar::before {
-      content: '';
-      position: absolute;
-      top: 50%; transform: translateY(-50%);
-      left: 0; right: 0;
-      height: 1px;
-      background: var(--border-2);
-      z-index: 0;
+      content: ''; position: absolute;
+      top: 14px; left: 14px; right: 14px;
+      height: 1px; background: var(--border-2); z-index: 0;
     }
     .progress-step {
       display: flex; flex-direction: column; align-items: center;
       gap: .375rem; flex: 1; position: relative; z-index: 1;
-      cursor: default;
     }
     .step-dot {
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      border: 1.5px solid var(--border-2);
-      background: var(--bg-2);
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid var(--border-2); background: var(--surface);
       display: flex; align-items: center; justify-content: center;
-      font-size: .7rem; font-weight: 700;
-      color: var(--txt-3);
+      font-size: .7rem; font-weight: 700; color: var(--ink-4);
       transition: var(--transition);
     }
     .step-dot.done { background: var(--green); border-color: var(--green); color: #fff; }
-    .step-dot.current { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); box-shadow: 0 0 0 3px var(--blue-dim); }
-    .step-label { font-size: .65rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--txt-4); text-align: center; }
-    .progress-step.current-step .step-label { color: var(--txt-2); }
+    .step-dot.current { background: var(--brand-dim); border-color: var(--brand); color: var(--brand); box-shadow: 0 0 0 4px var(--brand-dim); }
+    .step-label { font-size: .65rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-4); }
+    .progress-step.current-step .step-label { color: var(--brand); }
 
-    /* Section cards */
+    /* Form section cards */
     .form-section {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-xl);
-      overflow: hidden;
-      margin-bottom: 1rem;
-      transition: var(--transition);
+      overflow: hidden; margin-bottom: 1rem;
+      box-shadow: var(--shadow-sm);
+      animation: sectionFade .4s ease both;
     }
+    .form-section:nth-child(2) { animation-delay: .07s; }
+    .form-section:nth-child(3) { animation-delay: .14s; }
+    @keyframes sectionFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
     .form-section:focus-within {
       border-color: var(--border-2);
-      box-shadow: var(--shadow-glow);
+      box-shadow: var(--shadow-md);
     }
 
     .section-head {
       display: flex; align-items: center; justify-content: space-between;
       padding: 1rem 1.25rem;
       border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
     }
-    .section-head-left { display: flex; align-items: center; gap: .625rem; }
+    .section-head-left { display: flex; align-items: center; gap: .75rem; }
     .section-icon {
-      width: 28px; height: 28px;
-      border-radius: var(--radius-sm);
+      width: 32px; height: 32px; border-radius: var(--radius-sm);
       display: flex; align-items: center; justify-content: center;
     }
-    .section-icon svg { width: 14px; height: 14px; }
-    .section-icon-blue  { background: var(--blue-dim);   color: var(--blue); }
-    .section-icon-amber { background: var(--amber-dim);  color: var(--amber); }
-    .section-icon-green { background: var(--green-dim);  color: var(--green); }
+    .section-icon svg { width: 16px; height: 16px; }
+    .section-icon-brand  { background: var(--brand-dim); color: var(--brand); }
+    .section-icon-amber  { background: var(--amber-dim); color: var(--amber); }
+    .section-icon-green  { background: var(--green-dim); color: var(--green); }
+
     .section-name {
-      font-size: .8125rem; font-weight: 600;
-      color: var(--txt-1);
+      font-size: .9375rem; font-weight: 700; color: var(--ink-1); line-height: 1.2;
     }
-    .section-sub {
-      font-size: .75rem; color: var(--txt-3);
-    }
+    .section-sub { font-size: .75rem; color: var(--ink-3); }
     .section-req {
-      font-size: .65rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
-      color: var(--txt-4);
-      padding: .2rem .5rem;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xs);
+      font-size: .6rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--brand); padding: .2rem .6rem;
+      border: 1px solid var(--brand-dim); border-radius: var(--radius-xs);
+      background: var(--brand-dim);
     }
 
     .section-body { padding: 1.25rem; }
@@ -272,164 +237,198 @@
     .field-label {
       font-size: .65rem; font-weight: 700;
       letter-spacing: .08em; text-transform: uppercase;
-      color: var(--txt-3);
-      padding: 0 0 .375rem;
+      color: var(--ink-3); padding: 0 0 .375rem;
     }
     .field-input, .field-select, .field-textarea {
       font-family: var(--font); font-size: .875rem;
-      color: var(--txt-1);
+      color: var(--ink-1);
       background: var(--bg-2);
-      border: 1px solid var(--border-2);
+      border: 1.5px solid var(--border-2);
       border-radius: var(--radius-sm);
-      padding: .5625rem .75rem;
+      padding: .5625rem .8rem;
       transition: var(--transition);
       width: 100%; outline: none;
     }
     .field-select {
       appearance: none; cursor: pointer;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right .625rem center; padding-right: 2rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237A6E62' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right .75rem center; padding-right: 2.25rem;
     }
-    .field-textarea { resize: vertical; min-height: 80px; }
-    .field-input::placeholder, .field-textarea::placeholder { color: var(--txt-4); }
+    .field-textarea { resize: vertical; min-height: 76px; }
+    /* NO placeholder text */
+    .field-input::placeholder, .field-textarea::placeholder { color: transparent; }
     .field-input:hover, .field-select:hover, .field-textarea:hover { border-color: var(--border-3); }
     .field-input:focus, .field-select:focus, .field-textarea:focus {
-      border-color: var(--blue);
-      background: var(--bg-3);
-      box-shadow: 0 0 0 3px var(--blue-dim);
+      border-color: var(--brand); background: var(--surface);
+      box-shadow: 0 0 0 3px var(--brand-dim);
     }
     .field-input.error, .field-select.error, .field-textarea.error {
-      border-color: var(--red);
-      box-shadow: 0 0 0 3px var(--red-dim);
+      border-color: var(--red); box-shadow: 0 0 0 3px var(--red-dim);
     }
     .field-input.filled, .field-select.filled, .field-textarea.filled {
-      border-color: rgba(16,185,129,.3);
+      border-color: rgba(5,150,105,.3); background: var(--surface);
     }
+    select option { background: #fff; color: #1A1108; }
 
     /* Form actions */
     .form-actions {
       display: flex; align-items: center; justify-content: space-between;
-      margin-top: 1.5rem;
-      padding: 1rem 1.25rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      gap: 1rem; flex-wrap: wrap;
+      margin-top: 1.25rem; padding: 1rem 1.25rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-xl); gap: 1rem; flex-wrap: wrap;
+      box-shadow: var(--shadow-sm);
     }
     .form-actions-left { display: flex; align-items: center; gap: .5rem; }
     .form-actions-right { display: flex; align-items: center; gap: .5rem; }
-    .form-hint { font-size: .75rem; color: var(--txt-4); }
-    .form-hint strong { color: var(--txt-3); }
+    .form-hint { font-size: .75rem; color: var(--ink-4); }
+    .form-hint strong { color: var(--ink-3); font-family: var(--mono); }
 
     /* ══════════════════════════════════════════
-       BUTTONS (shared)
+       BUTTONS
     ══════════════════════════════════════════ */
     .btn {
-      font-family: var(--font); font-size: .8125rem; font-weight: 600;
-      letter-spacing: .02em;
+      font-family: var(--font); font-size: .8125rem; font-weight: 700;
+      letter-spacing: .01em;
       border: none; border-radius: var(--radius-sm);
       padding: .5rem 1rem;
       cursor: pointer;
       display: inline-flex; align-items: center; gap: .4rem;
       transition: var(--transition);
-      white-space: nowrap; position: relative;
+      white-space: nowrap; position: relative; overflow: hidden;
     }
-    .btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+    .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
     .btn:active { transform: scale(.97); }
 
     .btn-primary {
-      background: var(--blue); color: #fff;
-      box-shadow: 0 1px 0 rgba(255,255,255,.1) inset, 0 4px 12px var(--blue-glow);
+      background: var(--brand); color: #fff;
+      box-shadow: var(--shadow-brand);
     }
-    .btn-primary:hover { background: #2563eb; box-shadow: 0 1px 0 rgba(255,255,255,.1) inset, 0 6px 20px var(--blue-glow); transform: translateY(-1px); }
-    .btn-primary:disabled { background: var(--surface-3); color: var(--txt-4); cursor: not-allowed; box-shadow: none; transform: none; }
+    .btn-primary:hover { background: var(--brand-2); box-shadow: 0 6px 20px var(--brand-glow); transform: translateY(-1px); }
+    .btn-primary:disabled { background: var(--ink-4); color: #fff; cursor: not-allowed; box-shadow: none; transform: none; opacity: .6; }
 
-    .btn-ghost { background: var(--surface-2); color: var(--txt-2); border: 1px solid var(--border); }
-    .btn-ghost:hover { background: var(--surface-3); color: var(--txt-1); border-color: var(--border-2); }
+    .btn-ghost { background: var(--bg-3); color: var(--ink-2); border: 1px solid var(--border-2); }
+    .btn-ghost:hover { background: var(--bg-2); color: var(--ink-1); }
 
-    .btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,.2); }
-    .btn-danger:hover { background: var(--red); color: #fff; border-color: var(--red); }
+    .btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid rgba(220,38,38,.2); }
+    .btn-danger:hover { background: var(--red); color: #fff; }
 
-    .btn-success { background: var(--green-dim); color: var(--green); border: 1px solid rgba(16,185,129,.2); }
+    .btn-success { background: var(--green-dim); color: var(--green); border: 1px solid rgba(5,150,105,.2); }
     .btn-success:hover { background: var(--green); color: #fff; }
 
-    .btn-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,.2); }
-    .btn-amber:hover { background: var(--amber); color: #000; }
+    .btn-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(217,119,6,.2); }
+    .btn-amber:hover { background: var(--amber); color: #fff; }
 
-    .btn-lg { padding: .625rem 1.5rem; font-size: .875rem; border-radius: var(--radius-md); }
+    .btn-lg { padding: .6875rem 1.5rem; font-size: .9375rem; border-radius: var(--radius-md); }
     .btn-sm { padding: .3rem .625rem; font-size: .7rem; border-radius: var(--radius-xs); }
     .btn-icon { padding: .4rem; border-radius: var(--radius-sm); }
-    .btn-icon svg { width: 14px; height: 14px; }
+
+    /* Save modal buttons */
+    .save-modal-backdrop {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.4); backdrop-filter: blur(6px);
+      z-index: 400; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .save-modal-backdrop.open { display: flex; animation: fadeIn .2s ease; }
+    .save-modal {
+      background: var(--surface); border: 1px solid var(--border-2);
+      border-radius: var(--radius-xl); padding: 2rem;
+      max-width: 360px; width: 100%;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp .25s cubic-bezier(.4,0,.2,1);
+      text-align: center;
+    }
+    .save-modal-title {
+      font-size: 1.0625rem; font-weight: 800; color: var(--ink-1);
+      margin-bottom: .375rem;
+    }
+    .save-modal-sub {
+      font-size: .8125rem; color: var(--ink-3); margin-bottom: 1.5rem;
+    }
+    .save-options { display: flex; flex-direction: column; gap: .625rem; }
+    .save-opt-btn {
+      display: flex; align-items: center; gap: .875rem;
+      padding: .875rem 1.125rem;
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--border-2);
+      background: var(--surface-2);
+      cursor: pointer; text-align: left;
+      transition: var(--transition); width: 100%; font-family: var(--font);
+    }
+    .save-opt-btn:hover { border-color: var(--brand); background: var(--brand-dim); }
+    .save-opt-icon {
+      width: 36px; height: 36px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .save-opt-icon svg { width: 18px; height: 18px; }
+    .save-opt-icon.ic-img { background: var(--blue-dim); color: var(--blue); }
+    .save-opt-icon.ic-pdf { background: var(--red-dim); color: var(--red); }
+    .save-opt-icon.ic-copy { background: var(--green-dim); color: var(--green); }
+    .save-opt-label { font-size: .875rem; font-weight: 700; color: var(--ink-1); }
+    .save-opt-desc { font-size: .7rem; color: var(--ink-4); margin-top: .1rem; }
+    .save-cancel { margin-top: 1rem; font-size: .8125rem; color: var(--ink-4); cursor: pointer; background: none; border: none; font-family: var(--font); }
+    .save-cancel:hover { color: var(--ink-2); }
 
     /* ══════════════════════════════════════════
-       PANEL: REGISTROS (simple table)
+       PANEL: REGISTROS
     ══════════════════════════════════════════ */
     .records-shell {
-      max-width: 1100px;
-      margin: 2rem auto;
+      max-width: 1100px; margin: 2rem auto;
       padding: 0 1.5rem 4rem;
-      position: relative; z-index: 1;
     }
-
     .toolbar {
       display: flex; align-items: center; justify-content: space-between;
       gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;
     }
     .search-box {
       display: flex; align-items: center; gap: .5rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: .4rem .75rem;
+      background: var(--surface); border: 1.5px solid var(--border-2);
+      border-radius: var(--radius-md); padding: .4rem .875rem;
       transition: var(--transition);
     }
-    .search-box:focus-within { border-color: var(--border-2); box-shadow: var(--shadow-glow); }
-    .search-box svg { width: 14px; height: 14px; color: var(--txt-4); flex-shrink: 0; }
+    .search-box:focus-within { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-dim); }
+    .search-box svg { width: 14px; height: 14px; color: var(--ink-4); flex-shrink: 0; }
     .search-box input {
       background: none; border: none; outline: none;
-      font-family: var(--font); font-size: .875rem; color: var(--txt-1);
-      width: 240px;
+      font-family: var(--font); font-size: .875rem; color: var(--ink-1); width: 240px;
     }
-    .search-box input::placeholder { color: var(--txt-4); }
+    .search-box input::placeholder { color: var(--ink-4); }
 
     .table-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      overflow: hidden;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-xl); overflow: hidden;
+      box-shadow: var(--shadow-sm);
     }
 
     /* ══════════════════════════════════════════
-       TABLE (shared)
+       TABLE
     ══════════════════════════════════════════ */
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: .8125rem; }
-    thead { border-bottom: 1px solid var(--border); }
+    thead { border-bottom: 1.5px solid var(--border-2); }
     thead th {
-      padding: .75rem 1rem;
-      text-align: left;
-      font-size: .65rem; font-weight: 700;
-      letter-spacing: .08em; text-transform: uppercase;
-      color: var(--txt-4);
-      white-space: nowrap;
+      padding: .75rem 1rem; text-align: left;
+      font-size: .6rem; font-weight: 800;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--ink-4); white-space: nowrap;
       background: var(--surface-2);
     }
     thead th.sortable { cursor: pointer; user-select: none; }
-    thead th.sortable:hover { color: var(--txt-2); }
-    thead th.sorted { color: var(--blue); }
-    thead th .sort-icon { display: inline; margin-left: .25rem; opacity: .5; font-size: .7rem; }
+    thead th.sortable:hover { color: var(--ink-2); }
+    thead th.sorted { color: var(--brand); }
+    thead th .sort-icon { margin-left: .25rem; opacity: .5; font-size: .7rem; }
     thead th.sorted .sort-icon { opacity: 1; }
-
     tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
     tbody tr:last-child { border-bottom: none; }
     tbody tr:hover { background: var(--surface-2); }
-    tbody td { padding: .625rem 1rem; color: var(--txt-2); vertical-align: middle; }
-    tbody td strong { color: var(--txt-1); font-weight: 500; }
+    tbody td { padding: .625rem 1rem; color: var(--ink-2); vertical-align: middle; }
+    tbody td strong { color: var(--ink-1); font-weight: 600; }
     .td-mono { font-family: var(--mono); font-size: .75rem; }
     .td-actions { display: flex; gap: .375rem; }
-
-    .empty-row td { padding: 3rem 1rem; text-align: center; color: var(--txt-4); }
-    .empty-row svg { display: block; margin: 0 auto .75rem; opacity: .2; }
+    .empty-row td { padding: 3rem 1rem; text-align: center; color: var(--ink-4); }
+    .empty-row svg { display: block; margin: 0 auto .75rem; opacity: .25; }
+    tbody tr { animation: rowFade .3s ease both; }
+    @keyframes rowFade { from { opacity: 0; transform: translateX(-4px); } to { opacity: 1; transform: none; } }
 
     /* ══════════════════════════════════════════
        BADGES
@@ -441,152 +440,117 @@
       letter-spacing: .04em; white-space: nowrap;
     }
     .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-    .badge-blue   { background: var(--blue-dim);   color: var(--blue); }
-    .badge-amber  { background: var(--amber-dim);  color: var(--amber); }
-    .badge-green  { background: var(--green-dim);  color: var(--green); }
-    .badge-red    { background: var(--red-dim);    color: var(--red); }
-    .badge-purple { background: var(--purple-dim); color: var(--purple); }
-    .badge-teal   { background: var(--teal-dim);   color: var(--teal); }
-    .badge-muted  { background: rgba(255,255,255,.05); color: var(--txt-3); }
+    .badge-brand  { background: var(--brand-dim); color: var(--brand); }
+    .badge-blue   { background: var(--blue-dim);  color: var(--blue); }
+    .badge-amber  { background: var(--amber-dim); color: var(--amber); }
+    .badge-green  { background: var(--green-dim); color: var(--green); }
+    .badge-red    { background: var(--red-dim);   color: var(--red); }
+    .badge-purple { background: var(--purple-dim);color: var(--purple); }
+    .badge-muted  { background: var(--bg-3);      color: var(--ink-3); }
 
     /* ══════════════════════════════════════════
        PANEL: ADMIN
     ══════════════════════════════════════════ */
-    .admin-shell {
-      display: flex; min-height: calc(100vh - 56px);
-      position: relative; z-index: 1;
-    }
-
-    /* Left rail */
+    .admin-shell { display: flex; min-height: calc(100vh - 60px); }
     .admin-rail {
       width: 200px; flex-shrink: 0;
-      background: rgba(10,13,20,.6);
-      backdrop-filter: blur(10px);
-      border-right: 1px solid var(--border);
+      background: var(--surface); border-right: 1px solid var(--border);
       padding: 1.25rem .75rem;
       display: flex; flex-direction: column; gap: .25rem;
-      position: sticky; top: 56px; height: calc(100vh - 56px);
-      overflow-y: auto;
+      position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto;
     }
     .rail-label {
-      font-size: .6rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
-      color: var(--txt-4); padding: 0 .5rem .5rem;
+      font-size: .6rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--ink-4); padding: 0 .5rem .5rem;
     }
     .rail-item {
       display: flex; align-items: center; justify-content: space-between;
       padding: .5rem .75rem; border-radius: var(--radius-md);
-      color: var(--txt-3); font-size: .8125rem; font-weight: 500;
+      color: var(--ink-3); font-size: .8125rem; font-weight: 600;
       cursor: pointer; border: none; background: none; width: 100%;
       text-align: left; transition: var(--transition);
     }
     .rail-item-left { display: flex; align-items: center; gap: .5rem; }
-    .rail-item svg { width: 14px; height: 14px; opacity: .6; }
-    .rail-item:hover { background: var(--surface); color: var(--txt-1); }
-    .rail-item.active { background: var(--surface-2); color: var(--txt-1); border: 1px solid var(--border-2); }
-    .rail-item.active svg { opacity: 1; }
-    .rail-count {
-      background: var(--surface-3); color: var(--txt-3);
-      font-size: .6rem; font-weight: 700; padding: .1rem .4rem;
-      border-radius: 999px; font-family: var(--mono);
-    }
-    .rail-item.active .rail-count { background: var(--amber-dim); color: var(--amber); }
+    .rail-item svg { width: 15px; height: 15px; }
+    .rail-item:hover { background: var(--bg-2); color: var(--ink-1); }
+    .rail-item.active { background: var(--brand-dim); color: var(--brand); font-weight: 700; }
+    .rail-count { font-family: var(--mono); font-size: .6875rem; color: var(--ink-4); }
+    .rail-item.active .rail-count { color: var(--brand); }
 
-    /* Admin content */
-    .admin-content { flex: 1; padding: 1.5rem; min-width: 0; }
-
-    /* Stat grid */
-    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .75rem; margin-bottom: 1.5rem; }
+    .admin-content { flex: 1; padding: 1.75rem; min-width: 0; }
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
     .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 1rem 1.125rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.125rem 1.25rem;
       position: relative; overflow: hidden;
-      transition: var(--transition);
+      box-shadow: var(--shadow-sm); transition: var(--transition);
     }
-    .stat-card:hover { border-color: var(--border-2); transform: translateY(-1px); }
+    .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
     .stat-card::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
     }
-    .stat-card.c-blue::after  { background: linear-gradient(90deg, var(--blue), transparent); }
-    .stat-card.c-amber::after { background: linear-gradient(90deg, var(--amber), transparent); }
+    .stat-card.c-brand::after { background: linear-gradient(90deg, var(--brand), transparent); }
+    .stat-card.c-blue::after  { background: linear-gradient(90deg, var(--blue),  transparent); }
     .stat-card.c-green::after { background: linear-gradient(90deg, var(--green), transparent); }
-    .stat-card.c-purple::after{ background: linear-gradient(90deg, var(--purple), transparent); }
-
-    .stat-label { font-size: .65rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--txt-4); margin-bottom: .5rem; }
-    .stat-value { font-size: 1.875rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; color: var(--txt-1); }
+    .stat-card.c-purple::after{ background: linear-gradient(90deg, var(--purple),transparent); }
+    .stat-label { font-size: .65rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-4); margin-bottom: .5rem; }
+    .stat-value { font-size: 2rem; font-weight: 800; line-height: 1; color: var(--ink-1); font-variant-numeric: tabular-nums; }
+    .stat-card.c-brand .stat-value { color: var(--brand); }
     .stat-card.c-blue  .stat-value { color: var(--blue); }
-    .stat-card.c-amber .stat-value { color: var(--amber); }
     .stat-card.c-green .stat-value { color: var(--green); }
-    .stat-card.c-purple.stat-value { color: var(--purple); }
-    .stat-sub { font-size: .7rem; color: var(--txt-4); margin-top: .25rem; }
+    .stat-card.c-purple .stat-value { color: var(--purple); }
+    .stat-sub { font-size: .7rem; color: var(--ink-4); margin-top: .25rem; }
 
-    /* Panel */
-    .data-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); overflow: hidden; margin-bottom: 1.5rem; }
+    .data-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); overflow: hidden; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); }
     .data-panel-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: .875rem 1.25rem;
-      border-bottom: 1px solid var(--border);
-      gap: 1rem; flex-wrap: wrap;
-      background: var(--surface-2);
+      padding: .875rem 1.25rem; border-bottom: 1.5px solid var(--border-2);
+      gap: 1rem; flex-wrap: wrap; background: var(--surface-2);
     }
     .data-panel-title { display: flex; align-items: center; gap: .625rem; }
     .panel-dot { width: 8px; height: 8px; border-radius: 50%; }
-    .dot-blue  { background: var(--blue);  box-shadow: 0 0 6px var(--blue); }
-    .dot-green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .dot-brand { background: var(--brand); box-shadow: 0 0 6px var(--brand-glow); }
+    .dot-green { background: var(--green); box-shadow: 0 0 6px rgba(5,150,105,.4); }
     .data-panel-actions { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
-
     .date-filter { display: flex; align-items: center; gap: .375rem; }
-    .date-filter label { font-size: .7rem; color: var(--txt-4); }
+    .date-filter label { font-size: .7rem; color: var(--ink-4); font-weight: 600; }
     .date-input {
       font-family: var(--mono); font-size: .7rem;
-      background: var(--bg-2);
-      border: 1px solid var(--border-2);
+      background: var(--bg-2); border: 1px solid var(--border-2);
       border-radius: var(--radius-xs);
-      padding: .3rem .5rem;
-      color: var(--txt-2); outline: none; width: 125px;
+      padding: .3rem .5rem; color: var(--ink-2); outline: none; width: 125px;
     }
-    .date-input:focus { border-color: var(--blue); }
+    .date-input:focus { border-color: var(--brand); }
 
     /* ══════════════════════════════════════════
        MODALS
     ══════════════════════════════════════════ */
     .modal-backdrop {
       display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,.7);
-      backdrop-filter: blur(8px);
+      background: rgba(0,0,0,.4); backdrop-filter: blur(8px);
       z-index: 200; align-items: center; justify-content: center; padding: 1rem;
     }
     .modal-backdrop.open { display: flex; animation: fadeIn .2s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
     .modal {
-      background: var(--surface);
-      border: 1px solid var(--border-2);
-      border-radius: var(--radius-xl);
-      width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto;
+      background: var(--surface); border: 1.5px solid var(--border-2);
+      border-radius: var(--radius-xl); width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto;
       box-shadow: var(--shadow-lg);
       animation: slideUp .25s cubic-bezier(.4,0,.2,1);
     }
-    @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
+    @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: none; opacity: 1; } }
     .modal-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 1rem 1.25rem;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface-2);
-      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
+      background: var(--surface-2); border-radius: var(--radius-xl) var(--radius-xl) 0 0;
     }
     .modal-title-row { display: flex; align-items: center; gap: .625rem; }
-    .modal-icon { width: 28px; height: 28px; background: var(--amber-dim); border-radius: var(--radius-xs); display: flex; align-items: center; justify-content: center; }
-    .modal-icon svg { width: 14px; height: 14px; color: var(--amber); }
-    .modal-title { font-size: .9375rem; font-weight: 600; color: var(--txt-1); }
+    .modal-icon { width: 30px; height: 30px; background: var(--amber-dim); border-radius: var(--radius-xs); display: flex; align-items: center; justify-content: center; }
+    .modal-icon svg { width: 15px; height: 15px; color: var(--amber); }
+    .modal-title { font-size: .9375rem; font-weight: 800; color: var(--ink-1); }
     .modal-close {
-      background: var(--surface-3); border: none; border-radius: var(--radius-xs);
-      color: var(--txt-3); cursor: pointer; font-size: 1rem; line-height: 1;
+      background: var(--bg-3); border: none; border-radius: var(--radius-xs);
+      color: var(--ink-3); cursor: pointer; font-size: 1rem;
       width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
       transition: var(--transition);
     }
@@ -597,52 +561,92 @@
     .modal-footer { padding: 1rem 1.25rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: .5rem; }
 
     /* Confirm */
-    .confirm-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); backdrop-filter: blur(8px); z-index: 300; align-items: center; justify-content: center; }
+    .confirm-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); backdrop-filter: blur(8px); z-index: 300; align-items: center; justify-content: center; }
     .confirm-backdrop.open { display: flex; animation: fadeIn .2s ease; }
     .confirm-box {
-      background: var(--surface);
-      border: 1px solid var(--border-2);
-      border-radius: var(--radius-xl);
-      padding: 1.75rem; max-width: 360px; width: 90%;
-      box-shadow: var(--shadow-lg);
-      animation: slideUp .25s cubic-bezier(.4,0,.2,1);
-      text-align: center;
+      background: var(--surface); border: 1.5px solid var(--border-2);
+      border-radius: var(--radius-xl); padding: 2rem; max-width: 360px; width: 90%;
+      box-shadow: var(--shadow-lg); animation: slideUp .25s cubic-bezier(.4,0,.2,1); text-align: center;
     }
     .confirm-icon-wrap { width: 48px; height: 48px; border-radius: 50%; background: var(--red-dim); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
     .confirm-icon-wrap svg { width: 22px; height: 22px; color: var(--red); }
-    .confirm-title { font-size: .9375rem; font-weight: 700; color: var(--txt-1); margin-bottom: .4rem; }
-    .confirm-msg { font-size: .8125rem; color: var(--txt-3); margin-bottom: 1.5rem; line-height: 1.6; }
+    .confirm-title { font-size: 1rem; font-weight: 800; color: var(--ink-1); margin-bottom: .4rem; }
+    .confirm-msg { font-size: .8125rem; color: var(--ink-3); margin-bottom: 1.5rem; line-height: 1.6; }
     .confirm-btns { display: flex; justify-content: center; gap: .5rem; }
 
     /* ══════════════════════════════════════════
        TOAST
     ══════════════════════════════════════════ */
-    #toastContainer { position: fixed; top: 72px; right: 1.25rem; z-index: 9999; display: flex; flex-direction: column; gap: .5rem; }
+    #toastContainer { position: fixed; top: 76px; right: 1.25rem; z-index: 9999; display: flex; flex-direction: column; gap: .5rem; }
     .toast {
       display: flex; align-items: flex-start; gap: .625rem;
-      background: var(--surface-2);
-      border: 1px solid var(--border-2);
-      border-radius: var(--radius-lg);
-      padding: .75rem 1rem;
-      box-shadow: var(--shadow-lg);
-      min-width: 260px; max-width: 340px;
+      background: var(--surface); border: 1.5px solid var(--border-2);
+      border-radius: var(--radius-lg); padding: .75rem 1rem;
+      box-shadow: var(--shadow-lg); min-width: 260px; max-width: 340px;
       animation: slideInRight .25s cubic-bezier(.4,0,.2,1);
     }
-    @keyframes slideInRight { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes slideInRight { from { transform: translateX(20px); opacity: 0; } to { transform: none; opacity: 1; } }
     .toast-icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: .1rem; }
     .toast-icon svg { width: 11px; height: 11px; }
     .toast-success .toast-icon { background: var(--green-dim); color: var(--green); }
     .toast-error   .toast-icon { background: var(--red-dim);   color: var(--red); }
     .toast-info    .toast-icon { background: var(--blue-dim);  color: var(--blue); }
     .toast-body { flex: 1; }
-    .toast-title { font-size: .8rem; font-weight: 600; color: var(--txt-1); line-height: 1.3; }
-    .toast-sub   { font-size: .75rem; color: var(--txt-3); margin-top: .1rem; }
+    .toast-title { font-size: .8rem; font-weight: 700; color: var(--ink-1); line-height: 1.3; }
+    .toast-sub   { font-size: .75rem; color: var(--ink-3); margin-top: .1rem; }
+
+    /* Spinner */
+    .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(0,0,0,.15); border-top-color: currentColor; border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ══════════════════════════════════════════
-       SPINNER
+       PRINT / PDF FORM (compact)
     ══════════════════════════════════════════ */
-    .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,.2); border-top-color: currentColor; border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    #printForm {
+      position: fixed; left: -9999px; top: 0;
+      width: 794px; /* A4 width at 96dpi */
+      background: #fff; padding: 32px 36px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px; color: #1A1108;
+    }
+    #printForm .pf-header {
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 2px solid #D1411E; padding-bottom: 14px; margin-bottom: 18px;
+    }
+    #printForm .pf-logo-area { display: flex; align-items: center; gap: 12px; }
+    #printForm .pf-logo { height: 36px; }
+    #printForm .pf-title-area { text-align: right; }
+    #printForm .pf-main-title { font-size: 20px; font-weight: 800; color: #D1411E; line-height: 1; }
+    #printForm .pf-boleta { font-size: 13px; font-weight: 700; color: #1A1108; margin-top: 4px; }
+    #printForm .pf-date { font-size: 10px; color: #7A6E62; margin-top: 2px; }
+    #printForm .pf-section { margin-bottom: 14px; }
+    #printForm .pf-section-title {
+      font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+      color: #D1411E; border-bottom: 1px solid #F2F0EC; padding-bottom: 4px; margin-bottom: 8px;
+    }
+    #printForm .pf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    #printForm .pf-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    #printForm .pf-field { display: flex; flex-direction: column; gap: 2px; }
+    #printForm .pf-field.pf-full { grid-column: 1 / -1; }
+    #printForm .pf-label { font-size: 8px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #A89E92; }
+    #printForm .pf-value {
+      font-size: 11px; font-weight: 500; color: #1A1108;
+      border-bottom: 1px solid #E8E5E0; padding-bottom: 3px; min-height: 18px;
+    }
+    #printForm .pf-value.pf-text-area { min-height: 36px; white-space: pre-wrap; }
+    #printForm .pf-footer {
+      margin-top: 20px; border-top: 1px solid #E8E5E0; padding-top: 12px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    }
+    #printForm .pf-sig-line { border-bottom: 1px solid #1A1108; margin-top: 28px; }
+    #printForm .pf-sig-label { font-size: 8px; color: #A89E92; margin-top: 4px; }
+    #printForm .pf-badge {
+      display: inline-block; font-size: 9px; font-weight: 700;
+      padding: 2px 8px; border-radius: 999px; margin-left: 6px;
+    }
+    #printForm .pf-badge-brand { background: rgba(209,65,30,.12); color: #D1411E; }
+    #printForm .pf-badge-blue  { background: rgba(37,99,235,.12);  color: #2563EB; }
+    #printForm .pf-badge-green { background: rgba(5,150,105,.12);  color: #059669; }
 
     /* ══════════════════════════════════════════
        RESPONSIVE
@@ -652,7 +656,6 @@
       .stat-grid { grid-template-columns: 1fr 1fr; }
       .modal-grid { grid-template-columns: 1fr; }
       .modal-grid .field-full { grid-column: 1; }
-      .data-panel-header { flex-direction: column; align-items: flex-start; }
     }
     @media (max-width: 600px) {
       .topbar { padding: 0 1rem; }
@@ -663,37 +666,10 @@
       .meta-chip { display: none; }
       .search-box input { width: 160px; }
     }
-
-    /* ══════════════════════════════════════════
-       MICRO-INTERACTIONS
-    ══════════════════════════════════════════ */
-    select option { background: #1a2035; color: #f1f5f9; }
-
-    /* Ripple effect on buttons */
-    .btn { overflow: hidden; }
-    .btn::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,.08); opacity: 0; transition: opacity .2s; border-radius: inherit; }
-    .btn:hover::after { opacity: 1; }
-
-    /* Table row animation on load */
-    tbody tr { animation: rowFade .3s ease both; }
-    @keyframes rowFade { from { opacity: 0; transform: translateX(-4px); } to { opacity: 1; transform: translateX(0); } }
-
-    /* Form section entrance */
-    .form-section { animation: sectionFade .4s ease both; }
-    .form-section:nth-child(1) { animation-delay: .05s; }
-    .form-section:nth-child(2) { animation-delay: .1s; }
-    .form-section:nth-child(3) { animation-delay: .15s; }
-    @keyframes sectionFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* Stat card numbers */
-    .stat-value { transition: all .4s cubic-bezier(.4,0,.2,1); }
   </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════
-     TOPBAR
-══════════════════════════════════════════ -->
 <header class="topbar">
   <div class="topbar-left">
     <a class="logo-mark" href="#">
@@ -702,7 +678,6 @@
     <div class="logo-divider"></div>
     <span class="logo-label">Garantías</span>
   </div>
-
   <nav class="pill-nav" role="tablist">
     <button class="pill-btn active" data-tab="formulario" role="tab">
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
@@ -718,7 +693,6 @@
       <span class="label">Admin</span>
     </button>
   </nav>
-
   <div class="topbar-right">
     <div class="meta-chip">
       <span class="meta-chip-label">Fecha</span>
@@ -731,18 +705,11 @@
   </div>
 </header>
 
-<!-- ══════════════════════════════════════════
-     TOAST CONTAINER
-══════════════════════════════════════════ -->
 <div id="toastContainer"></div>
 
-<!-- ══════════════════════════════════════════
-     PANEL: FORMULARIO
-══════════════════════════════════════════ -->
+<!-- PANEL: FORMULARIO -->
 <div class="panel active" id="panel-formulario">
   <div class="form-shell">
-
-    <!-- Progress steps (Zeigarnik effect) -->
     <div class="progress-bar" id="progressBar">
       <div class="progress-step current-step" data-step="0">
         <div class="step-dot current">1</div>
@@ -760,11 +727,11 @@
 
     <form id="warrantyForm" novalidate>
 
-      <!-- SECCIÓN 1: Tipo de salida -->
+      <!-- SECCIÓN 1: Clasificación -->
       <div class="form-section">
         <div class="section-head">
           <div class="section-head-left">
-            <div class="section-icon section-icon-blue">
+            <div class="section-icon section-icon-brand">
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
             </div>
             <div>
@@ -779,7 +746,7 @@
             <div class="field">
               <label class="field-label" for="tipo">Tipo de Salida</label>
               <select id="tipo" name="tipo" class="field-select" required>
-                <option value="">Seleccionar…</option>
+                <option value="">Seleccionar</option>
                 <option value="salida_definitiva">Salida Definitiva</option>
                 <option value="salida_temporal">Salida Temporal</option>
               </select>
@@ -787,7 +754,7 @@
             <div class="field">
               <label class="field-label" for="categoria">Categoría</label>
               <select id="categoria" name="categoria" class="field-select" required>
-                <option value="">Seleccionar…</option>
+                <option value="">Seleccionar</option>
                 <option value="nota_credito">Nota De Crédito</option>
                 <option value="garantia_1">Garantía 1%</option>
                 <option value="rma">RMA</option>
@@ -799,7 +766,7 @@
             <div class="field">
               <label class="field-label" for="motivo">Motivo</label>
               <select id="motivo" name="motivo" class="field-select" required>
-                <option value="">Seleccionar…</option>
+                <option value="">Seleccionar</option>
                 <option value="sin_existencias">Sin Existencias</option>
                 <option value="solicitud_cliente">Solicitud del Cliente</option>
                 <option value="reemplazo">Reemplazo</option>
@@ -827,19 +794,19 @@
           <div class="form-grid">
             <div class="field">
               <label class="field-label" for="ticket">Ticket N°</label>
-              <input id="ticket" name="ticket" type="text" class="field-input" placeholder="TK-00000" required>
+              <input id="ticket" name="ticket" type="text" class="field-input" required>
             </div>
             <div class="field">
               <label class="field-label" for="sede">Sede</label>
-              <input id="sede" name="sede" type="text" class="field-input" placeholder="Nombre de sede" required>
+              <input id="sede" name="sede" type="text" class="field-input" required>
             </div>
             <div class="field">
               <label class="field-label" for="nombre">Nombre del Cliente</label>
-              <input id="nombre" name="nombre" type="text" class="field-input" placeholder="Nombre completo" required>
+              <input id="nombre" name="nombre" type="text" class="field-input" required>
             </div>
             <div class="field">
               <label class="field-label" for="factura">Factura N°</label>
-              <input id="factura" name="factura" type="text" class="field-input" placeholder="FAC-00000" required>
+              <input id="factura" name="factura" type="text" class="field-input" required>
             </div>
           </div>
         </div>
@@ -863,7 +830,7 @@
           <div class="form-grid">
             <div class="field">
               <label class="field-label" for="cantidad">Cantidad</label>
-              <input id="cantidad" name="cantidad" type="number" min="1" class="field-input" placeholder="1" required>
+              <input id="cantidad" name="cantidad" type="number" min="1" class="field-input" required>
             </div>
             <div class="field">
               <label class="field-label" for="fechaCompra">Fecha de Compra</label>
@@ -871,27 +838,27 @@
             </div>
             <div class="field">
               <label class="field-label" for="marca">Marca</label>
-              <input id="marca" name="marca" type="text" class="field-input" placeholder="Ej. Samsung" required>
+              <input id="marca" name="marca" type="text" class="field-input" required>
             </div>
             <div class="field">
               <label class="field-label" for="codigo">Código de Artículo</label>
-              <input id="codigo" name="codigo" type="text" class="field-input" placeholder="SKU-0000" required>
+              <input id="codigo" name="codigo" type="text" class="field-input" required>
             </div>
           </div>
           <div class="form-grid" style="margin-top:.75rem">
             <div class="field">
-              <label class="field-label" for="serie">Serie <span style="opacity:.5;font-weight:400">(opcional)</span></label>
-              <input id="serie" name="serie" type="text" class="field-input" placeholder="N° de serie">
+              <label class="field-label" for="serie">Serie <span style="opacity:.5;font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+              <input id="serie" name="serie" type="text" class="field-input">
             </div>
             <div class="field col-full">
               <label class="field-label" for="descripcion">Descripción del Artículo</label>
-              <textarea id="descripcion" name="descripcion" class="field-textarea" rows="2" placeholder="Descripción breve del producto…" required></textarea>
+              <textarea id="descripcion" name="descripcion" class="field-textarea" rows="2" required></textarea>
             </div>
           </div>
           <div class="form-grid" style="margin-top:.75rem">
             <div class="field col-full">
               <label class="field-label" for="falla">Descripción de la Falla</label>
-              <textarea id="falla" name="falla" class="field-textarea" rows="2" placeholder="¿Cuál es el problema reportado?…" required></textarea>
+              <textarea id="falla" name="falla" class="field-textarea" rows="2" required></textarea>
             </div>
           </div>
         </div>
@@ -917,9 +884,7 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     PANEL: REGISTROS
-══════════════════════════════════════════ -->
+<!-- PANEL: REGISTROS -->
 <div class="panel" id="panel-registros">
   <div class="records-shell">
     <div class="toolbar">
@@ -927,7 +892,7 @@
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
         <input id="searchInput" type="text" placeholder="Buscar por nombre, ticket, boleta, marca…">
       </div>
-      <span id="recordsCount" style="font-size:.75rem;color:var(--txt-4);"></span>
+      <span id="recordsCount" style="font-size:.75rem;color:var(--ink-4);"></span>
     </div>
     <div class="table-card">
       <div class="table-wrap">
@@ -945,7 +910,7 @@
             </tr>
           </thead>
           <tbody id="recordsTbody">
-            <tr class="empty-row"><td colspan="8" style="text-align:center;padding:3rem;color:var(--txt-4)">Cargando…</td></tr>
+            <tr class="empty-row"><td colspan="8" style="text-align:center;padding:3rem;color:var(--ink-4)">Cargando…</td></tr>
           </tbody>
         </table>
       </div>
@@ -953,13 +918,9 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     PANEL: ADMIN
-══════════════════════════════════════════ -->
+<!-- PANEL: ADMIN -->
 <div class="panel" id="panel-admin">
   <div class="admin-shell">
-
-    <!-- Left rail -->
     <aside class="admin-rail">
       <div class="rail-label">Vistas</div>
       <button class="rail-item active" data-section="salidas-definitivas">
@@ -977,56 +938,32 @@
         <span class="rail-count" id="nb-temp">0</span>
       </button>
     </aside>
-
-    <!-- Content -->
     <div class="admin-content">
-
-      <!-- Header row -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;gap:1rem;flex-wrap:wrap;">
         <div>
-          <h1 style="font-size:1.0625rem;font-weight:700;color:var(--txt-1)" id="adminTitle">Salidas Definitivas</h1>
-          <p style="font-size:.8125rem;color:var(--txt-4);margin-top:.15rem" id="adminSub">Registros con salida definitiva</p>
+          <h1 style="font-size:1.125rem;font-weight:800;color:var(--ink-1)" id="adminTitle">Salidas Definitivas</h1>
+          <p style="font-size:.8125rem;color:var(--ink-4);margin-top:.15rem" id="adminSub">Registros con salida definitiva</p>
         </div>
         <div style="display:flex;gap:.5rem;align-items:center;">
-          <span id="adminDate" style="font-size:.75rem;color:var(--txt-4);"></span>
+          <span id="adminDate" style="font-size:.75rem;color:var(--ink-4);"></span>
           <button class="btn btn-ghost btn-sm" onclick="adminLoadAll()">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
             Actualizar
           </button>
         </div>
       </div>
-
-      <!-- Stats -->
       <div class="stat-grid">
-        <div class="stat-card c-blue">
-          <div class="stat-label">Total</div>
-          <div class="stat-value" id="st-total">—</div>
-          <div class="stat-sub">en la base</div>
-        </div>
-        <div class="stat-card c-amber">
-          <div class="stat-label">Definitivas</div>
-          <div class="stat-value" id="st-def">—</div>
-          <div class="stat-sub">salida definitiva</div>
-        </div>
-        <div class="stat-card c-green">
-          <div class="stat-label">Temporales</div>
-          <div class="stat-value" id="st-temp">—</div>
-          <div class="stat-sub">salida temporal</div>
-        </div>
-        <div class="stat-card c-purple">
-          <div class="stat-label">Hoy</div>
-          <div class="stat-value" id="st-hoy">—</div>
-          <div class="stat-sub">registros del día</div>
-        </div>
+        <div class="stat-card c-brand"><div class="stat-label">Total</div><div class="stat-value" id="st-total">—</div><div class="stat-sub">en la base</div></div>
+        <div class="stat-card c-blue"><div class="stat-label">Definitivas</div><div class="stat-value" id="st-def">—</div><div class="stat-sub">salida definitiva</div></div>
+        <div class="stat-card c-green"><div class="stat-label">Temporales</div><div class="stat-value" id="st-temp">—</div><div class="stat-sub">salida temporal</div></div>
+        <div class="stat-card c-purple"><div class="stat-label">Hoy</div><div class="stat-value" id="st-hoy">—</div><div class="stat-sub">registros del día</div></div>
       </div>
-
-      <!-- Panel Definitivas -->
       <div class="data-panel" id="panel-salidas-definitivas">
         <div class="data-panel-header">
           <div class="data-panel-title">
-            <span class="panel-dot dot-blue"></span>
-            <span style="font-size:.875rem;font-weight:600;color:var(--txt-1)">Salidas Definitivas</span>
-            <span style="font-size:.75rem;color:var(--txt-4)" id="count-def"></span>
+            <span class="panel-dot dot-brand"></span>
+            <span style="font-size:.9375rem;font-weight:700;color:var(--ink-1)">Salidas Definitivas</span>
+            <span style="font-size:.75rem;color:var(--ink-4)" id="count-def"></span>
           </div>
           <div class="data-panel-actions">
             <div class="date-filter">
@@ -1047,35 +984,31 @@
         </div>
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr>
-                <th class="sortable" onclick="adminSortTable('def','boleta')">Consecutivo <span class="sort-icon">↕</span></th>
-                <th class="sortable" onclick="adminSortTable('def','fecha_creacion')">Fecha <span class="sort-icon">↕</span></th>
-                <th class="sortable" onclick="adminSortTable('def','categoria')">Categoría <span class="sort-icon">↕</span></th>
-                <th class="sortable" onclick="adminSortTable('def','motivo')">Motivo <span class="sort-icon">↕</span></th>
-                <th class="sortable" onclick="adminSortTable('def','ticket')">Ticket <span class="sort-icon">↕</span></th>
-                <th class="sortable" onclick="adminSortTable('def','nombre')">Cliente <span class="sort-icon">↕</span></th>
-                <th class="sortable" onclick="adminSortTable('def','sede')">Sede <span class="sort-icon">↕</span></th>
-                <th class="sortable" onclick="adminSortTable('def','factura')">Factura <span class="sort-icon">↕</span></th>
-                <th class="sortable" onclick="adminSortTable('def','marca')">Marca <span class="sort-icon">↕</span></th>
-                <th class="sortable" onclick="adminSortTable('def','codigo')">Código <span class="sort-icon">↕</span></th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
+            <thead><tr>
+              <th class="sortable" onclick="adminSortTable('def','boleta')">Consecutivo <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="adminSortTable('def','fecha_creacion')">Fecha <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="adminSortTable('def','categoria')">Categoría <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="adminSortTable('def','motivo')">Motivo <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="adminSortTable('def','ticket')">Ticket <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="adminSortTable('def','nombre')">Cliente <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="adminSortTable('def','sede')">Sede <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="adminSortTable('def','factura')">Factura <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="adminSortTable('def','marca')">Marca <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="adminSortTable('def','codigo')">Código <span class="sort-icon">↕</span></th>
+              <th>Acciones</th>
+            </tr></thead>
             <tbody id="tbody-def">
-              <tr class="empty-row"><td colspan="11"><span class="spinner" style="border-top-color:var(--blue)"></span> Cargando…</td></tr>
+              <tr class="empty-row"><td colspan="11"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr>
             </tbody>
           </table>
         </div>
       </div>
-
-      <!-- Panel Temporales -->
       <div class="data-panel" id="panel-salidas-temporales" style="display:none">
         <div class="data-panel-header">
           <div class="data-panel-title">
             <span class="panel-dot dot-green"></span>
-            <span style="font-size:.875rem;font-weight:600;color:var(--txt-1)">Salidas Temporales</span>
-            <span style="font-size:.75rem;color:var(--txt-4)" id="count-temp"></span>
+            <span style="font-size:.9375rem;font-weight:700;color:var(--ink-1)">Salidas Temporales</span>
+            <span style="font-size:.75rem;color:var(--ink-4)" id="count-temp"></span>
           </div>
           <div class="data-panel-actions">
             <div class="date-filter">
@@ -1096,49 +1029,40 @@
         </div>
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr>
-                <th class="sortable" onclick="adminSortTable('temp','boleta')">Consecutivo <span class="sort-icon">↕</span></th>
-                <th class="sortable" onclick="adminSortTable('temp','fecha_creacion')">Fecha <span class="sort-icon">↕</span></th>
-                <th class="sortable" onclick="adminSortTable('temp','categoria')">Categoría <span class="sort-icon">↕</span></th>
-                <th class="sortable" onclick="adminSortTable('temp','motivo')">Motivo <span class="sort-icon">↕</span></th>
-                <th class="sortable" onclick="adminSortTable('temp','ticket')">Ticket <span class="sort-icon">↕</span></th>
-                <th class="sortable" onclick="adminSortTable('temp','nombre')">Cliente <span class="sort-icon">↕</span></th>
-                <th class="sortable" onclick="adminSortTable('temp','sede')">Sede <span class="sort-icon">↕</span></th>
-                <th class="sortable" onclick="adminSortTable('temp','factura')">Factura <span class="sort-icon">↕</span></th>
-                <th class="sortable" onclick="adminSortTable('temp','marca')">Marca <span class="sort-icon">↕</span></th>
-                <th class="sortable" onclick="adminSortTable('temp','codigo')">Código <span class="sort-icon">↕</span></th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
+            <thead><tr>
+              <th class="sortable" onclick="adminSortTable('temp','boleta')">Consecutivo <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="adminSortTable('temp','fecha_creacion')">Fecha <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="adminSortTable('temp','categoria')">Categoría <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="adminSortTable('temp','motivo')">Motivo <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="adminSortTable('temp','ticket')">Ticket <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="adminSortTable('temp','nombre')">Cliente <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="adminSortTable('temp','sede')">Sede <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="adminSortTable('temp','factura')">Factura <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="adminSortTable('temp','marca')">Marca <span class="sort-icon">↕</span></th>
+              <th class="sortable" onclick="adminSortTable('temp','codigo')">Código <span class="sort-icon">↕</span></th>
+              <th>Acciones</th>
+            </tr></thead>
             <tbody id="tbody-temp">
               <tr class="empty-row"><td colspan="11"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr>
             </tbody>
           </table>
         </div>
       </div>
-
-    </div><!-- /admin-content -->
-  </div><!-- /admin-shell -->
+    </div>
+  </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     EDIT MODAL
-══════════════════════════════════════════ -->
+<!-- EDIT MODAL -->
 <div class="modal-backdrop" id="editModal">
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title-row">
-        <div class="modal-icon">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-        </div>
+        <div class="modal-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></div>
         <span class="modal-title" id="modalTitleText">Editar Registro</span>
       </div>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
-    <div class="modal-body">
-      <div class="modal-grid" id="modalBody"></div>
-    </div>
+    <div class="modal-body"><div class="modal-grid" id="modalBody"></div></div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
       <button class="btn btn-primary" id="modalSaveBtn" onclick="saveEdit()">
@@ -1149,14 +1073,10 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     CONFIRM DELETE
-══════════════════════════════════════════ -->
+<!-- CONFIRM DELETE -->
 <div class="confirm-backdrop" id="confirmModal">
   <div class="confirm-box">
-    <div class="confirm-icon-wrap">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-    </div>
+    <div class="confirm-icon-wrap"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></div>
     <div class="confirm-title">Eliminar registro</div>
     <div class="confirm-msg" id="confirmMsg">Esta acción no se puede deshacer.</div>
     <div class="confirm-btns">
@@ -1169,10 +1089,99 @@
   </div>
 </div>
 
+<!-- SAVE OPTIONS MODAL -->
+<div class="save-modal-backdrop" id="saveModal">
+  <div class="save-modal">
+    <div class="save-modal-title">Guardar Registro</div>
+    <div class="save-modal-sub">Elegí cómo descargar el comprobante</div>
+    <div class="save-options">
+      <button class="save-opt-btn" onclick="doSavePNG()">
+        <div class="save-opt-icon ic-img">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </div>
+        <div>
+          <div class="save-opt-label">Guardar como PNG</div>
+          <div class="save-opt-desc">Imagen del formulario (alta calidad)</div>
+        </div>
+      </button>
+      <button class="save-opt-btn" onclick="doSavePDF()">
+        <div class="save-opt-icon ic-pdf">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+        </div>
+        <div>
+          <div class="save-opt-label">Guardar como PDF</div>
+          <div class="save-opt-desc">Documento listo para imprimir</div>
+        </div>
+      </button>
+      <button class="save-opt-btn" onclick="doCopyImage()">
+        <div class="save-opt-icon ic-copy">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        </div>
+        <div>
+          <div class="save-opt-label">Copiar Imagen</div>
+          <div class="save-opt-desc">Pegá directamente en WhatsApp, email, etc.</div>
+        </div>
+      </button>
+    </div>
+    <button class="save-cancel" onclick="closeSaveModal()">Cancelar</button>
+  </div>
+</div>
+
+<!-- HIDDEN PRINT FORM (compact) -->
+<div id="printForm">
+  <div class="pf-header">
+    <div class="pf-logo-area">
+      <img class="pf-logo" src="data:image/png;base64,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" alt="Sekunet">
+    </div>
+    <div class="pf-title-area">
+      <div class="pf-main-title">Garantías · Sekunet</div>
+      <div class="pf-boleta" id="pf-boleta">Boleta —</div>
+      <div class="pf-date" id="pf-date"></div>
+    </div>
+  </div>
+  <div class="pf-section">
+    <div class="pf-section-title">Clasificación</div>
+    <div class="pf-grid">
+      <div class="pf-field"><div class="pf-label">Tipo de Salida</div><div class="pf-value" id="pf-tipo"></div></div>
+      <div class="pf-field"><div class="pf-label">Categoría</div><div class="pf-value" id="pf-categoria"></div></div>
+      <div class="pf-field"><div class="pf-label">Motivo</div><div class="pf-value" id="pf-motivo"></div></div>
+    </div>
+  </div>
+  <div class="pf-section">
+    <div class="pf-section-title">Información del Cliente</div>
+    <div class="pf-grid">
+      <div class="pf-field"><div class="pf-label">Ticket N°</div><div class="pf-value" id="pf-ticket"></div></div>
+      <div class="pf-field"><div class="pf-label">Sede</div><div class="pf-value" id="pf-sede"></div></div>
+      <div class="pf-field"><div class="pf-label">Nombre del Cliente</div><div class="pf-value" id="pf-nombre"></div></div>
+      <div class="pf-field"><div class="pf-label">Factura N°</div><div class="pf-value" id="pf-factura"></div></div>
+      <div class="pf-field"><div class="pf-label">Fecha de Registro</div><div class="pf-value" id="pf-fecha-reg"></div></div>
+    </div>
+  </div>
+  <div class="pf-section">
+    <div class="pf-section-title">Información del Producto</div>
+    <div class="pf-grid">
+      <div class="pf-field"><div class="pf-label">Marca</div><div class="pf-value" id="pf-marca"></div></div>
+      <div class="pf-field"><div class="pf-label">Código de Artículo</div><div class="pf-value" id="pf-codigo"></div></div>
+      <div class="pf-field"><div class="pf-label">Serie</div><div class="pf-value" id="pf-serie"></div></div>
+      <div class="pf-field"><div class="pf-label">Cantidad</div><div class="pf-value" id="pf-cantidad"></div></div>
+      <div class="pf-field"><div class="pf-label">Fecha de Compra</div><div class="pf-value" id="pf-fecha-compra"></div></div>
+    </div>
+  </div>
+  <div class="pf-section">
+    <div class="pf-section-title">Descripción y Falla</div>
+    <div class="pf-grid-2">
+      <div class="pf-field pf-full"><div class="pf-label">Descripción del Artículo</div><div class="pf-value pf-text-area" id="pf-descripcion"></div></div>
+      <div class="pf-field pf-full"><div class="pf-label">Descripción de la Falla</div><div class="pf-value pf-text-area" id="pf-falla"></div></div>
+    </div>
+  </div>
+  <div class="pf-footer">
+    <div><div class="pf-sig-line"></div><div class="pf-sig-label">Firma del Cliente</div></div>
+    <div><div class="pf-sig-line"></div><div class="pf-sig-label">Firma del Responsable · Sekunet</div></div>
+  </div>
+</div>
+
 <script>
-/* ══════════════════════════════════════════
-   CONFIG
-══════════════════════════════════════════ */
+/* CONFIG */
 const SB_URL = 'https://jwlavcjwuhdydmusqskx.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3bGF2Y2p3dWhkeWRtdXNxc2t4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwODM2OTcsImV4cCI6MjA5MDY1OTY5N30.bS1Uc-0m9teuxG2oKqAHMQ6vOr0HPoFwh49EYx3cROM';
 const TABLE  = 'garantias';
@@ -1188,16 +1197,11 @@ async function sbFetch(method, path, body) {
   return text ? JSON.parse(text) : null;
 }
 
-/* ══════════════════════════════════════════
-   SHARED LABELS
-══════════════════════════════════════════ */
-const CAT_LABELS = { nota_credito:'Nota de Crédito', garantia_1:'Garantía 1%', rma:'RMA', reparacion:'Reparación', rma_nota_credito:'RMA - NC', garantia_1_nota_credito:'Garantía 1% + NC' };
-const MOT_LABELS = { sin_existencias:'Sin Existencias', solicitud_cliente:'Solicitud del Cliente', reemplazo:'Reemplazo' };
+const CAT_LABELS  = { nota_credito:'Nota de Crédito', garantia_1:'Garantía 1%', rma:'RMA', reparacion:'Reparación', rma_nota_credito:'RMA - NC', garantia_1_nota_credito:'Garantía 1% + NC' };
+const MOT_LABELS  = { sin_existencias:'Sin Existencias', solicitud_cliente:'Solicitud del Cliente', reemplazo:'Reemplazo' };
 const TIPO_LABELS = { salida_definitiva:'Salida Definitiva', salida_temporal:'Salida Temporal' };
 
-/* ══════════════════════════════════════════
-   TOAST
-══════════════════════════════════════════ */
+/* TOAST */
 const TOAST_ICONS = {
   success: '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>',
   error:   '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>',
@@ -1212,9 +1216,7 @@ function showToast(title, type, sub) {
   setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; setTimeout(() => t.remove(), 300); }, 3800);
 }
 
-/* ══════════════════════════════════════════
-   TAB SWITCHING
-══════════════════════════════════════════ */
+/* TABS */
 let adminLoaded = false;
 function switchTab(tab) {
   document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
@@ -1224,12 +1226,9 @@ function switchTab(tab) {
   if (tab === 'admin' && !adminLoaded) { adminLoaded = true; adminLoadAll(); }
 }
 
-/* ══════════════════════════════════════════
-   DATE & BOLETA
-══════════════════════════════════════════ */
+/* DATE & BOLETA */
 function renderHeaderDate() {
-  const s = new Date().toLocaleDateString('es-CR', { day:'2-digit', month:'short', year:'numeric' });
-  document.getElementById('headerDate').textContent = s;
+  document.getElementById('headerDate').textContent = new Date().toLocaleDateString('es-CR', { day:'2-digit', month:'short', year:'numeric' });
   document.getElementById('adminDate').textContent = new Date().toLocaleDateString('es-CR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
 }
 function buildPrefix() {
@@ -1253,16 +1252,14 @@ function renderHeaderBoleta() {
   document.getElementById('hintBoleta').textContent = b;
 }
 
-/* ══════════════════════════════════════════
-   PROGRESS STEPS
-══════════════════════════════════════════ */
+/* PROGRESS */
 function updateProgress() {
   const s1 = document.getElementById('tipo').value && document.getElementById('categoria').value && document.getElementById('motivo').value;
   const s2 = document.getElementById('ticket').value && document.getElementById('sede').value && document.getElementById('nombre').value && document.getElementById('factura').value;
   const steps = document.querySelectorAll('.progress-step');
   const dots  = document.querySelectorAll('.step-dot');
-  steps.forEach((s, i) => s.classList.remove('current-step'));
-  dots.forEach(d  => { d.classList.remove('current','done'); });
+  steps.forEach(s => s.classList.remove('current-step'));
+  dots.forEach(d => { d.classList.remove('current','done'); });
   if (!s1) {
     dots[0].classList.add('current'); steps[0].classList.add('current-step');
   } else if (!s2) {
@@ -1275,11 +1272,10 @@ function updateProgress() {
   }
 }
 
-/* ══════════════════════════════════════════
-   FORMULARIO STATE
-══════════════════════════════════════════ */
+/* STATE */
 let consecutiveNum = 29177;
 let allRecords = [];
+let lastSavedRecord = null;
 
 async function loadRecords() {
   try {
@@ -1294,13 +1290,21 @@ async function loadRecords() {
   } catch(e) { console.error(e); }
 }
 
+/* SUBMIT — validates all required, then opens save modal */
 async function handleSubmit(e) {
   e.preventDefault();
   const form = document.getElementById('warrantyForm');
   const required = form.querySelectorAll('[required]');
   let valid = true;
-  required.forEach(el => { const empty = !el.value.trim(); el.classList.toggle('error', empty); if (empty) valid = false; });
-  if (!valid) { showToast('Campos requeridos incompletos', 'error', 'Revisá los campos marcados en rojo'); return; }
+  required.forEach(el => {
+    const empty = !el.value.trim();
+    el.classList.toggle('error', empty);
+    if (empty) valid = false;
+  });
+  if (!valid) {
+    showToast('Campos incompletos', 'error', 'Completá todos los campos marcados en rojo');
+    return;
+  }
 
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
@@ -1327,10 +1331,14 @@ async function handleSubmit(e) {
     else rawData.temp.unshift(rec);
     updateTabCount();
     showToast('Registro guardado', 'success', 'Boleta ' + boleta);
+    lastSavedRecord = payload;
+    // Populate print form
+    populatePrintForm(payload);
+    // Open save modal
+    document.getElementById('saveModal').classList.add('open');
     form.reset();
-    form.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
-    renderHeaderBoleta();
-    updateProgress();
+    form.querySelectorAll('.error,.filled').forEach(el => el.classList.remove('error','filled'));
+    renderHeaderBoleta(); updateProgress();
   } catch(err) {
     consecutiveNum--;
     renderHeaderBoleta();
@@ -1341,13 +1349,94 @@ async function handleSubmit(e) {
   }
 }
 
-/* ══════════════════════════════════════════
-   SIMPLE TABLE
-══════════════════════════════════════════ */
+function populatePrintForm(r) {
+  document.getElementById('pf-boleta').textContent = 'Boleta ' + (r.boleta || '—');
+  document.getElementById('pf-date').textContent = new Date().toLocaleDateString('es-CR', { day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  document.getElementById('pf-tipo').textContent = TIPO_LABELS[r.tipo] || r.tipo || '—';
+  document.getElementById('pf-categoria').textContent = CAT_LABELS[r.categoria] || r.categoria || '—';
+  document.getElementById('pf-motivo').textContent = MOT_LABELS[r.motivo] || r.motivo || '—';
+  document.getElementById('pf-ticket').textContent = r.ticket || '—';
+  document.getElementById('pf-sede').textContent = r.sede || '—';
+  document.getElementById('pf-nombre').textContent = r.nombre || '—';
+  document.getElementById('pf-factura').textContent = r.factura || '—';
+  document.getElementById('pf-fecha-reg').textContent = new Date().toLocaleDateString('es-CR', { day:'2-digit', month:'2-digit', year:'numeric' });
+  document.getElementById('pf-marca').textContent = r.marca || '—';
+  document.getElementById('pf-codigo').textContent = r.codigo || '—';
+  document.getElementById('pf-serie').textContent = r.serie || '—';
+  document.getElementById('pf-cantidad').textContent = r.cantidad || '—';
+  document.getElementById('pf-fecha-compra').textContent = r.fecha_compra ? new Date(r.fecha_compra).toLocaleDateString('es-CR', { day:'2-digit', month:'2-digit', year:'numeric' }) : '—';
+  document.getElementById('pf-descripcion').textContent = r.descripcion || '—';
+  document.getElementById('pf-falla').textContent = r.falla || '—';
+}
+
+function closeSaveModal() {
+  document.getElementById('saveModal').classList.remove('open');
+}
+
+async function captureForm() {
+  const el = document.getElementById('printForm');
+  const orig = el.style.cssText;
+  // Temporarily make visible for capture
+  el.style.cssText = 'position:fixed;left:0;top:0;width:794px;background:#fff;padding:32px 36px;z-index:9999;';
+  await new Promise(r => setTimeout(r, 200));
+  const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#fff', logging: false });
+  el.style.cssText = orig;
+  return canvas;
+}
+
+async function doSavePNG() {
+  closeSaveModal();
+  showToast('Generando imagen…', 'info');
+  try {
+    const canvas = await captureForm();
+    const a = document.createElement('a');
+    a.download = 'Garantia_' + (lastSavedRecord?.boleta || 'comprobante') + '.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+    showToast('PNG descargado', 'success');
+  } catch(err) { showToast('Error al generar imagen', 'error', err.message); }
+}
+
+async function doSavePDF() {
+  closeSaveModal();
+  showToast('Generando PDF…', 'info');
+  try {
+    const canvas = await captureForm();
+    const imgData = canvas.toDataURL('image/png');
+    // Use print API since jsPDF is not loaded — open as printable page
+    const w = window.open('', '_blank');
+    w.document.write('<html><head><title>Garantia ' + (lastSavedRecord?.boleta||'') + '</title><style>body{margin:0}img{width:100%;display:block}@media print{@page{size:A4;margin:0}}</style></head><body><img src="' + imgData + '"><script>window.onload=function(){window.print();window.close()}<\/script></body></html>');
+    w.document.close();
+    showToast('PDF listo para imprimir', 'success');
+  } catch(err) { showToast('Error al generar PDF', 'error', err.message); }
+}
+
+async function doCopyImage() {
+  closeSaveModal();
+  showToast('Copiando imagen…', 'info');
+  try {
+    const canvas = await captureForm();
+    canvas.toBlob(async (blob) => {
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        showToast('Imagen copiada al portapapeles', 'success');
+      } catch {
+        // Fallback: download
+        const a = document.createElement('a');
+        a.download = 'Garantia_' + (lastSavedRecord?.boleta||'comprobante') + '.png';
+        a.href = URL.createObjectURL(blob);
+        a.click();
+        showToast('Portapapeles no disponible — imagen descargada', 'info');
+      }
+    });
+  } catch(err) { showToast('Error al copiar imagen', 'error', err.message); }
+}
+
+/* SIMPLE TABLE */
 function badgeForBoleta(b) {
   if (!b) return 'badge-muted';
   if (b.startsWith('GNC') || b.startsWith('TNC')) return 'badge-purple';
-  if (b.startsWith('G')) return 'badge-blue';
+  if (b.startsWith('G')) return 'badge-brand';
   if (b.startsWith('T')) return 'badge-green';
   return 'badge-muted';
 }
@@ -1366,7 +1455,7 @@ function renderSimpleTable() {
     return `<tr style="animation-delay:${i*0.03}s">
       <td><span class="badge ${badgeForBoleta(r.boleta)}">${r.boleta||'—'}</span></td>
       <td class="td-mono">${fecha}</td>
-      <td><span class="badge ${r.tipo==='salida_definitiva'?'badge-blue':'badge-green'}">${TIPO_LABELS[r.tipo]||'—'}</span></td>
+      <td><span class="badge ${r.tipo==='salida_definitiva'?'badge-brand':'badge-green'}">${TIPO_LABELS[r.tipo]||'—'}</span></td>
       <td>${CAT_LABELS[r.categoria]||r.categoria||'—'}</td>
       <td class="td-mono">${r.ticket||'—'}</td>
       <td><strong>${r.nombre||'—'}</strong></td>
@@ -1385,11 +1474,9 @@ function updateTabCount() {
   else el.style.display = 'none';
 }
 
-/* ══════════════════════════════════════════
-   ADMIN STATE
-══════════════════════════════════════════ */
-let records   = { def:[], temp:[] };
-let rawData   = { def:[], temp:[] };
+/* ADMIN */
+let records = { def:[], temp:[] };
+let rawData  = { def:[], temp:[] };
 let sortState = { def:{col:'fecha_creacion',dir:-1}, temp:{col:'fecha_creacion',dir:-1} };
 let currentSection = 'salidas-definitivas';
 
@@ -1398,7 +1485,6 @@ async function adminLoadAll() {
     const all = await sbFetch('GET', TABLE + '?order=numero_consecutivo.desc&limit=1000', null) || [];
     rawData.def  = all.filter(r => r.tipo === 'salida_definitiva');
     rawData.temp = all.filter(r => r.tipo === 'salida_temporal');
-    // Sync allRecords
     if (all.length > allRecords.length) {
       allRecords = [...all];
       if (allRecords.length > 0) { const mx = Math.max(...allRecords.map(r=>r.numero_consecutivo||0)); if (mx>=29178) consecutiveNum=mx; }
@@ -1459,12 +1545,12 @@ function adminSortTable(type, col) {
 }
 
 function catBadge(cat) {
-  const cls = { nota_credito:'badge-purple', garantia_1:'badge-blue', rma:'badge-amber', reparacion:'badge-muted', rma_nota_credito:'badge-amber', garantia_1_nota_credito:'badge-purple' };
+  const cls = { nota_credito:'badge-purple', garantia_1:'badge-brand', rma:'badge-amber', reparacion:'badge-muted', rma_nota_credito:'badge-amber', garantia_1_nota_credito:'badge-purple' };
   return `<span class="badge ${cls[cat]||'badge-muted'}">${CAT_LABELS[cat]||cat||'—'}</span>`;
 }
 function boletaBadge(b) {
   if (!b) return '<span class="badge badge-muted">—</span>';
-  const cls = b.startsWith('GNC')||b.startsWith('TNC')?'badge-purple':b.startsWith('G')?'badge-blue':b.startsWith('T')?'badge-green':'badge-muted';
+  const cls = b.startsWith('GNC')||b.startsWith('TNC')?'badge-purple':b.startsWith('G')?'badge-brand':b.startsWith('T')?'badge-green':'badge-muted';
   return `<span class="badge ${cls}">${b}</span>`;
 }
 function fmtDate(iso) { if (!iso) return '—'; return new Date(iso).toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric'}); }
@@ -1480,10 +1566,10 @@ function adminRenderTable(type) {
     <td class="td-mono">${boletaBadge(r.boleta)}</td>
     <td>${fmtDate(r.fecha_creacion)}</td>
     <td>${catBadge(r.categoria)}</td>
-    <td style="color:var(--txt-3);font-size:.75rem">${MOT_LABELS[r.motivo]||r.motivo||'—'}</td>
+    <td style="color:var(--ink-3);font-size:.75rem">${MOT_LABELS[r.motivo]||r.motivo||'—'}</td>
     <td class="td-mono">${r.ticket||'—'}</td>
     <td><strong>${r.nombre||'—'}</strong></td>
-    <td style="color:var(--txt-3)">${r.sede||'—'}</td>
+    <td style="color:var(--ink-3)">${r.sede||'—'}</td>
     <td class="td-mono">${r.factura||'—'}</td>
     <td>${r.marca||'—'}</td>
     <td class="td-mono">${r.codigo||'—'}</td>
@@ -1494,9 +1580,7 @@ function adminRenderTable(type) {
   </tr>`).join('');
 }
 
-/* ══════════════════════════════════════════
-   EXCEL
-══════════════════════════════════════════ */
+/* EXCEL */
 function exportExcel(type) {
   const rows = records[type];
   if (!rows.length) { showToast('No hay registros', 'info', 'Nada para exportar'); return; }
@@ -1507,14 +1591,11 @@ function exportExcel(type) {
   const wb = XLSX.utils.book_new();
   const sn = type==='def'?'Salidas Definitivas':'Salidas Temporales';
   XLSX.utils.book_append_sheet(wb, ws, sn);
-  const fn = `Sekunet_${sn.replace(/ /g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`;
-  XLSX.writeFile(wb, fn);
-  showToast('Excel exportado', 'success', fn);
+  XLSX.writeFile(wb, `Sekunet_${sn.replace(/ /g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  showToast('Excel exportado', 'success');
 }
 
-/* ══════════════════════════════════════════
-   EDIT MODAL
-══════════════════════════════════════════ */
+/* EDIT MODAL */
 let editingId = null;
 const EDIT_FIELDS = [
   { key:'tipo',        label:'Tipo',               type:'select', opts:[['salida_definitiva','Salida Definitiva'],['salida_temporal','Salida Temporal']] },
@@ -1545,7 +1626,7 @@ function openEdit(id) {
       inp = `<textarea id="e_${f.key}" class="field-textarea" rows="2">${val}</textarea>`;
     } else if (f.type === 'select') {
       const opts = f.opts.map(([v,l])=>`<option value="${v}"${v===val?' selected':''}>${l}</option>`).join('');
-      inp = `<select id="e_${f.key}" class="field-select"><option value="">Seleccionar…</option>${opts}</select>`;
+      inp = `<select id="e_${f.key}" class="field-select"><option value="">Seleccionar</option>${opts}</select>`;
     } else {
       inp = `<input id="e_${f.key}" type="${f.type}" class="field-input" value="${val}">`;
     }
@@ -1579,9 +1660,7 @@ async function saveEdit() {
   finally { btn.disabled=false; btn.innerHTML='<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Guardar Cambios'; }
 }
 
-/* ══════════════════════════════════════════
-   DELETE
-══════════════════════════════════════════ */
+/* DELETE */
 function askDelete(id, boleta) {
   document.getElementById('confirmMsg').textContent = '¿Eliminar el registro ' + (boleta||id) + '? Esta acción no se puede deshacer.';
   document.getElementById('confirmOkBtn').onclick = () => doDelete(id, boleta);
@@ -1600,41 +1679,31 @@ async function doDelete(id, boleta) {
   } catch(err) { showToast('Error al eliminar', 'error', err.message); }
 }
 
-/* ══════════════════════════════════════════
-   INIT
-══════════════════════════════════════════ */
+/* INIT */
 document.addEventListener('DOMContentLoaded', async () => {
   renderHeaderDate();
-
-  // Tab nav
   document.querySelectorAll('.pill-btn').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
-  // Admin rail
   document.querySelectorAll('.rail-item[data-section]').forEach(btn => {
     btn.addEventListener('click', () => adminSwitchSection(btn.dataset.section));
   });
-  // Form
   document.getElementById('tipo').addEventListener('change', () => { renderHeaderBoleta(); updateProgress(); });
   document.getElementById('categoria').addEventListener('change', () => { renderHeaderBoleta(); updateProgress(); });
   document.getElementById('warrantyForm').addEventListener('submit', handleSubmit);
   document.getElementById('clearBtn').addEventListener('click', () => {
     document.getElementById('warrantyForm').reset();
-    document.getElementById('warrantyForm').querySelectorAll('.error').forEach(el=>el.classList.remove('error'));
+    document.getElementById('warrantyForm').querySelectorAll('.error,.filled').forEach(el=>el.classList.remove('error','filled'));
     renderHeaderBoleta(); updateProgress();
     showToast('Formulario limpiado', 'info');
   });
-  // Live validation feedback (filled state)
   document.querySelectorAll('.field-input, .field-select, .field-textarea').forEach(el => {
     el.addEventListener('input', () => { el.classList.toggle('filled', !!el.value); el.classList.remove('error'); });
     el.addEventListener('change', () => { el.classList.toggle('filled', !!el.value); el.classList.remove('error'); updateProgress(); });
   });
-  // Search
   document.getElementById('searchInput').addEventListener('input', renderSimpleTable);
-  // Modal close on backdrop
   document.getElementById('editModal').addEventListener('click', e => { if(e.target===document.getElementById('editModal')) closeModal(); });
-
-  // Initial data load
+  document.getElementById('saveModal').addEventListener('click', e => { if(e.target===document.getElementById('saveModal')) closeSaveModal(); });
   await loadRecords();
   renderHeaderBoleta();
   updateProgress();
