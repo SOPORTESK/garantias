@@ -702,18 +702,19 @@
       
       let prefix = '';
       
-      // Aplicar reglas según TIPO y CATEGORIA
+      // Aplicar prefijo inmediato para salida definitiva/temporal
       if (tipo === 'salida definitiva') {
-        if (categoria === 'Nota de Crédito') {
-          prefix = 'GNC'; // G + NC
-        } else {
-          prefix = 'G'; // Solo G
-        }
+        prefix = 'G'; // Aplicar G inmediatamente
       } else if (tipo === 'salida temporal') {
-        if (categoria === 'Nota de Crédito') {
+        prefix = 'T'; // Aplicar T inmediatamente
+      }
+      
+      // Agregar NC si es Nota De Crédito
+      if (categoria === 'Nota De Crédito') {
+        if (tipo === 'salida definitiva') {
+          prefix = 'GNC'; // G + NC
+        } else if (tipo === 'salida temporal') {
           prefix = 'TNC'; // T + NC
-        } else {
-          prefix = 'T'; // Solo T
         }
       }
       
