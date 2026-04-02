@@ -102,13 +102,14 @@
 
     .header-info {
       display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: var(--gap-sm);
+      flex-direction: row;
+      align-items: center;
+      gap: var(--gap-md);
     }
 
     .date-info, .consecutive-info {
       display: flex;
+      flex-direction: row;
       align-items: center;
       gap: var(--gap-sm);
       padding: var(--spacing-xs) var(--spacing-sm);
@@ -530,9 +531,9 @@
     <div class="form-header">
       <div class="logo-section">
         <div class="logo">
-          <svg width="48" height="48" viewBox="0 0 32 32" fill="none">
-            <rect width="32" height="32" rx="8" fill="#1B4F9C"/>
-            <path d="M8 16L14 22L24 10" stroke="#F7B24B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="24" height="24" rx="4" fill="#1B4F9C"/>
+            <path d="M7 12L10 15L17 8" stroke="#F7B24B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <span class="brand-name">SEKUNET</span>
         </div>
@@ -638,14 +639,7 @@
       <div class="form-section bottom-section">
         <h2 class="section-title">AUTORIZACIÓN</h2>
         <div class="form-row">
-          <div class="form-group">
-            <label for="solicitado" class="form-label">SOLICITADO POR:</label>
-            <input type="text" id="solicitado" name="solicitado" class="form-input" required>
-          </div>
-          <div class="form-group">
-            <label for="aprobado" class="form-label">APROBADO POR:</label>
-            <input type="text" id="aprobado" name="aprobado" class="form-input" value="Jorge Montenegro" required>
-          </div>
+          <!-- Campos eliminados: SOLICITADO POR y APROBADO POR -->
         </div>
       </div>
 
