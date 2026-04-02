@@ -3,328 +3,161 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Registro de Garantías · Sekunet</title>
-  
+  <title>Dashboard · Sekunet Garantías</title>
+  <link rel="stylesheet" href="../css/global.css"/>
+  <link rel="stylesheet" href="../css/dashboard.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --sekunet-blue: #1B4F9C;
-      --sekunet-amber: #F7B24B;
-      --text-dark: #2d3748;
-      --bg-gray: #f1f5f9;
-      --border-color: #cbd5e1;
-    }
-
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background-color: var(--bg-gray);
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-    }
-
-    .form-sheet {
-      background: white;
-      width: 100%;
-      max-width: 1100px;
-      padding: 40px;
-      border: 1px solid var(--border-color);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-      border-radius: 4px; /* Estilo hoja técnica */
-    }
-
-    /* HEADER */
-    .header-table {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-    }
-
-    .brand-section img { height: 60px; } /* Aquí iría tu logo */
-    
-    .title-section { text-align: center; flex: 1; }
-    .title-section h1 { 
-      font-family: 'Syne', sans-serif; 
-      color: var(--sekunet-blue); 
-      margin: 0; 
-      font-size: 28px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .meta-info { font-size: 14px; color: var(--text-dark); }
-    .consecutivo-box {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .label-amber-small {
-      background: var(--sekunet-amber);
-      color: var(--sekunet-blue);
-      font-weight: bold;
-      padding: 4px 12px;
-      font-size: 12px;
-      border-radius: 2px;
-    }
-
-    /* GRID SISTEMA */
-    .section-title {
-      text-align: center;
-      font-weight: 800;
-      color: var(--text-dark);
-      border-bottom: 2px solid var(--sekunet-blue);
-      margin: 25px 0 15px 0;
-      padding-bottom: 5px;
-      text-transform: uppercase;
-      font-size: 16px;
-    }
-
-    .row {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-
-    .input-group {
-      display: flex;
-      align-items: stretch;
-      border: 1px solid var(--sekunet-blue);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .label-amber {
-      background: var(--sekunet-amber);
-      color: var(--sekunet-blue);
-      font-weight: 700;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 8px;
-      min-width: 100px;
-      text-align: center;
-      text-transform: uppercase;
-    }
-
-    input, select, textarea {
-      flex: 1;
-      border: none;
-      padding: 8px 12px;
-      font-size: 13px;
-      outline: none;
-      color: var(--text-dark);
-    }
-
-    textarea { resize: vertical; }
-
-    /* FOOTER / BUTTONS */
-    .footer-actions {
-      margin-top: 40px;
-      display: flex;
-      gap: 0;
-    }
-
-    .btn {
-      flex: 1;
-      padding: 15px;
-      border: 1px solid var(--sekunet-blue);
-      font-weight: 800;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: 0.3s;
-      font-family: 'Syne', sans-serif;
-    }
-
-    .btn-save { background: var(--sekunet-blue); color: white; }
-    .btn-save:hover { background: #133a75; }
-
-    .btn-clear { background: white; color: var(--sekunet-blue); }
-    .btn-clear:hover { background: #f8fafc; }
-
-    /* Responsive */
-    .col-6 { grid-column: span 6; }
-    .col-4 { grid-column: span 4; }
-    .col-3 { grid-column: span 3; }
-    .col-12 { grid-column: span 12; }
-
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <div class="form-sheet">
-    <div class="header-table">
-      <div class="brand-section">
-        <div style="font-family:'Syne'; font-weight:800; color:var(--sekunet-blue); font-size:32px;">SEKUNET</div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="#1B4F9C"/>
+          <path d="M8 16L14 22L24 10" stroke="#F7B24B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </div>
-      <div class="title-section">
-        <h1>Formulario de Garantías</h1>
-        <div id="currentDate" style="margin-top:10px; font-weight:bold;"></div>
-      </div>
-      <div class="meta-info">
-        <div class="consecutivo-box">
-          <span class="label-amber-small">CONSECUTIVO:</span>
-          <span style="font-family:monospace; font-weight:bold;" id="folio">202604-001</span>
-        </div>
-      </div>
+      <span class="brand-name">SEKUNET</span>
     </div>
 
-    <form id="garantiaForm">
-      <div class="row">
-        <div class="input-group col-3">
-          <div class="label-amber">Tipo</div>
-          <select id="tipo">
-            <option value="definitiva">Definitiva</option>
-            <option value="temporal">Temporal</option>
-          </select>
-        </div>
-        <div class="input-group col-3">
-          <div class="label-amber">Categoría</div>
-          <input type="text" id="categoria">
-        </div>
-        <div class="input-group col-3">
-          <div class="label-amber">Boleta Nº</div>
-          <input type="text" id="boleta_no">
-        </div>
-        <div class="input-group col-3">
-          <div class="label-amber">Motivo</div>
-          <input type="text" id="motivo">
-        </div>
-      </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-item active" data-page="dashboard">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a href="formulario.html" class="nav-item" data-page="formulario">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Nuevo Formulario
+      </a>
+      <a href="definitivas.html" class="nav-item" data-page="definitivas">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Salidas Definitivas
+      </a>
+      <a href="temporales.html" class="nav-item" data-page="temporales">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Salidas Temporales
+      </a>
+      <a href="inventario.html" class="nav-item" data-page="inventario">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Inventario
+      </a>
+    </nav>
 
-      <div class="section-title">Información del Cliente</div>
-      <div class="row">
-        <div class="input-group col-4">
-          <div class="label-amber">Ticket Nº</div>
-          <input type="text" id="ticket_no">
-        </div>
-        <div class="input-group col-8">
-          <div class="label-amber">Sede</div>
-          <input type="text" id="sede">
+    <div class="sidebar-footer">
+      <div class="user-info" id="userInfo">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div class="user-details">
+          <span class="user-name" id="userName">Cargando...</span>
+          <span class="user-role">Técnico</span>
         </div>
       </div>
-      <div class="row">
-        <div class="input-group col-8">
-          <div class="label-amber">Nombre</div>
-          <input type="text" id="nombre_cliente">
-        </div>
-        <div class="input-group col-4">
-          <div class="label-amber">Factura Nº</div>
-          <input type="text" id="factura_no">
-        </div>
-      </div>
+      <button class="btn-logout" id="logoutBtn" title="Cerrar sesión">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      </button>
+    </div>
+  </aside>
 
-      <div class="section-title">Información del Producto</div>
-      <div class="row">
-        <div class="input-group col-3">
-          <div class="label-amber">Cantidad</div>
-          <input type="number" id="cantidad">
-        </div>
-        <div class="input-group col-9">
-          <div class="label-amber">Fecha de Compra</div>
-          <input type="date" id="fecha_compra">
-        </div>
-      </div>
-      <div class="row">
-        <div class="input-group col-4">
-          <div class="label-amber">Marca</div>
-          <input type="text" id="marca">
-        </div>
-        <div class="input-group col-4">
-          <div class="label-amber">Código Artículo</div>
-          <input type="text" id="codigo_articulo">
-        </div>
-        <div class="input-group col-4">
-          <div class="label-amber">Serie</div>
-          <input type="text" id="serie">
-        </div>
-      </div>
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
 
-      <div class="section-title">Detalle Técnico</div>
-      <div class="row">
-        <div class="input-group col-12">
-          <div class="label-amber" style="min-width: 140px;">Descripción</div>
-          <textarea id="descripcion" rows="3"></textarea>
-        </div>
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebarToggle">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <div class="topbar-title">
+        <h2>Dashboard</h2>
+        <span id="currentDate" class="topbar-date"></span>
       </div>
-      <div class="row">
-        <div class="input-group col-12">
-          <div class="label-amber" style="min-width: 140px;">Falla</div>
-          <textarea id="falla" rows="3"></textarea>
-        </div>
-      </div>
+      <a href="formulario.html" class="btn-amber">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo Registro
+      </a>
+    </header>
 
-      <div class="row" style="margin-top: 20px;">
-        <div class="input-group col-6">
-          <div class="label-amber">Solicitado Por</div>
-          <input type="text" id="solicitado_por">
+    <!-- STATS CARDS -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon blue">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         </div>
-        <div class="input-group col-6">
-          <div class="label-amber">Aprobado Por</div>
-          <input type="text" id="aprobado_por" value="Jorge Montenegro" readonly>
+        <div class="stat-info">
+          <span class="stat-label">Total Registros</span>
+          <span class="stat-value" id="statTotal">—</span>
         </div>
       </div>
+      <div class="stat-card">
+        <div class="stat-icon amber">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Salidas Definitivas</span>
+          <span class="stat-value" id="statDefinitivas">—</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon teal">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Salidas Temporales</span>
+          <span class="stat-value" id="statTemporales">—</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Artículos en Inventario</span>
+          <span class="stat-value" id="statInventario">—</span>
+        </div>
+      </div>
+    </section>
 
-      <div class="footer-actions">
-        <button type="button" class="btn btn-clear" onclick="window.location.href='index.html'">LIMPIAR / VOLVER</button>
-        <button type="submit" class="btn btn-save">GUARDAR REGISTRO</button>
+    <!-- RECENT RECORDS -->
+    <section class="section-card">
+      <div class="section-header">
+        <h3>Registros Recientes</h3>
+        <div class="filter-tabs">
+          <button class="tab active" data-filter="todos">Todos</button>
+          <button class="tab" data-filter="definitiva">Definitivas</button>
+          <button class="tab" data-filter="temporal">Temporales</button>
+        </div>
       </div>
-    </form>
-  </div>
+      <div class="table-wrapper">
+        <table class="data-table" id="recentTable">
+          <thead>
+            <tr>
+              <th>Folio</th>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Solicitado por</th>
+              <th>Cliente</th>
+              <th>Sede</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="recentTableBody">
+            <tr><td colspan="7" class="table-loading">Cargando registros...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // CONFIGURACIÓN SUPABASE
-    const supabaseUrl = 'https://TU_PROYECTO.supabase.co';
-    const supabaseKey = 'TU_ANON_KEY';
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-    // FECHA ACTUAL
-    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-ES', {
-      day: 'numeric', month: 'long', year: 'numeric'
-    });
-
-    // LÓGICA DE ENVÍO
-    const form = document.getElementById('garantiaForm');
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const payload = {
-        tipo: document.getElementById('tipo').value,
-        categoria: document.getElementById('categoria').value,
-        boleta_no: document.getElementById('boleta_no').value,
-        motivo: document.getElementById('motivo').value,
-        ticket_no: document.getElementById('ticket_no').value,
-        sede: document.getElementById('sede').value,
-        nombre_cliente: document.getElementById('nombre_cliente').value,
-        factura_no: document.getElementById('factura_no').value,
-        cantidad: document.getElementById('cantidad').value,
-        fecha_compra: document.getElementById('fecha_compra').value,
-        marca: document.getElementById('marca').value,
-        codigo_articulo: document.getElementById('codigo_articulo').value,
-        serie: document.getElementById('serie').value,
-        descripcion: document.getElementById('descripcion').value,
-        falla: document.getElementById('falla').value,
-        solicitado_por: document.getElementById('solicitado_por').value,
-        aprobado_por: document.getElementById('aprobado_por').value,
-        estado: 'pendiente'
-      };
-
-      const { data, error } = await supabase.from('registros').insert([payload]);
-
-      if (error) {
-        alert("Error: " + error.message);
-      } else {
-        alert("Formulario Guardado Exitosamente");
-        window.location.href = 'index.html';
-      }
-    });
-  </script>
+  <script src="../js/supabase.js"></script>
+  <script src="../js/auth-guard.js"></script>
+  <script src="../js/dashboard.js"></script>
 </body>
 </html>
