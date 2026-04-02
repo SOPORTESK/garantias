@@ -894,7 +894,6 @@ async function invLoad() {
     const data = await sbFetch('GET', INV_TABLE+'?order=articulo.asc&limit=5000', null);
     inventory = (data||[]).map(sbRowToInv);
     invRender(); invUpdateUI();
-    if (inventory.length) showToast('Inventario cargado', 'success', inventory.length+' artículos desde Supabase');
   } catch(e) {
     inventory = [];
     console.warn('inventario:', e.message);
@@ -903,7 +902,6 @@ async function invLoad() {
 
 async function invHandleFile(file) {
   if (!file) return;
-  showToast('Procesando Excel…', 'info');
   try {
     const rows = await invParseExcel(file);
     if (!rows.length) { showToast('El archivo está vacío','error'); return; }
