@@ -816,20 +816,20 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
         <button class="save-opt-btn" onclick="doCopyImage()" style="flex-direction:column;align-items:center;padding:.7rem .5rem;gap:.35rem;text-align:center;">
           <div class="save-opt-icon ic-copy" style="width:30px;height:30px;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></div>
-          <div style="font-size:.78rem;font-weight:700;color:var(--ink-1);">Copiar PNG</div>
-          <div style="font-size:.65rem;color:var(--ink-4);">Al portapapeles</div>
+          <div style="font-size:.78rem;font-weight:700;color:var(--ink-1);">Ver Comprobante</div>
+          <div style="font-size:.65rem;color:var(--ink-4);">Abrir para copiar</div>
         </button>
         <button class="save-opt-btn" onclick="doSavePNG()" style="flex-direction:column;align-items:center;padding:.7rem .5rem;gap:.35rem;text-align:center;">
           <div class="save-opt-icon ic-img" style="width:30px;height:30px;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
-          <div style="font-size:.78rem;font-weight:700;color:var(--ink-1);">Guardar PNG</div>
-          <div style="font-size:.65rem;color:var(--ink-4);">Descargar imagen</div>
+          <div style="font-size:.78rem;font-weight:700;color:var(--ink-1);">Imprimir / PDF</div>
+          <div style="font-size:.65rem;color:var(--ink-4);">Guardar como PDF</div>
         </button>
       </div>
 
       <!-- Guardar PDF -->
       <button class="save-opt-btn" onclick="doSavePDF()">
         <div class="save-opt-icon ic-pdf"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg></div>
-        <div><div class="save-opt-label">Guardar como PDF</div><div class="save-opt-desc">Vista previa → guardar como PDF (A4)</div></div>
+        <div><div class="save-opt-label">Guardar como PDF</div><div class="save-opt-desc">Abre el comprobante → Ctrl+P → Guardar como PDF</div></div>
       </button>
 
       <!-- Separador ENVIAR -->
@@ -846,7 +846,7 @@
         </div>
         <div>
           <div class="save-opt-label">Enviar por correo</div>
-          <div class="save-opt-desc">Descarga PNG y abre Outlook con asunto prellenado</div>
+          <div class="save-opt-desc">Abre el comprobante y Outlook con asunto prellenado</div>
         </div>
       </button>
 
@@ -1311,97 +1311,69 @@ function closeEnviarMenu() {
 async function openEnviarCorreo() {
   closeEnviarMenu();
   if (!lastSavedRecord) { showToast('Guardá un registro primero','info'); return; }
-  showToast('Preparando email…','info');
-  try {
-    const canvas = await captureForm();
-    const r = lastSavedRecord;
-    const boleta  = r.boleta || 'comprobante';
-    const tipo    = TIPO_LABELS[r.tipo]     || r.tipo     || '';
-    const cat     = CAT_LABELS[r.categoria] || r.categoria || '';
-    const ticket  = r.ticket ? 'Ticket #' + r.ticket : '';
-    const partes  = [tipo, cat, ticket].filter(Boolean);
-    const subject = encodeURIComponent(partes.join(' · ') + ' · Boleta ' + boleta);
-    const body = encodeURIComponent(
-      'Se adjunta el comprobante de garantía (archivo PNG).\n\n' +
-      'Boleta:    ' + boleta + '\n' +
-      (r.nombre  ? 'Cliente:   ' + r.nombre  + '\n' : '') +
-      (r.ticket  ? 'Ticket:    ' + r.ticket  + '\n' : '') +
-      (r.factura ? 'Factura:   ' + r.factura + '\n' : '') +
-      (r.sede    ? 'Sede:      ' + r.sede    + '\n' : '') +
-      (tipo      ? 'Tipo:      ' + tipo      + '\n' : '') +
-      (cat       ? 'Categoría: ' + cat       + '\n' : '') +
-      '\n— Sekunet Garantías'
-    );
-    const a = document.createElement('a');
-    a.download = 'Garantia_' + boleta + '.png';
-    a.href = canvas.toDataURL('image/png'); a.click();
-    setTimeout(() => {
-      window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
-      showToast('PNG descargado · Outlook abierto', 'success', 'Adjuntá el PNG al email');
-    }, 700);
-  } catch(err) { showToast('Error','error',err.message); }
+  const r = lastSavedRecord;
+  const boleta  = r.boleta || 'comprobante';
+  const tipo    = TIPO_LABELS[r.tipo]     || r.tipo     || '';
+  const cat     = CAT_LABELS[r.categoria] || r.categoria || '';
+  const ticket  = r.ticket ? 'Ticket #' + r.ticket : '';
+  const partes  = [tipo, cat, ticket].filter(Boolean);
+  const subject = encodeURIComponent(partes.join(' · ') + ' · Boleta ' + boleta);
+  const body = encodeURIComponent(
+    'Se adjunta el comprobante de garantía.\n\n' +
+    'Boleta:    ' + boleta + '\n' +
+    (r.nombre  ? 'Cliente:   ' + r.nombre  + '\n' : '') +
+    (r.ticket  ? 'Ticket:    ' + r.ticket  + '\n' : '') +
+    (r.factura ? 'Factura:   ' + r.factura + '\n' : '') +
+    (r.sede    ? 'Sede:      ' + r.sede    + '\n' : '') +
+    (tipo      ? 'Tipo:      ' + tipo      + '\n' : '') +
+    (cat       ? 'Categoría: ' + cat       + '\n' : '') +
+    '\n— Sekunet Garantías'
+  );
+  openPrintWindow(r);
+  setTimeout(() => {
+    window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+    showToast('Comprobante abierto · Outlook iniciando', 'success', 'Imprimí el comprobante como PDF y adjuntalo');
+  }, 600);
 }
 
 async function openEnviarImprimir() {
   closeEnviarMenu();
   if (!lastSavedRecord) { showToast('Guardá un registro primero','info'); return; }
   showToast('Abriendo vista de impresión…','info');
-  try {
-    const canvas = await captureForm();
-    const imgData = canvas.toDataURL('image/png');
-    const boleta = lastSavedRecord?.boleta || '';
-    const w = window.open('','_blank');
-    w.document.write('<html><head><title>Garantia '+boleta+'</title><style>body{margin:0}img{width:100%;display:block}@media print{@page{size:A4;margin:0}}</style></head><body><img src="'+imgData+'"><script>window.onload=function(){window.print()}<\/script></body></html>');
-    w.document.close();
-  } catch(err) { showToast('Error al imprimir','error',err.message); }
+  openPrintWindow(lastSavedRecord);
 }
 
 async function doSendEmail() {
-  showToast('Preparando email…','info');
-  try {
-    const canvas = await captureForm();
-    const r = lastSavedRecord || {};
-    const boleta  = r.boleta || 'comprobante';
-    const tipo    = TIPO_LABELS[r.tipo]    || r.tipo    || '';
-    const cat     = CAT_LABELS[r.categoria] || r.categoria || '';
-    const ticket  = r.ticket ? 'Ticket #' + r.ticket : '';
-    // Asunto: Tipo - Categoría · Ticket · Boleta
-    const partes  = [tipo, cat, ticket].filter(Boolean);
-    const subject = encodeURIComponent(partes.join(' · ') + (boleta ? ' · Boleta ' + boleta : ''));
-    const body = encodeURIComponent(
-      'Se adjunta el comprobante de garantía (archivo PNG).\n\n' +
-      'Boleta:    ' + boleta + '\n' +
-      (r.nombre  ? 'Cliente:   ' + r.nombre  + '\n' : '') +
-      (r.ticket  ? 'Ticket:    ' + r.ticket  + '\n' : '') +
-      (r.factura ? 'Factura:   ' + r.factura + '\n' : '') +
-      (r.sede    ? 'Sede:      ' + r.sede    + '\n' : '') +
-      (tipo      ? 'Tipo:      ' + tipo      + '\n' : '') +
-      (cat       ? 'Categoría: ' + cat       + '\n' : '') +
-      '\n— Sekunet Garantías'
-    );
-    // Descargar PNG para adjuntar manualmente
-    const a = document.createElement('a');
-    a.download = 'Garantia_' + boleta + '.png';
-    a.href = canvas.toDataURL('image/png');
-    a.click();
-    setTimeout(() => {
-      window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
-      closeSaveModal();
-      showToast('PNG descargado · Outlook abierto', 'success', 'Adjuntá el PNG al email');
-    }, 700);
-  } catch(err) { showToast('Error','error',err.message); }
+  const r = lastSavedRecord || {};
+  const boleta  = r.boleta || 'comprobante';
+  const tipo    = TIPO_LABELS[r.tipo]    || r.tipo    || '';
+  const cat     = CAT_LABELS[r.categoria] || r.categoria || '';
+  const ticket  = r.ticket ? 'Ticket #' + r.ticket : '';
+  const partes  = [tipo, cat, ticket].filter(Boolean);
+  const subject = encodeURIComponent(partes.join(' · ') + (boleta ? ' · Boleta ' + boleta : ''));
+  const body = encodeURIComponent(
+    'Se adjunta el comprobante de garantía.\n\n' +
+    'Boleta:    ' + boleta + '\n' +
+    (r.nombre  ? 'Cliente:   ' + r.nombre  + '\n' : '') +
+    (r.ticket  ? 'Ticket:    ' + r.ticket  + '\n' : '') +
+    (r.factura ? 'Factura:   ' + r.factura + '\n' : '') +
+    (r.sede    ? 'Sede:      ' + r.sede    + '\n' : '') +
+    (tipo      ? 'Tipo:      ' + tipo      + '\n' : '') +
+    (cat       ? 'Categoría: ' + cat       + '\n' : '') +
+    '\n— Sekunet Garantías'
+  );
+  openPrintWindow(r);
+  setTimeout(() => {
+    window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+    closeSaveModal();
+    showToast('Comprobante abierto · Outlook iniciando', 'success', 'Guardá el comprobante como PDF y adjuntalo');
+  }, 600);
 }
 
 async function doSendPrint() {
   closeSaveModal();
   showToast('Abriendo vista de impresión…','info');
-  try {
-    const canvas = await captureForm();
-    const imgData = canvas.toDataURL('image/png');
-    const w = window.open('','_blank');
-    w.document.write('<html><head><title>Garantia '+(lastSavedRecord?.boleta||'')+'</title><style>body{margin:0}img{width:100%;display:block}@media print{@page{size:A4;margin:0}}</style></head><body><img src="'+imgData+'"><script>window.onload=function(){window.print()}<\/script></body></html>');
-    w.document.close();
-  } catch(err) { showToast('Error al imprimir','error',err.message); }
+  openPrintWindow(lastSavedRecord);
 }
 
 /* ══ REVERTIR BOLETA (pruebas) ══ */
@@ -1454,40 +1426,137 @@ async function deleteTestRecords() {
   showToast(deleted + ' registro(s) eliminados', 'success', 'Contador ajustado a ' + consecutiveNum);
 }
 
-async function captureForm() {
-  const el = document.getElementById('printForm');
-  const orig = el.style.cssText;
-  el.style.cssText = 'position:fixed;left:0;top:0;width:794px;background:#fff;padding:32px 36px;z-index:9999;';
-  await new Promise(r => setTimeout(r, 200));
-  const canvas = await html2canvas(el, { scale:2, useCORS:true, backgroundColor:'#fff', logging:false });
-  el.style.cssText = orig;
-  return canvas;
+function buildPrintHTML(r) {
+  if (!r) return '';
+  const boleta   = r.boleta || '—';
+  const fecha    = new Date().toLocaleDateString('es-CR', {day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const fechaReg = new Date().toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const fechaCompra = r.fecha_compra ? new Date(r.fecha_compra).toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric'}) : '—';
+  const logoSrc = document.querySelector('#printForm .pf-logo')?.src || '';
+
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Garantia ${boleta}</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;color:#1A1108;background:#fff;padding:32px 36px;width:794px;margin:0 auto}
+  .pf-header{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #D1411E;padding-bottom:14px;margin-bottom:18px}
+  .pf-logo{height:36px}
+  .pf-title-area{text-align:right}
+  .pf-main-title{font-size:20px;font-weight:800;color:#D1411E;line-height:1}
+  .pf-boleta{font-size:13px;font-weight:700;color:#1A1108;margin-top:4px}
+  .pf-date{font-size:10px;color:#7A6E62;margin-top:2px}
+  .pf-section{margin-bottom:14px}
+  .pf-section-title{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#D1411E;border-bottom:1px solid #F2F0EC;padding-bottom:4px;margin-bottom:8px}
+  .pf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .pf-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .pf-field{display:flex;flex-direction:column;gap:2px}
+  .pf-full{grid-column:1/-1}
+  .pf-label{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#A89E92}
+  .pf-value{font-size:11px;font-weight:500;color:#1A1108;border-bottom:1px solid #E8E5E0;padding-bottom:3px;min-height:18px}
+  .pf-text-area{min-height:36px;white-space:pre-wrap}
+  .pf-footer{margin-top:20px;border-top:1px solid #E8E5E0;padding-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .pf-sig-line{border-bottom:1px solid #1A1108;margin-top:28px}
+  .pf-sig-label{font-size:8px;color:#A89E92;margin-top:4px}
+  @media print{@page{size:A4;margin:1.2cm} body{padding:0;width:100%} .no-print{display:none}}
+  .no-print{text-align:center;margin-bottom:16px}
+  .btn-print{font-family:'Plus Jakarta Sans',sans-serif;background:#D1411E;color:#fff;border:none;padding:8px 20px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;margin-right:8px}
+  .btn-close{font-family:'Plus Jakarta Sans',sans-serif;background:#eee;color:#333;border:none;padding:8px 16px;border-radius:6px;font-size:13px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="no-print">
+  <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+  <button class="btn-close" onclick="window.close()">Cerrar</button>
+</div>
+<div class="pf-header">
+  ${logoSrc ? `<img class="pf-logo" src="${logoSrc}" alt="Sekunet">` : '<div style="font-size:18px;font-weight:800;color:#D1411E">Sekunet</div>'}
+  <div class="pf-title-area">
+    <div class="pf-main-title">Garantías · Sekunet</div>
+    <div class="pf-boleta">Boleta ${boleta}</div>
+    <div class="pf-date">${fecha}</div>
+  </div>
+</div>
+<div class="pf-section">
+  <div class="pf-section-title">Clasificación</div>
+  <div class="pf-grid">
+    <div class="pf-field"><div class="pf-label">Tipo de Salida</div><div class="pf-value">${(TIPO_LABELS[r.tipo]||r.tipo||'—')}</div></div>
+    <div class="pf-field"><div class="pf-label">Categoría</div><div class="pf-value">${(CAT_LABELS[r.categoria]||r.categoria||'—')}</div></div>
+    <div class="pf-field"><div class="pf-label">Motivo</div><div class="pf-value">${(MOT_LABELS[r.motivo]||r.motivo||'—')}</div></div>
+  </div>
+</div>
+<div class="pf-section">
+  <div class="pf-section-title">Información del Cliente</div>
+  <div class="pf-grid">
+    <div class="pf-field"><div class="pf-label">Ticket N°</div><div class="pf-value">${r.ticket||'—'}</div></div>
+    <div class="pf-field"><div class="pf-label">Sede</div><div class="pf-value">${r.sede||'—'}</div></div>
+    <div class="pf-field"><div class="pf-label">Nombre del Cliente</div><div class="pf-value">${r.nombre||'—'}</div></div>
+    <div class="pf-field"><div class="pf-label">Factura N°</div><div class="pf-value">${r.factura||'—'}</div></div>
+    <div class="pf-field"><div class="pf-label">Fecha de Registro</div><div class="pf-value">${fechaReg}</div></div>
+  </div>
+</div>
+<div class="pf-section">
+  <div class="pf-section-title">Información del Producto</div>
+  <div class="pf-grid">
+    <div class="pf-field"><div class="pf-label">Marca</div><div class="pf-value">${r.marca||'—'}</div></div>
+    <div class="pf-field"><div class="pf-label">Serie</div><div class="pf-value">${r.serie||'—'}</div></div>
+    <div class="pf-field"><div class="pf-label">Cantidad</div><div class="pf-value">${r.cantidad||'—'}</div></div>
+    <div class="pf-field"><div class="pf-label">Fecha de Compra</div><div class="pf-value">${fechaCompra}</div></div>
+  </div>
+</div>
+<div class="pf-section">
+  <div class="pf-section-title">Descripción y Falla</div>
+  <div class="pf-grid-2">
+    <div class="pf-field pf-full"><div class="pf-label">Descripción del Artículo</div><div class="pf-value pf-text-area">${r.descripcion||'—'}</div></div>
+    <div class="pf-field pf-full"><div class="pf-label">Descripción de la Falla</div><div class="pf-value pf-text-area">${r.falla||'—'}</div></div>
+  </div>
+</div>
+<div class="pf-footer">
+  <div><div class="pf-sig-line"></div><div class="pf-sig-label">Firma del Cliente</div></div>
+  <div><div class="pf-sig-line"></div><div class="pf-sig-label">Firma del Responsable · Sekunet</div></div>
+</div>
+</body>
+</html>`;
+}
+
+function openPrintWindow(r) {
+  const html = buildPrintHTML(r);
+  const w = window.open('', '_blank');
+  if (!w) { showToast('Bloqueador de pop-ups activo', 'error', 'Permitir ventanas emergentes para este sitio'); return false; }
+  w.document.write(html);
+  w.document.close();
+  return true;
 }
 
 async function doSavePNG() {
-  closeSaveModal(); showToast('Generando imagen…','info');
-  try {
-    const canvas = await captureForm();
-    const a = document.createElement('a');
-    a.download = 'Garantia_' + (lastSavedRecord?.boleta||'comprobante') + '.png';
-    a.href = canvas.toDataURL('image/png'); a.click();
-    showToast('PNG descargado','success');
-  } catch(err) { showToast('Error al generar imagen','error',err.message); }
+  closeSaveModal();
+  showToast('Abriendo comprobante…', 'info', 'Usá Ctrl+P → "Guardar como PDF" o captura de pantalla');
+  openPrintWindow(lastSavedRecord);
 }
 
 async function doSavePDF() {
-  closeSaveModal(); showToast('Generando PDF…','info');
-  try {
-    const canvas = await captureForm();
-    const imgData = canvas.toDataURL('image/png');
-    const w = window.open('','_blank');
-    w.document.write('<html><head><title>Garantia '+(lastSavedRecord?.boleta||'')+'</title><style>body{margin:0}img{width:100%;display:block}@media print{@page{size:A4;margin:0}}</style></head><body><img src="'+imgData+'"><script>window.onload=function(){window.print();window.close()}<\/script></body></html>');
-    w.document.close();
-    showToast('PDF listo para imprimir','success');
-  } catch(err) { showToast('Error al generar PDF','error',err.message); }
+  closeSaveModal();
+  showToast('Abriendo para imprimir / guardar PDF…', 'info');
+  openPrintWindow(lastSavedRecord);
 }
 
 async function doCopyImage() {
+  closeSaveModal();
+  showToast('Abriendo comprobante…', 'info', 'Podés copiar o imprimir desde allí');
+  openPrintWindow(lastSavedRecord);
+}
+
+// kept for legacy compatibility
+async function captureForm() {
+  // fallback: return a dummy canvas-like object (not used with new flow)
+  throw new Error('captureForm ya no se usa');
+}
+
+// DUMMY - kept so old references don't crash
+async function _doCopyImageOld() {
   closeSaveModal(); showToast('Copiando imagen…','info');
   try {
     const canvas = await captureForm();
