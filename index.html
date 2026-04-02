@@ -223,7 +223,7 @@
     }
 
     .form-label {
-      color: var(--white);
+      color: var(--black);
       font-size: 11px;
       font-weight: bold;
       font-family: Arial, sans-serif;
@@ -564,26 +564,28 @@
               <option value="">Seleccione...</option>
               <option value="salida definitiva">Salida Definitiva</option>
               <option value="salida temporal">Salida Temporal</option>
-              <option value="entrada">Entrada</option>
-              <option value="devolucion">Devolución</option>
-              <option value="garantia">Garantía</option>
             </select>
           </div>
           <div class="form-group">
             <label for="categoria" class="form-label">CATEGORIA</label>
             <select id="categoria" name="categoria" class="form-input" required>
               <option value="">Seleccione...</option>
-              <option value="Nota de Crédito">Nota de Crédito</option>
-              <option value="Factura">Factura</option>
-              <option value="Boleta">Boleta</option>
-              <option value="Proforma">Proforma</option>
-              <option value="Guía">Guía</option>
-              <option value="Otro">Otro</option>
+              <option value="Nota De Crédito">Nota De Crédito</option>
+              <option value="Garantía 1%">Garantía 1%</option>
+              <option value="RMA">RMA</option>
+              <option value="Reparación">Reparación</option>
+              <option value="RMA - Nota de Crédito">RMA - Nota de Crédito</option>
+              <option value="Garantía 1% con Nota de Crédito">Garantía 1% con Nota de Crédito</option>
             </select>
           </div>
           <div class="form-group">
-            <label for="motivo" class="form-label">MOTIVO</label>
-            <input type="text" id="motivo" name="motivo" class="form-input" required>
+            <label for="motivo" class="form-label">MOTIVO:</label>
+            <select id="motivo" name="motivo" class="form-input" required>
+              <option value="">Seleccione...</option>
+              <option value="Sin Existencias">Sin Existencias</option>
+              <option value="Solicitud del Cliente">Solicitud del Cliente</option>
+              <option value="Reemplazo">Reemplazo</option>
+            </select>
           </div>
         </div>
       </div>
