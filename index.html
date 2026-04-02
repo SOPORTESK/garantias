@@ -560,11 +560,26 @@
         <div class="form-row">
           <div class="form-group">
             <label for="tipo" class="form-label">TIPO:</label>
-            <input type="text" id="tipo" name="tipo" class="form-input" required>
+            <select id="tipo" name="tipo" class="form-input" required>
+              <option value="">Seleccione...</option>
+              <option value="salida definitiva">Salida Definitiva</option>
+              <option value="salida temporal">Salida Temporal</option>
+              <option value="entrada">Entrada</option>
+              <option value="devolucion">Devolución</option>
+              <option value="garantia">Garantía</option>
+            </select>
           </div>
           <div class="form-group">
             <label for="categoria" class="form-label">CATEGORIA</label>
-            <input type="text" id="categoria" name="categoria" class="form-input" required>
+            <select id="categoria" name="categoria" class="form-input" required>
+              <option value="">Seleccione...</option>
+              <option value="Nota de Crédito">Nota de Crédito</option>
+              <option value="Factura">Factura</option>
+              <option value="Boleta">Boleta</option>
+              <option value="Proforma">Proforma</option>
+              <option value="Guía">Guía</option>
+              <option value="Otro">Otro</option>
+            </select>
           </div>
           <div class="form-group">
             <label for="motivo" class="form-label">MOTIVO</label>
