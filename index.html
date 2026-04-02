@@ -3,261 +3,292 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sistema de Garantías · SEKUNET PRO</title>
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
-
+  <title>Formulario de Garantías · SEKUNET</title>
   <style>
     :root {
       --primary-blue: #1B4F9C;
-      --dark-blue: #0f2e5c;
       --sekunet-orange: #F7B24B;
-      --bg-gray: #e2e8f0;
-      --white: #ffffff;
-      --text-main: #1e293b;
-      --border: #cbd5e1;
+      --bg-light: #ffffff;
+      --text-dark: #000000;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background-color: var(--bg-gray);
-      color: var(--text-main);
-      line-height: 1.4;
-      padding: 20px;
+    body { background: #f0f0f0; padding: 20px; display: flex; justify-content: center; }
+
+    .form-container {
+      width: 100%;
+      max-width: 1000px;
+      background: var(--bg-light);
+      padding: 30px;
+      border: 2px solid var(--primary-blue);
+      position: relative;
     }
 
-    /* Contenedor Tipo Hoja Técnica */
-    .sheet {
-      max-width: 1050px;
-      margin: 0 auto;
-      background: var(--white);
-      border: 1px solid var(--border);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      border-radius: 4px;
-      overflow: hidden;
-    }
+    /* Header */
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .logo img { height: 60px; }
+    .main-title { color: var(--primary-blue); font-size: 28px; font-weight: normal; text-transform: uppercase; }
 
-    /* Cabecera Negra/Azul Oscuro */
-    .header-top {
-      background: #1e293b;
-      color: white;
-      padding: 15px 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 4px solid var(--sekunet-orange);
-    }
+    .meta-data { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 20px; }
 
-    .brand { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
-    .brand span { color: var(--sekunet-orange); }
-
-    .header-meta { display: flex; gap: 20px; }
-    .meta-badge {
-      background: rgba(255,255,255,0.1);
-      padding: 5px 15px;
-      border-radius: 3px;
-      font-size: 12px;
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-    .meta-badge b { color: var(--sekunet-orange); margin-right: 5px; }
-
-    .main-title {
-      background: var(--primary-blue);
-      color: white;
+    /* Estilo de Secciones e Inputs */
+    .section-title {
       text-align: center;
-      padding: 10px;
-      font-weight: 800;
       text-transform: uppercase;
+      font-weight: bold;
+      margin: 20px 0 10px 0;
       font-size: 18px;
     }
 
-    /* Formulario Estructurado */
-    .form-body { padding: 30px; }
-
-    .section-head {
-      background: #f8fafc;
-      border-left: 5px solid var(--primary-blue);
-      padding: 8px 15px;
-      margin: 20px 0 15px 0;
-      font-weight: 800;
-      font-size: 14px;
-      text-transform: uppercase;
-      color: var(--primary-blue);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .col-3 { grid-column: span 3; }
-    .col-4 { grid-column: span 4; }
-    .col-6 { grid-column: span 6; }
-    .col-8 { grid-column: span 8; }
-    .col-9 { grid-column: span 9; }
-    .col-12 { grid-column: span 12; }
-
-    .field-group { display: flex; flex-direction: column; }
-
-    /* Estilo Etiquetas Naranjas (Identidad Sekunet) */
+    .form-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px; margin-bottom: 10px; }
+    
+    .input-group { display: flex; align-items: center; border: 1px solid var(--primary-blue); height: 35px; }
     .label {
       background: var(--sekunet-orange);
-      color: var(--primary-blue);
-      font-size: 10px;
-      font-weight: 800;
-      padding: 3px 8px;
-      width: fit-content;
+      color: var(--text-dark);
+      font-size: 11px;
+      font-weight: bold;
+      padding: 0 10px;
+      height: 100%;
+      display: flex;
+      align-items: center;
       text-transform: uppercase;
-      border-radius: 2px 2px 0 0;
+      min-width: 130px;
+      border-right: 1px solid var(--primary-blue);
     }
 
     input, select, textarea {
-      border: 1px solid var(--primary-blue);
-      padding: 10px;
-      font-family: inherit;
+      flex: 1;
+      border: none;
+      padding: 5px 10px;
       font-size: 14px;
-      border-radius: 0 3px 3px 3px;
       outline: none;
+      height: 100%;
     }
 
-    input:focus, select:focus, textarea:focus {
-      background: #f0f7ff;
-      border-color: var(--dark-blue);
-    }
+    textarea { height: auto; min-height: 60px; }
+    .full-row { grid-column: span 12; height: auto; }
 
-    /* Footer y Botones */
-    .form-footer {
-      margin-top: 40px;
+    /* Botones Inferiores */
+    .footer-buttons {
+      margin-top: 30px;
       display: flex;
-      gap: 15px;
+      gap: 0;
+      height: 40px;
+      background: var(--primary-blue);
     }
 
     .btn {
       flex: 1;
-      padding: 18px;
-      border: none;
-      font-weight: 800;
-      text-transform: uppercase;
-      cursor: pointer;
-      font-size: 15px;
-      transition: 0.2s;
-    }
-
-    .btn-save { background: var(--primary-blue); color: white; }
-    .btn-save:hover { background: var(--dark-blue); }
-    .btn-cancel { background: #cbd5e1; color: #475569; }
-
-    /* Notificación flotante */
-    #toast {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 15px 30px;
-      background: #10b981;
+      border: 1px solid #000;
+      background: transparent;
       color: white;
       font-weight: bold;
-      border-radius: 4px;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn:hover { background: rgba(255,255,255,0.1); }
+
+    /* Alertas */
+    #status {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      padding: 15px;
+      border-radius: 5px;
       display: none;
-      z-index: 1000;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      color: white;
+      font-weight: bold;
+      z-index: 100;
     }
   </style>
 </head>
 <body>
 
-  <div id="toast">¡REGISTRO GUARDADO EXITOSAMENTE!</div>
+  <div id="status"></div>
 
-  <div class="sheet">
-    <div class="header-top">
-      <div class="brand">SEKU<span>NET</span></div>
-      <div class="header-meta">
-        <div class="meta-badge"><b>FECHA:</b> <span id="displayDate"></span></div>
-        <div class="meta-badge"><b>BOLETA:</b> <span id="displayID">---</span></div>
+  <div class="form-container">
+    <div class="header">
+      <div class="logo">
+        <h2 style="color:var(--primary-blue); font-weight: 900;">SEKUNET</h2>
+      </div>
+      <h1 class="main-title">Formulario de Garantías</h1>
+    </div>
+
+    <div class="meta-data">
+      <div id="currentDate">1 de abril de 2026</div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="background:var(--sekunet-orange); padding:2px 10px; font-weight:bold;">CONSECUTIVO:</span>
+        <span id="displayID">202603-006</span>
       </div>
     </div>
 
-    <h1 class="main-title">Control de Garantías y Salida de Equipos</h1>
-
-    <form class="form-body" id="mainForm">
-      
-      <div class="section-head">1. Clasificación de Movimiento</div>
-      <div class="grid">
-        <div class="field-group col-4">
-          <label class="label">Tipo de Salida</label>
+    <form id="warrantyForm">
+      <div class="form-grid">
+        <div class="input-group" style="grid-column: span 6;">
+          <div class="label">TIPO:</div>
           <select id="tipo" required>
             <option value="">Seleccione...</option>
-            <option value="definitiva">Definitiva (G)</option>
-            <option value="temporal">Temporal (T)</option>
+            <option value="definitiva">Salida Definitiva (G)</option>
+            <option value="temporal">Salida Temporal (T)</option>
           </select>
         </div>
-        <div class="field-group col-4">
-          <label class="label">Categoría</label>
+        <div class="input-group" style="grid-column: span 6;">
+          <div class="label">CATEGORÍA</div>
           <select id="categoria" required>
             <option value="Normal">Normal</option>
             <option value="Nota De Crédito">Nota de Crédito (NC)</option>
             <option value="RMA">RMA</option>
           </select>
         </div>
-        <div class="field-group col-4">
-          <label class="label">Motivo</label>
-          <input type="text" id="motivo" placeholder="Ej: Falla de fábrica">
+      </div>
+
+      <div class="form-grid">
+        <div class="input-group" style="grid-column: span 6;">
+          <div class="label">BOLETA Nº:</div>
+          <input type="text" id="boleta_num">
+        </div>
+        <div class="input-group" style="grid-column: span 6;">
+          <div class="label">MOTIVO</div>
+          <input type="text" id="motivo" required>
         </div>
       </div>
 
-      <div class="section-head">2. Identificación del Cliente</div>
-      <div class="grid">
-        <div class="field-group col-3">
-          <label class="label">Ticket N°</label>
+      <div class="section-title">Información del Cliente</div>
+      <div class="form-grid">
+        <div class="input-group" style="grid-column: span 6;">
+          <div class="label">TICKET Nº:</div>
           <input type="text" id="ticket" required>
         </div>
-        <div class="field-group col-9">
-          <label class="label">Nombre del Cliente / Empresa</label>
-          <input type="text" id="cliente" required>
-        </div>
-      </div>
-      <div class="grid">
-        <div class="field-group col-6">
-          <label class="label">Sede / Ubicación</label>
+        <div class="input-group" style="grid-column: span 6;">
+          <div class="label">SEDE</div>
           <input type="text" id="sede" required>
         </div>
-        <div class="field-group col-6">
-          <label class="label">Factura Relacionada</label>
+        <div class="input-group" style="grid-column: span 6;">
+          <div class="label">NOMBRE:</div>
+          <input type="text" id="nombre" required>
+        </div>
+        <div class="input-group" style="grid-column: span 6;">
+          <div class="label">FACTURA Nº:</div>
           <input type="text" id="factura">
         </div>
       </div>
 
-      <div class="section-head">3. Información Técnica del Producto</div>
-      <div class="grid">
-        <div class="field-group col-4">
-          <label class="label">Marca</label>
+      <div class="section-title">Información del Producto</div>
+      <div class="form-grid">
+        <div class="input-group" style="grid-column: span 6;">
+          <div class="label">CANTIDAD:</div>
+          <input type="number" id="cantidad" value="1">
+        </div>
+        <div class="input-group" style="grid-column: span 6;">
+          <div class="label">FECHA DE COMPRA</div>
+          <input type="date" id="fechaCompra">
+        </div>
+        <div class="input-group" style="grid-column: span 4;">
+          <div class="label">MARCA:</div>
           <input type="text" id="marca" required>
         </div>
-        <div class="field-group col-4">
-          <label class="label">Modelo / Código</label>
+        <div class="input-group" style="grid-column: span 4;">
+          <div class="label" style="min-width:110px;">CÓDIGO ARTÍCULO</div>
           <input type="text" id="codigo" required>
         </div>
-        <div class="field-group col-4">
-          <label class="label">Serie (S/N)</label>
+        <div class="input-group" style="grid-column: span 4;">
+          <div class="label" style="min-width:80px;">SERIE:</div>
           <input type="text" id="serie" required>
         </div>
       </div>
-      <div class="grid" style="margin-top:10px;">
-        <div class="field-group col-12">
-          <label class="label">Descripción Detallada de la Falla</label>
-          <textarea id="falla" rows="4" required></textarea>
+
+      <div class="input-group full-row">
+        <div class="label" style="height:auto;">DESCRIPCIÓN</div>
+        <textarea id="descripcion" required></textarea>
+      </div>
+
+      <div class="input-group full-row" style="margin-top:10px;">
+        <div class="label" style="height:auto;">FALLA</div>
+        <textarea id="falla" required></textarea>
+      </div>
+
+      <div class="form-grid" style="margin-top:20px;">
+        <div class="input-group" style="grid-column: span 6;">
+          <div class="label">SOLICITADO POR:</div>
+          <input type="text" id="solicitante" required>
+        </div>
+        <div class="input-group" style="grid-column: span 6;">
+          <div class="label">APROBADO POR:</div>
+          <input type="text" id="aprobador" value="Jorge Montenegro" readonly>
         </div>
       </div>
 
-      <div class="section-head">4. Autorización</div>
-      <div class="grid">
-        <div class="field-group col-6">
-          <label class="label">Solicitado por</label>
-          <input type="text" id="solicitante" required>
-        </div>
-        <div class="field-group col-6">
-          <label class="label">Aprobado
+      <div class="footer-buttons">
+        <button type="submit" class="btn" id="btnGuardar">GUARDAR</button>
+        <button type="reset" class="btn">LIMPIAR</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // CONFIGURACIÓN SUPABASE - REEMPLAZAR CON TUS LLAVES
+    const SB_URL = 'https://TU_URL_AQUI.supabase.co';
+    const SB_KEY = 'TU_KEY_AQUI';
+    const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+    let baseConsecutivo = 21180;
+
+    // Actualizar ID y Fecha
+    function refreshMeta() {
+      const t = document.getElementById('tipo').value;
+      const c = document.getElementById('categoria').value;
+      let p = t === "definitiva" ? "G" : (t === "temporal" ? "T" : "");
+      if(c === "Nota De Crédito") p += "NC";
+      document.getElementById('displayID').textContent = p ? `${p}${baseNumber}` : "---";
+      document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-CR', {day:'numeric', month:'long', year:'numeric'});
+    }
+
+    document.getElementById('tipo').addEventListener('change', refreshMeta);
+    document.getElementById('categoria').addEventListener('change', refreshMeta);
+
+    // Guardar Datos
+    document.getElementById('warrantyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const b = document.getElementById('btnGuardar');
+      const s = document.getElementById('status');
+      
+      b.disabled = true;
+      b.textContent = "PROCESANDO...";
+
+      const data = {
+        folio: document.getElementById('displayID').textContent,
+        tipo: document.getElementById('tipo').value,
+        cliente: document.getElementById('nombre').value,
+        sede: document.getElementById('sede').value,
+        marca: document.getElementById('marca').value,
+        serie: document.getElementById('serie').value,
+        falla: document.getElementById('falla').value,
+        ticket_no: document.getElementById('ticket').value,
+        fecha: new Date().toISOString()
+      };
+
+      const { error } = await supabaseClient.from('registros').insert([data]);
+
+      if (error) {
+        s.style.background = "#ef4444";
+        s.textContent = "Error: " + error.message;
+        s.style.display = "block";
+        b.disabled = false;
+        b.textContent = "GUARDAR";
+      } else {
+        s.style.background = "#10b981";
+        s.textContent = "¡GUARDADO EXITOSAMENTE!";
+        s.style.display = "block";
+        setTimeout(() => window.location.reload(), 2000);
+      }
+    });
+  </script>
+</body>
+</html>
