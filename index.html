@@ -34,7 +34,7 @@
 
     /* ── LOGIN OVERLAY ── */
     #loginOverlay{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center;padding:1rem;}
-    .login-card{background:var(--surface);border:1px solid var(--border-2);border-radius:var(--radius-xl);padding:2.5rem 2rem;width:100%;max-width:420px;box-shadow:var(--shadow-lg);}
+    .login-card{background:var(--surface);border:1px solid var(--border-2);border-radius:var(--radius-xl);padding:2.5rem 2rem;width:100%;max-width:400px;box-shadow:var(--shadow-lg);}
     .login-logo{display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem;}
     .login-logo img{height:48px;}
     .login-title{font-size:1.25rem;font-weight:800;color:var(--ink-1);text-align:center;margin-bottom:.25rem;}
@@ -43,10 +43,10 @@
     .login-tab{flex:1;font-family:var(--font);font-size:.8125rem;font-weight:600;color:var(--ink-3);background:none;border:none;padding:.375rem .75rem;border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);}
     .login-tab.active{background:var(--surface);color:var(--ink-1);box-shadow:var(--shadow-sm);}
     .login-form{display:flex;flex-direction:column;gap:.75rem;}
-    .login-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;width:100%;}
+    .login-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
     .login-field{display:flex;flex-direction:column;gap:.35rem;}
     .login-label{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);}
-    .login-input{font-family:var(--font);font-size:.875rem;color:var(--ink-1);background:var(--bg-2);border:1.5px solid var(--border-2);border-radius:var(--radius-sm);padding:.5625rem .8rem;outline:none;transition:var(--transition);width:100%;box-sizing:border-box;}
+    .login-input{font-family:var(--font);font-size:.875rem;color:var(--ink-1);background:var(--bg-2);border:1.5px solid var(--border-2);border-radius:var(--radius-sm);padding:.5625rem .8rem;outline:none;transition:var(--transition);}
     .login-input:focus{border-color:var(--brand);background:var(--surface);box-shadow:0 0 0 3px var(--brand-dim);}
     .login-btn{font-family:var(--font);font-size:.9rem;font-weight:700;background:var(--brand);color:#fff;border:none;border-radius:var(--radius-md);padding:.75rem;cursor:pointer;transition:var(--transition);box-shadow:var(--shadow-brand);margin-top:.25rem;}
     .login-btn:hover{background:var(--brand-2);}
@@ -55,7 +55,7 @@
     .login-error.show{display:block;}
 
     /* ── AUTOGUARDADO ── */
-    #draftBanner{display:none;position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border-2);border-radius:var(--radius-lg);padding:.5rem 1rem;box-shadow:var(--shadow-md);z-index:100;display:none;align-items:center;gap:.75rem;font-size:.78rem;color:var(--ink-3);}
+    #draftBanner{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border-2);border-radius:var(--radius-lg);padding:.5rem 1rem;box-shadow:var(--shadow-md);z-index:100;display:none;align-items:center;gap:.75rem;font-size:.78rem;color:var(--ink-3);}
     #draftBanner.show{display:flex;}
     .draft-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;}
     .draft-restore{font-weight:700;color:var(--brand);cursor:pointer;background:none;border:none;font-family:var(--font);font-size:.78rem;padding:0;}
@@ -553,7 +553,12 @@
       </div>
       <!-- Actions -->
       <div class="form-actions">
-        <div class="form-actions-left"></div>
+        <div class="form-actions-left">
+          <button type="button" class="btn btn-ghost btn-sm" id="clearBtn">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            Limpiar
+          </button>
+        </div>
         <div class="form-actions-right">
           <button type="button" class="btn btn-ghost btn-lg" id="enviarBtn" onclick="openEnviarModal()">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
@@ -635,7 +640,7 @@
         <div class="rail-item-left"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Usuarios</div>
       </button>
       <div style="margin-top:auto;padding-top:1rem;border-top:1px solid var(--border);">
-        <div class="rail-label" style="margin-bottom:.5rem">Herramientas</div>
+        <div class="rail-label" style="margin-bottom:.5rem">Herramientas Admin</div>
         <button class="rail-item" data-section="herramientas" id="railHerramientas" style="display:none">
           <div class="rail-item-left"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Herramientas</div>
         </button>
@@ -678,9 +683,8 @@
           <th class="sortable" data-sort-type="def" data-sort-col="sede">Sede <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="factura">Factura <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="marca">Marca <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="def" data-sort-col="registrado_por">Registrado por <span class="sort-icon">↕</span></th>
           <th>Acciones</th>
-        </tr></thead><tbody id="tbody-def"><tr class="empty-row"><td colspan="11"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
+        </tr></thead><tbody id="tbody-def"><tr class="empty-row"><td colspan="10"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
       </div>
       <!-- Panel temp -->
       <div class="data-panel" id="panel-salidas-temporales" style="display:none">
@@ -702,9 +706,8 @@
           <th class="sortable" data-sort-type="temp" data-sort-col="sede">Sede <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="factura">Factura <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="marca">Marca <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="temp" data-sort-col="registrado_por">Registrado por <span class="sort-icon">↕</span></th>
           <th>Acciones</th>
-        </tr></thead><tbody id="tbody-temp"><tr class="empty-row"><td colspan="11"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
+        </tr></thead><tbody id="tbody-temp"><tr class="empty-row"><td colspan="10"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
       </div>
 
       <!-- PANEL USUARIOS -->
@@ -736,61 +739,42 @@
           </table>
         </div>
       </div>
-    </div>
-  </div>
-</div>
+      <!-- PANEL HERRAMIENTAS ADMIN -->
+      <div class="data-panel" id="panel-herramientas" style="display:none">
+        <div class="data-panel-header">
+          <div class="data-panel-title">
+            <span class="panel-dot" style="background:var(--amber)"></span>
+            <span style="font-size:.9375rem;font-weight:700;color:var(--ink-1)">Herramientas de Administrador</span>
+          </div>
+        </div>
+        <div style="padding:1.5rem;display:flex;flex-direction:column;gap:1.5rem;">
 
-<!-- PANEL USUARIOS -->
-<div class="data-panel" id="panel-usuarios" style="display:none;max-width:1200px;margin:0 auto 1.5rem;padding:0 1.75rem;">
-  <div class="data-panel-header">
-    <div class="data-panel-title">
-      <span class="panel-dot" style="background:var(--purple)"></span>
-      <span style="font-size:.9375rem;font-weight:700;color:var(--ink-1)">Usuarios</span>
-    </div>
-    <div class="data-panel-actions">
-      <button class="btn btn-ghost btn-sm" onclick="adminLoadUsers()">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-        Recargar
-      </button>
-    </div>
-  </div>
-  <div class="table-wrap">
-    <table><thead><tr>
-      <th>Nombre</th><th>Correo</th><th>Rol</th><th>Registrado</th><th>Acción</th>
-    </tr></thead>
-    <tbody id="tbody-usuarios">
-      <tr class="empty-row"><td colspan="5"><span class="spinner"></span> Cargando…</td></tr>
-    </tbody></table>
-  </div>
-</div>
+          <!-- Ajustar número de boleta -->
+          <div style="background:var(--amber-dim);border:1.5px solid rgba(217,119,6,.2);border-radius:var(--radius-lg);padding:1.25rem;">
+            <div style="font-size:.875rem;font-weight:700;color:var(--amber);margin-bottom:.25rem;">Ajustar número de boleta</div>
+            <div style="font-size:.8125rem;color:var(--ink-3);margin-bottom:.875rem;">El próximo registro usará el número que ingresés + 1. Número actual: <strong id="boletaActualAdmin" style="font-family:var(--mono);color:var(--ink-1)">—</strong></div>
+            <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+              <input type="number" id="adminBoletaInput" class="field-input" placeholder="Ej: 29178" style="width:180px;border-radius:var(--radius-sm);" min="1">
+              <button class="btn btn-amber" onclick="adminAjustarBoleta()">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                Aplicar número
+              </button>
+            </div>
+          </div>
 
-<!-- PANEL HERRAMIENTAS -->
-<div class="data-panel" id="panel-herramientas" style="display:none;max-width:1200px;margin:0 auto 1.5rem;padding:0 1.75rem;">
-  <div class="data-panel-header">
-    <div class="data-panel-title">
-      <span class="panel-dot" style="background:var(--amber)"></span>
-      <span style="font-size:.9375rem;font-weight:700;color:var(--ink-1)">Herramientas de Administrador</span>
-    </div>
-  </div>
-  <div style="padding:1.5rem;display:flex;flex-direction:column;gap:1.5rem;">
-    <div style="background:var(--amber-dim);border:1.5px solid rgba(217,119,6,.2);border-radius:var(--radius-lg);padding:1.25rem;">
-      <div style="font-size:.875rem;font-weight:700;color:var(--amber);margin-bottom:.25rem;">Ajustar número de boleta</div>
-      <div style="font-size:.8125rem;color:var(--ink-3);margin-bottom:.875rem;">El próximo registro usará el número ingresado + 1. Actual: <strong id="boletaActualAdmin" style="font-family:var(--mono);color:var(--ink-1)">—</strong></div>
-      <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
-        <input type="number" id="adminBoletaInput" class="field-input" placeholder="Ej: 29185" style="width:180px;" min="1">
-        <button class="btn btn-amber" onclick="adminAjustarBoleta()">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-          Aplicar número
-        </button>
+          <!-- Borrar todos los registros -->
+          <div style="background:var(--red-dim);border:1.5px solid rgba(220,38,38,.2);border-radius:var(--radius-lg);padding:1.25rem;">
+            <div style="font-size:.875rem;font-weight:700;color:var(--red);margin-bottom:.25rem;">Borrar todos los registros</div>
+            <div style="font-size:.8125rem;color:var(--ink-3);margin-bottom:.875rem;">Elimina permanentemente <strong>todos</strong> los registros de garantías de la base de datos. Esta acción no se puede deshacer.</div>
+            <button class="btn btn-danger" onclick="adminBorrarTodos()">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              Borrar todos los registros
+            </button>
+          </div>
+
+        </div>
       </div>
-    </div>
-    <div style="background:var(--red-dim);border:1.5px solid rgba(220,38,38,.2);border-radius:var(--radius-lg);padding:1.25rem;">
-      <div style="font-size:.875rem;font-weight:700;color:var(--red);margin-bottom:.25rem;">Borrar todos los registros</div>
-      <div style="font-size:.8125rem;color:var(--ink-3);margin-bottom:.875rem;">Elimina permanentemente <strong>todos</strong> los registros de garantías. Esta acción no se puede deshacer.</div>
-      <button class="btn btn-danger" onclick="adminBorrarTodos()">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-        Borrar todos los registros
-      </button>
+
     </div>
   </div>
 </div>
@@ -935,18 +919,11 @@ async function authSignIn(email, password) {
 
 async function authSignUp(email, password, nombre, apellido) {
   const data = await sbAuth('signup', { email, password, data: { nombre, apellido } });
-  // Si Supabase tiene confirmacion de email, access_token llega null.
-  // Hacemos login directo para obtener el token sin necesidad de confirmar.
-  if (!data.access_token) {
-    const loginData = await sbAuth('token?grant_type=password', { email, password });
-    data.access_token = loginData.access_token;
-    data.user = loginData.user;
-  }
-  authToken = data.access_token;
+  authToken   = data.access_token;
   currentUser = data.user;
   // Persistir sesión
   localStorage.setItem('sb_session', JSON.stringify({ access_token: data.access_token, refresh_token: data.refresh_token, user: data.user }));
-  // Crear perfil (upsert para evitar duplicados)
+  // Crear perfil
   try {
     await fetch(SB_URL + '/rest/v1/perfiles', {
       method: 'POST',
@@ -1089,8 +1066,6 @@ async function doLogin() {
     let friendly = msg;
     if (msg.includes('Invalid login') || msg.includes('invalid_grant') || msg.includes('Invalid credentials')) {
       friendly = 'Correo o contraseña incorrectos';
-    } else if (msg.includes('Email not confirmed')) {
-      friendly = 'Debés confirmar tu correo antes de iniciar sesión. Revisá tu bandeja de entrada.';
     } else if (msg.includes('rate limit') || msg.includes('Rate limit') || msg.includes('exceeded')) {
       friendly = 'Demasiados intentos. Esperá unos minutos e intentá de nuevo.';
     }
@@ -1119,11 +1094,6 @@ async function doRegister() {
       friendly = 'Este correo ya está registrado. Intentá iniciar sesión.';
     } else if (msg.includes('rate limit') || msg.includes('Rate limit') || msg.includes('exceeded')) {
       friendly = 'Demasiados intentos de registro. Esperá unos minutos e intentá de nuevo.';
-    } else if (msg.includes('confirmación') || msg.includes('confirmation')) {
-      // No es un error — mostrar como info
-      showLoginError(msg);
-      btn.disabled = false; btn.textContent = 'Crear cuenta';
-      return;
     }
     showLoginError(friendly);
     btn.disabled = false; btn.textContent = 'Crear cuenta';
@@ -1455,23 +1425,17 @@ async function invHandleFile(file) {
     });
     if (!sbRows.length) { showToast('Sin artículos válidos','error'); return; }
 
-    // Paso 1: borrar todo el inventario anterior
-    await fetch(SB_URL+'/rest/v1/'+INV_TABLE+'?id=neq.00000000-0000-0000-0000-000000000000', {
-      method: 'DELETE',
-      headers: { 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json' }
-    });
-
-    // Paso 2: insertar el inventario nuevo en lotes de 200
+    // Upsert seguro por lotes (no borra primero — sin riesgo de pérdida de datos)
     const BATCH = 200;
     for (let i = 0; i < sbRows.length; i += BATCH) {
-      await fetch(SB_URL+'/rest/v1/'+INV_TABLE, {
+      await fetch(SB_URL+'/rest/v1/'+INV_TABLE+'?on_conflict=articulo', {
         method: 'POST',
-        headers: { 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
+        headers: { 'apikey':SB_KEY, 'Authorization':'Bearer '+(authToken||SB_KEY), 'Content-Type':'application/json', 'Prefer':'resolution=merge-duplicates,return=minimal' },
         body: JSON.stringify(sbRows.slice(i, i+BATCH))
       });
     }
 
-    // Paso 3: recargar desde Supabase
+    // Recargar desde Supabase
     const fresh = await sbFetch('GET', INV_TABLE+'?order=articulo.asc&limit=5000', null);
     inventory = (fresh||[]).map(sbRowToInv);
     invRender(); invUpdateUI();
@@ -1589,22 +1553,6 @@ async function handleSubmit(e) {
   }
   if (!valid) { showToast('Campos incompletos','error','Completá todos los campos marcados en rojo'); return; }
 
-  // Confirmación antes de guardar
-  const confirmMsg = [
-    'Tipo: ' + (document.getElementById('tipo').options[document.getElementById('tipo').selectedIndex]?.text || '—'),
-    'Cliente: ' + (document.getElementById('nombre').value || '—'),
-    'Ticket: ' + (document.getElementById('ticket').value || '—'),
-    'Boleta: ' + formatBoleta(consecutiveNum + 1)
-  ].join('\n');
-  if (!confirm('¿Guardar este registro?\n\n' + confirmMsg)) {
-    // Re-deshabilitar campos del inventario si corresponde
-    if (serieMatchedItem) {
-      document.getElementById('marca').disabled = true;
-      document.getElementById('descripcion').disabled = true;
-    }
-    return;
-  }
-
   const btn=document.getElementById('submitBtn'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando…';
 
   consecutiveNum++;
@@ -1619,8 +1567,7 @@ async function handleSubmit(e) {
     serie:document.getElementById('serie').value||null,
     descripcion:document.getElementById('descripcion').value,
     falla:fd.get('falla'),
-    fecha_creacion:new Date().toISOString(),
-    registrado_por: currentPerfil ? (currentPerfil.nombre + ' ' + currentPerfil.apellido).trim() : (currentUser?.email || null)
+    fecha_creacion:new Date().toISOString()
   };
 
   try {
@@ -1778,43 +1725,45 @@ function closeEnviarModal() { document.getElementById('enviarModal').classList.r
 async function doSendEmail() { closeEnviarModal(); openPrintWindow(lastSavedRecord); setTimeout(()=>{window.location.href=buildMailtoUrl(lastSavedRecord||{}); showToast('Comprobante abierto · Outlook iniciando','success','Adjuntá el PDF al correo');},600); }
 async function doSendPrint() { closeEnviarModal(); openPrintWindow(lastSavedRecord); }
 
-/* ══ BOTONES DE PRUEBA (un solo uso) ══ */
-function hidePruebaBtns() {
-  document.getElementById('revertBoletaBtn').style.display = 'none';
-  document.getElementById('deleteTestBtn').style.display   = 'none';
-}
+/* ══ HERRAMIENTAS DE ADMINISTRADOR ══ */
 
-function revertBoleta() {
-  if (!confirm('¿Revertir el contador al número base 29178? El próximo registro usará 29179.')) return;
-  consecutiveNum = 29178;
+function adminAjustarBoleta() {
+  if (!isAdmin()) { showToast('Solo administradores pueden hacer esto', 'error'); return; }
+  const input = document.getElementById('adminBoletaInput');
+  const num = parseInt(input?.value);
+  if (!num || num < 1) { showToast('Ingresá un número válido', 'error'); return; }
+  if (!confirm('¿Ajustar el número de boleta a ' + num + '?\nEl próximo registro usará ' + (num + 1) + '.\n\n¿Confirmar?')) return;
+  consecutiveNum = num;
   renderHeaderBoleta();
-  hidePruebaBtns();
-  showToast('Contador en 29178 · próximo será 29179', 'info');
+  const el = document.getElementById('boletaActualAdmin');
+  if (el) el.textContent = consecutiveNum;
+  if (input) input.value = '';
+  showToast('Número de boleta ajustado a ' + num, 'success', 'El próximo registro usará ' + (num + 1));
 }
 
-async function deleteTestRecords() {
-  const toDelete = allRecords.filter(r => r.numero_consecutivo > 29178);
-  if (!toDelete.length) {
-    showToast('No hay registros de prueba', 'info');
-    hidePruebaBtns();
-    return;
-  }
-  if (!confirm('Se eliminarán ' + toDelete.length + ' registro(s) de prueba y el contador volverá a 29178.\n\n¿Continuar?')) return;
-  let deleted = 0;
-  for (const r of toDelete) {
-    try {
+async function adminBorrarTodos() {
+  if (!isAdmin()) { showToast('Solo administradores pueden hacer esto', 'error'); return; }
+  const total = allRecords.length;
+  if (total === 0) { showToast('No hay registros para borrar', 'info'); return; }
+  if (!confirm('¿Borrar TODOS los ' + total + ' registros de garantías?\n\nEsta acción es permanente e irreversible.\n\n¿Estás seguro?')) return;
+  if (!confirm('Segunda confirmación: ¿realmente querés eliminar todos los registros?')) return;
+  const btn = document.querySelector('#panel-herramientas .btn-danger');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Borrando…'; }
+  try {
+    // Borrar en lotes por id para evitar timeout
+    let borrados = 0;
+    for (const r of [...allRecords]) {
       await sbFetch('DELETE', TABLE + '?id=eq.' + r.id, null);
-      allRecords = allRecords.filter(x => x.id !== r.id);
-      rawData.def  = rawData.def.filter(x => x.id !== r.id);
-      rawData.temp = rawData.temp.filter(x => x.id !== r.id);
-      deleted++;
-    } catch(e) { showToast('Error eliminando ' + r.boleta, 'error', e.message); }
+      borrados++;
+    }
+    allRecords = []; rawData.def = []; rawData.temp = [];
+    adminUpdateBadges(); adminUpdateStats([]); adminApplyFilters('def'); adminApplyFilters('temp');
+    showToast(borrados + ' registros eliminados', 'success');
+  } catch(err) {
+    showToast('Error al borrar registros', 'error', err.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg> Borrar todos los registros'; }
   }
-  consecutiveNum = 29178;
-  adminUpdateBadges(); adminApplyFilters('def'); adminApplyFilters('temp');
-  renderHeaderBoleta();
-  hidePruebaBtns();
-  showToast(deleted + ' registro(s) eliminados · contador en 29178', 'success');
 }
 
 
@@ -1847,65 +1796,15 @@ async function adminLoadUsers() {
         <td style="font-size:.75rem;color:var(--ink-3)">${u.created_at ? new Date(u.created_at).toLocaleDateString('es-CR') : '—'}</td>
         <td>
           ${u.correo !== currentUser?.email ? `
-            <div style="display:flex;gap:.375rem;">
-              <button class="btn btn-sm ${u.rol === 'admin' ? 'btn-ghost' : 'btn-blue'}"
-                onclick="toggleUserRole('${u.id}','${u.rol}')">
-                ${u.rol === 'admin' ? 'Quitar admin' : 'Hacer admin'}
-              </button>
-              <button class="btn btn-sm btn-danger" onclick="askDeleteUser('${u.id}','${u.correo}')">
-                Eliminar
-              </button>
-            </div>` : '<span style="font-size:.72rem;color:var(--ink-4)">Tú</span>'}
+            <button class="btn btn-sm ${u.rol === 'admin' ? 'btn-ghost' : 'btn-blue'}"
+              onclick="toggleUserRole('${u.id}','${u.rol}')">
+              ${u.rol === 'admin' ? 'Quitar admin' : 'Hacer admin'}
+            </button>` : '<span style="font-size:.72rem;color:var(--ink-4)">Tú</span>'}
         </td>
       </tr>`).join('');
   } catch(e) {
     tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Error al cargar usuarios</td></tr>';
   }
-}
-
-function adminAjustarBoleta() {
-  if (!isAdmin()) { showToast('Solo administradores', 'error'); return; }
-  const input = document.getElementById('adminBoletaInput');
-  const num = parseInt(input?.value);
-  if (!num || num < 1) { showToast('Ingresá un número válido', 'error'); return; }
-  if (!confirm('¿Ajustar el número de boleta a ' + num + '?\nEl próximo registro usará ' + (num+1) + '.')) return;
-  consecutiveNum = num;
-  renderHeaderBoleta();
-  const el = document.getElementById('boletaActualAdmin');
-  if (el) el.textContent = consecutiveNum;
-  if (input) input.value = '';
-  showToast('Boleta ajustada a ' + num, 'success', 'Próximo: ' + (num+1));
-}
-
-async function adminBorrarTodos() {
-  if (!isAdmin()) { showToast('Solo administradores', 'error'); return; }
-  const total = allRecords.length;
-  if (!total) { showToast('No hay registros', 'info'); return; }
-  if (!confirm('¿Borrar TODOS los ' + total + ' registros?\n\nEsta acción es permanente e irreversible.')) return;
-  if (!confirm('Segunda confirmación: ¿estás seguro?')) return;
-  const btn = document.querySelector('#panel-herramientas .btn-danger');
-  if (btn) { btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Borrando…'; }
-  try {
-    for (const r of [...allRecords]) await sbFetch('DELETE', TABLE+'?id=eq.'+r.id, null);
-    allRecords=[]; rawData.def=[]; rawData.temp=[];
-    adminUpdateBadges(); adminUpdateStats([]); adminApplyFilters('def'); adminApplyFilters('temp');
-    showToast(total+' registros eliminados','success');
-  } catch(err) { showToast('Error al borrar','error',err.message);
-  } finally {
-    if (btn) { btn.disabled=false; btn.innerHTML='<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg> Borrar todos los registros'; }
-  }
-}
-
-async function askDeleteUser(userId, correo) {
-  if (!confirm('¿Eliminar el usuario ' + correo + '?\n\nEsta acción no se puede deshacer.')) return;
-  try {
-    await fetch(SB_URL + '/rest/v1/perfiles?id=eq.' + userId, {
-      method: 'DELETE',
-      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + (authToken || SB_KEY), 'Prefer': 'return=minimal' }
-    });
-    showToast('Usuario eliminado', 'success', correo);
-    adminLoadUsers();
-  } catch(e) { showToast('Error al eliminar usuario', 'error', e.message); }
 }
 
 async function toggleUserRole(userId, currentRol) {
@@ -1957,19 +1856,22 @@ function adminSwitchSection(sec) {
   document.getElementById('panel-salidas-definitivas').style.display = sec==='salidas-definitivas' ? '' : 'none';
   document.getElementById('panel-salidas-temporales').style.display  = sec==='salidas-temporales'  ? '' : 'none';
   document.getElementById('panel-usuarios').style.display            = sec==='usuarios'            ? '' : 'none';
-  const ph = document.getElementById('panel-herramientas');
-  if (ph) ph.style.display = sec==='herramientas' ? '' : 'none';
+  document.getElementById('panel-herramientas').style.display        = sec==='herramientas'        ? '' : 'none';
   const titles = {
     'salidas-definitivas': ['Salidas Definitivas','Registros con salida definitiva'],
     'salidas-temporales':  ['Salidas Temporales', 'Registros con salida temporal'],
     'usuarios':            ['Usuarios',           'Gestión de usuarios y roles'],
-    'herramientas':        ['Herramientas',       'Ajustes y acciones de administrador']
+    'herramientas':        ['Herramientas de Admin', 'Ajustes y acciones de administrador']
   };
   const [t, s] = titles[sec] || titles['salidas-definitivas'];
   document.getElementById('adminTitle').textContent = t;
   document.getElementById('adminSub').textContent   = s;
   if (sec === 'usuarios') adminLoadUsers();
-  if (sec === 'herramientas') { const el=document.getElementById('boletaActualAdmin'); if(el) el.textContent=consecutiveNum; }
+  if (sec === 'herramientas') {
+    // Mostrar número actual de boleta
+    const el = document.getElementById('boletaActualAdmin');
+    if (el) el.textContent = consecutiveNum;
+  }
 }
 
 function adminApplyFilters(type) {
@@ -2004,7 +1906,7 @@ function fmtDate(iso){if(!iso)return'—';return new Date(iso).toLocaleDateStrin
 
 function adminRenderTable(type){
   const tbody=document.getElementById('tbody-'+type), rows=records[type];
-  if(!rows.length){tbody.innerHTML=`<tr class="empty-row"><td colspan="11"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;return;}
+  if(!rows.length){tbody.innerHTML=`<tr class="empty-row"><td colspan="10"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;return;}
   tbody.innerHTML=rows.map((r,i)=>`<tr style="animation-delay:${i*0.02}s">
     <td class="td-mono">${boletaBadge(r.boleta)}</td>
     <td>${fmtDate(r.fecha_creacion)}</td>
@@ -2015,7 +1917,6 @@ function adminRenderTable(type){
     <td style="color:var(--ink-3)">${r.sede||'—'}</td>
     <td class="td-mono">${r.factura||'—'}</td>
     <td>${r.marca||'—'}</td>
-    <td style="font-size:.75rem;color:var(--ink-3)">${r.registrado_por||'—'}</td>
     <td><div class="td-actions">
       <button class="btn btn-amber btn-sm" onclick="openEdit('${r.id}')">Editar</button>
       <button class="btn btn-danger btn-sm" onclick="askDelete('${r.id}','${r.boleta||''}')">Eliminar</button>
@@ -2188,8 +2089,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('tipo').addEventListener('change', () => { renderHeaderBoleta(); updateProgress(); });
   document.getElementById('categoria').addEventListener('change', () => { renderHeaderBoleta(); updateProgress(); });
   document.getElementById('warrantyForm').addEventListener('submit', handleSubmit);
-  document.getElementById('revertBoletaBtn').addEventListener('click', revertBoleta);
-  document.getElementById('deleteTestBtn').addEventListener('click', deleteTestRecords);
+  // Botones de herramientas movidos al panel admin (adminAjustarBoleta y adminBorrarTodos)
   document.querySelectorAll('.field-input:not(#serie),.field-select,.field-textarea').forEach(el=>{
     el.addEventListener('input',()=>{el.classList.toggle('filled',!!el.value);el.classList.remove('error');});
     el.addEventListener('change',()=>{el.classList.toggle('filled',!!el.value);el.classList.remove('error');updateProgress();});
@@ -2225,18 +2125,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (wrap && !wrap.contains(e.target)) toggleUserMenu(true);
   });
 
-  // Restaurar sesión PRIMERO
+  // Intentar restaurar sesión previa PRIMERO
   const restored = await restoreSession();
   if (restored) {
+    // Ya hay sesión válida — entrar directo al formulario
     hideLoginOverlay();
+    // Cargar datos con el token de auth disponible
+    await invLoad();
+    await loadRecords();
   } else {
+    // Sin sesión — mostrar login, cargar datos básicos en paralelo
     showLoginOverlay();
     renderLoginForm();
+    await invLoad();
+    await loadRecords();
   }
-
-  // Cargar datos
-  await invLoad();
-  await loadRecords();
   renderHeaderBoleta();
   updateProgress();
 });
