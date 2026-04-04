@@ -1890,12 +1890,15 @@ async function doSavePDF() {
         useCORS: true,
         backgroundColor: '#ffffff',
         width: 794,
-        height: realH
+        height: realH,
+        windowWidth: 794,
+        windowHeight: realH
       },
       jsPDF: { 
-        unit: 'pt', 
-        format: [794, realH * 0.75], // Convertir px a pt (aprox)
-        orientation: 'portrait'
+        unit: 'px', 
+        format: [794, realH + 64], // Ancho x Alto con padding extra
+        orientation: 'portrait',
+        compress: true
       }
     };
     
