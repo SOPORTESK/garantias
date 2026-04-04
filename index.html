@@ -664,7 +664,7 @@
         <div class="stat-card c-purple"><div class="stat-label">Hoy</div><div class="stat-value" id="st-hoy">—</div><div class="stat-sub">registros del día</div></div>
       </div>
       <!-- Panel def -->
-      <div class="data-panel" id="panel-salidas-definitivas">
+      <div class="data-panel" id="panel-salidas-definitivas" style="display:none">
         <div class="data-panel-header">
           <div class="data-panel-title"><span class="panel-dot dot-brand"></span><span style="font-size:.9375rem;font-weight:700;color:var(--ink-1)">Salidas Definitivas</span><span style="font-size:.75rem;color:var(--ink-4)" id="count-def"></span></div>
           <div class="data-panel-actions">
@@ -999,6 +999,13 @@ function hideLoginOverlay() {
   if (menuName)  menuName.textContent  = fullName;
   if (menuEmail) menuEmail.textContent = email;
 
+  // Actualizar rail admin si corresponde
+  const admin = isAdmin();
+  const ru = document.getElementById('railUsuarios');
+  if (ru) ru.style.display = admin ? '' : 'none';
+  const rh = document.getElementById('railHerramientas');
+  if (rh) rh.style.display = admin ? '' : 'none';
+
 
 }
 
@@ -1277,10 +1284,15 @@ function switchTab(tab) {
   document.getElementById('boletaChip').style.display = tab === 'formulario' ? '' : 'none';
   if (tab === 'admin' && !adminLoaded) { adminLoaded = true; adminLoadAll(); }
   if (tab === 'admin') {
+    const admin = isAdmin();
     const ru = document.getElementById('railUsuarios');
-    if (ru && isAdmin()) ru.style.display = '';
+    if (ru) ru.style.display = admin ? '' : 'none';
     const rh = document.getElementById('railHerramientas');
-    if (rh && isAdmin()) rh.style.display = '';
+    if (rh) rh.style.display = admin ? '' : 'none';
+    // Inicializar la sección activa del rail
+    const activeRail = document.querySelector('.rail-item.active[data-section]');
+    const sec = activeRail ? activeRail.dataset.section : 'salidas-definitivas';
+    adminSwitchSection(sec);
   }
 }
 
@@ -1416,7 +1428,12 @@ function invSortBy(col) {
 
 async function invLoad() {
   try {
-    const data = await sbFetch('GET', INV_TABLE+'?order=articulo.asc&limit=5000', null);
+    // Inventario es público — usar SB_KEY directamente sin necesitar auth
+    const res = await fetch(SB_URL + '/rest/v1/' + INV_TABLE + '?order=articulo.asc&limit=5000', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
     inventory = (data||[]).map(sbRowToInv);
     invRender(); invUpdateUI();
   } catch(e) {
