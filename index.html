@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     :root {
       --brand:#D1411E;--brand-2:#B5360F;--brand-dim:rgba(209,65,30,.1);--brand-glow:rgba(209,65,30,.25);
@@ -1840,8 +1841,67 @@ async function doSavePNG() {
 async function doSavePDF() { 
   closeSaveModal(); 
   closeEnviarModal();
-  showToast('Abriendo para guardar PDF…','info'); 
-  openPrintWindow(lastSavedRecord); 
+  
+  if (!lastSavedRecord) { 
+    showToast('No hay registro guardado','error'); 
+    return; 
+  }
+  
+  // Verificar que html2pdf esté disponible
+  if (typeof html2pdf === 'undefined') {
+    // Fallback a vista previa de impresión si html2pdf no está cargado
+    showToast('Abriendo para guardar PDF…','info'); 
+    openPrintWindow(lastSavedRecord);
+    return;
+  }
+  
+  showToast('Generando PDF…','info');
+  
+  try {
+    // Preparar el formulario de impresión
+    populatePrintForm(lastSavedRecord);
+    const original = document.getElementById('printForm');
+    if (!original) throw new Error('No se encontró printForm');
+    
+    // Clonar para generar PDF
+    const clone = original.cloneNode(true);
+    clone.id = 'printForm';
+    clone.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:#fff;padding:32px 36px;font-family:"Plus Jakarta Sans",sans-serif;font-size:11px;color:#1A1108;';
+    
+    document.body.appendChild(clone);
+    
+    // Opciones de html2pdf
+    const opt = {
+      margin: 0,
+      filename: 'Garantia_' + (lastSavedRecord?.boleta || 'comprobante') + '.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { 
+        scale: 2, 
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        width: 794
+      },
+      jsPDF: { 
+        unit: 'pt', 
+        format: 'a4', 
+        orientation: 'portrait'
+      }
+    };
+    
+    // Generar y descargar PDF
+    await html2pdf().set(opt).from(clone).save();
+    
+    // Eliminar el clon
+    document.body.removeChild(clone);
+    
+    showToast('PDF descargado','success');
+  } catch(err) {
+    console.error('Error generando PDF:', err);
+    showToast('Error al generar PDF','error', err.message);
+    // Fallback a vista previa
+    showToast('Abriendo vista previa…','info');
+    openPrintWindow(lastSavedRecord);
+  }
 }
 
 async function doCopyImage() {
