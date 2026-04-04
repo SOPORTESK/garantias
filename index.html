@@ -1635,18 +1635,7 @@ async function invHandleFile(file) {
     // ── Mostrar progreso ─────────────────────────────────────────────────
     showToast('Actualizando inventario…', 'info', normalized.length + ' artículos detectados');
 
-    // ── 1. Borrar inventario existente completo ──────────────────────────
-    // Borrar todos — usar Prefer: return=minimal con filtro que siempre es verdadero
-    await fetch(SB_URL + '/rest/v1/' + INV_TABLE + '?id=gte.00000000-0000-0000-0000-000000000000', {
-      method: 'DELETE',
-      headers: {
-        'apikey': SB_KEY,
-        'Authorization': 'Bearer ' + (authToken || SB_KEY),
-        'Prefer': 'return=minimal'
-      }
-    });
-
-    // ── 2. Insertar en lotes de 500 ──────────────────────────────────────
+    // ── 1. UPSERT en lotes de 500 (insert o actualiza por articulo) ────
     const BATCH = 500;
     let inserted = 0;
     for (let i = 0; i < normalized.length; i += BATCH) {
@@ -1658,7 +1647,16 @@ async function invHandleFile(file) {
         unidad:      item.unidad      || '',
         disponible:  item.disponible  || ''
       }));
-      await sbFetch('POST', INV_TABLE, batch);
+      await fetch(SB_URL + '/rest/v1/' + INV_TABLE, {
+        method: 'POST',
+        headers: {
+          'apikey': SB_KEY,
+          'Authorization': 'Bearer ' + (authToken || SB_KEY),
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates,return=minimal'
+        },
+        body: JSON.stringify(batch)
+      });
       inserted += batch.length;
     }
 
