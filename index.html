@@ -888,20 +888,7 @@
   </div>
 </div>
 
-<!-- MODAL CONTRASEÑA ADMIN -->
-<div class="save-modal-backdrop" id="adminPassModal" style="z-index:1000;">
-  <div class="save-modal" style="max-width:360px;">
-    <div class="save-modal-title">Contraseña de administrador</div>
-    <div class="save-modal-sub">Ingresá tu contraseña para acceder al panel</div>
-    <div style="padding:1rem 0;">
-      <input type="password" id="adminPassInput" class="field-input" placeholder="••••••••" style="width:100%;margin-bottom:1rem;" autocomplete="off">
-      <div style="display:flex;gap:.5rem;">
-        <button class="btn btn-primary" onclick="verifyAdminPass()" style="flex:1;">Aceptar</button>
-        <button class="btn btn-ghost" onclick="closeAdminPassModal()" style="flex:1;">Cancelar</button>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- adminPassModal se crea dinámicamente -->
 
 <!-- MODAL ENVIAR -->
 <div class="save-modal-backdrop" id="enviarModal">
@@ -1248,45 +1235,49 @@ function toggleUserMenu(forceClose) {
 ══════════════════════════════════════════════════ */
 let logoClickCount = 0, logoClickTimer = null;
 
+const ADMIN_VERIFIED_KEY = 'sk_admin_verified';
+
+function isAdminVerifiedInBrowser() {
+  // Verifica si ya se autenticó en este navegador para este usuario
+  try {
+    const stored = localStorage.getItem(ADMIN_VERIFIED_KEY);
+    if (!stored) return false;
+    const { email } = JSON.parse(stored);
+    return email === currentUser?.email;
+  } catch { return false; }
+}
+
+function markAdminVerified() {
+  localStorage.setItem(ADMIN_VERIFIED_KEY, JSON.stringify({ email: currentUser?.email }));
+}
+
 function openAdminPassModal() {
-  console.log('Creando modal de contraseña...');
   // Eliminar modal anterior si existe
   let oldModal = document.getElementById('adminPassModal');
   if (oldModal) oldModal.remove();
-  
-  // Crear nuevo modal dinámicamente
+
   const modal = document.createElement('div');
   modal.id = 'adminPassModal';
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;';
-  
-  const modalContent = `
+  modal.innerHTML = `
     <div style="background:#fff;border-radius:16px;padding:2rem;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.4);text-align:center;">
       <h3 style="margin:0 0 0.5rem 0;font-size:1.1rem;color:#1a1a1a;">Contraseña de administrador</h3>
-      <p style="margin:0 0 1.5rem 0;font-size:0.85rem;color:#666;">Ingresá tu contraseña para acceder al panel</p>
+      <p style="margin:0 0 1.5rem 0;font-size:0.85rem;color:#666;">Verificá tu identidad para acceder al panel. No se te volverá a pedir en este navegador.</p>
       <input type="password" id="adminPassInput" placeholder="••••••••" style="width:100%;padding:0.75rem;border:1.5px solid #ddd;border-radius:8px;margin-bottom:1rem;font-size:1rem;box-sizing:border-box;">
+      <div id="adminPassError" style="display:none;color:#DC2626;font-size:.8rem;margin-bottom:.75rem;"></div>
       <div style="display:flex;gap:0.5rem;">
         <button id="btnAceptarPass" style="flex:1;padding:0.75rem;background:#2563EB;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;">Aceptar</button>
         <button id="btnCancelarPass" style="flex:1;padding:0.75rem;background:#f3f4f6;color:#374151;border:none;border-radius:8px;cursor:pointer;">Cancelar</button>
       </div>
     </div>`;
-  
-  console.log('Contenido del modal:', modalContent);
-  modal.innerHTML = modalContent;
   document.body.appendChild(modal);
-  console.log('Modal agregado al DOM');
-  
-  // Event listeners
+
+  const input = document.getElementById('adminPassInput');
   document.getElementById('btnAceptarPass').onclick = verifyAdminPass;
   document.getElementById('btnCancelarPass').onclick = closeAdminPassModal;
-  
-  // Cerrar al hacer clic fuera
   modal.onclick = (e) => { if (e.target === modal) closeAdminPassModal(); };
-  
-  // Focus en el input
-  setTimeout(() => {
-    const input = document.getElementById('adminPassInput');
-    if (input) input.focus();
-  }, 100);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') verifyAdminPass(); });
+  setTimeout(() => input?.focus(), 100);
 }
 
 function closeAdminPassModal() {
@@ -1296,12 +1287,9 @@ function closeAdminPassModal() {
 
 function verifyAdminPass() {
   const pass = document.getElementById('adminPassInput').value;
-  if (!pass) {
-    showToast('Ingresá la contraseña', 'error');
-    return;
-  }
-  closeAdminPassModal();
-  // Verificar contra Supabase
+  if (!pass) { showToast('Ingresá la contraseña', 'error'); return; }
+  const btn = document.getElementById('btnAceptarPass');
+  btn.disabled = true; btn.textContent = 'Verificando…';
   const email = currentUser?.email;
   if (!email) return;
   fetch(SB_URL + '/auth/v1/token?grant_type=password', {
@@ -1310,33 +1298,44 @@ function verifyAdminPass() {
     body: JSON.stringify({ email, password: pass })
   }).then(r => r.json()).then(data => {
     if (data.access_token) {
-      const adminBtn = document.getElementById('adminNavBtn');
-      if (adminBtn) adminBtn.style.display = '';
-      switchTab('admin');
+      markAdminVerified();         // ← guardar en localStorage
+      closeAdminPassModal();
+      unlockAdminPanel();
       showToast('Panel de administrador', 'info');
     } else {
-      showToast('Contraseña incorrecta', 'error');
+      const errEl = document.getElementById('adminPassError');
+      if (errEl) { errEl.textContent = 'Contraseña incorrecta'; errEl.style.display = 'block'; }
+      btn.disabled = false; btn.textContent = 'Aceptar';
     }
   }).catch(e => {
     showToast('Error al verificar', 'error', e.message);
+    btn.disabled = false; btn.textContent = 'Aceptar';
   });
+}
+
+function unlockAdminPanel() {
+  const adminBtn = document.getElementById('adminNavBtn');
+  if (adminBtn) adminBtn.style.display = '';
+  switchTab('admin');
 }
 
 function logoClick(e) {
   e.preventDefault();
   logoClickCount++;
-  console.log('Logo click:', logoClickCount);
   clearTimeout(logoClickTimer);
   logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 2000);
   if (logoClickCount >= 5) {
     logoClickCount = 0;
-    console.log('Checking isAdmin:', isAdmin(), currentUser?.email);
     if (!isAdmin()) {
       showToast('Acceso denegado', 'error', 'No tenés permisos de administrador');
       return;
     }
-    console.log('Opening admin pass modal');
-    openAdminPassModal();
+    // Si ya verificó en este navegador, entrar directo
+    if (isAdminVerifiedInBrowser()) {
+      unlockAdminPanel();
+    } else {
+      openAdminPassModal();
+    }
   }
 }
 
