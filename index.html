@@ -2511,7 +2511,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (tipoEl) tipoEl.addEventListener('change', () => { renderHeaderBoleta(); updateProgress(); });
     if (categoriaEl) categoriaEl.addEventListener('change', () => { renderHeaderBoleta(); updateProgress(); });
     if (warrantyFormEl) warrantyFormEl.addEventListener('submit', handleSubmit);
-    if (revertBtn) revertBtn.addEventListener('click', revertBoleta);
+    if (revertBtn) revertBtn.addEventListener('click', revertBoletaPersonalizado);
     if (deleteBtn) deleteBtn.addEventListener('click', deleteTestRecords);
     document.querySelectorAll('.field-input:not(#serie),.field-select,.field-textarea').forEach(el=>{
       el.addEventListener('input',()=>{el.classList.toggle('filled',!!el.value);el.classList.remove('error');});
