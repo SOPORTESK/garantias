@@ -2326,7 +2326,7 @@ function adminSwitchSection(sec) {
   document.getElementById('panel-salidas-temporales').style.display  = sec==='salidas-temporales'  ? '' : 'none';
   document.getElementById('panel-usuarios').style.display            = sec==='usuarios'            ? '' : 'none';
   const ph = document.getElementById('panel-herramientas');
-  if (ph) ph.style.display = sec==='herramientas' ? 'block' : 'none';
+  if (ph) ph.style.display = 'block';
   const titles = {
     'salidas-definitivas': ['Salidas Definitivas','Registros con salida definitiva'],
     'salidas-temporales':  ['Salidas Temporales', 'Registros con salida temporal'],
