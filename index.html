@@ -1724,26 +1724,43 @@ async function captureRecord(r) {
   if (!r) throw new Error('Sin registro');
   populatePrintForm(r);
   const el = document.getElementById('printForm');
+  if (!el) throw new Error('No se encontró el elemento printForm');
+  
+  // Verificar que html2canvas esté disponible
+  if (typeof html2canvas === 'undefined') {
+    throw new Error('html2canvas no está cargado');
+  }
+  
   // Mover fuera de pantalla pero visible para html2canvas (no z-index negativo)
   const orig = el.style.cssText;
   el.style.cssText = 'position:fixed;left:0;top:-9999px;width:794px;background:#fff;padding:32px 36px;font-family:"Plus Jakarta Sans",sans-serif;font-size:11px;color:#1A1108;visibility:visible;opacity:1;';
   await new Promise(res => setTimeout(res, 200));
+  
   // Medir alto real del contenido para recortar exacto
   const realH = el.scrollHeight;
-  const canvas = await html2canvas(el, {
-    scale: 2,
-    useCORS: true,
-    backgroundColor: '#ffffff',
-    logging: false,
-    width: 794,
-    height: realH,
-    windowWidth: 794,
-    windowHeight: realH,
-    x: 0,
-    y: 0
-  });
-  el.style.cssText = orig;
-  return canvas;
+  console.log('Generando canvas, alto:', realH);
+  
+  try {
+    const canvas = await html2canvas(el, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      width: 794,
+      height: realH,
+      windowWidth: 794,
+      windowHeight: realH,
+      x: 0,
+      y: 0
+    });
+    el.style.cssText = orig;
+    console.log('Canvas generado:', canvas.width, 'x', canvas.height);
+    return canvas;
+  } catch (err) {
+    el.style.cssText = orig;
+    console.error('Error en html2canvas:', err);
+    throw new Error('Error al generar imagen: ' + err.message);
+  }
 }
 
 function buildPrintHTML(r) {
