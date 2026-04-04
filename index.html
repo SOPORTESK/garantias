@@ -1738,42 +1738,34 @@ async function captureRecord(r) {
     opacity: el.style.opacity,
     zIndex: el.style.zIndex,
     left: el.style.left,
-    top: el.style.top
+    top: el.style.top,
+    width: el.style.width,
+    height: el.style.height
   };
   
-  // Hacer visible para html2canvas pero oculto para el usuario
-  // Usar z-index negativo en lugar de top:-9999px
-  el.style.cssText = 'position:fixed;left:0;top:0;width:794px;background:#fff;padding:32px 36px;font-family:"Plus Jakarta Sans",sans-serif;font-size:11px;color:#1A1108;visibility:hidden;opacity:0;z-index:-1;';
+  // Posicionar en viewport para renderizado pero con opacity 0.01 (casi invisible)
+  el.style.cssText = 'position:fixed;left:0;top:0;width:794px;height:auto;background:#fff;padding:32px 36px;font-family:"Plus Jakarta Sans",sans-serif;font-size:11px;color:#1A1108;visibility:visible;opacity:0.01;z-index:1;pointer-events:none;';
   
-  // Esperar renderizado
-  await new Promise(res => setTimeout(res, 500));
+  // Esperar a que el navegador renderice
+  await new Promise(res => setTimeout(res, 300));
   
-  // Medir alto
-  let realH = el.scrollHeight;
-  console.log('scrollHeight:', realH);
+  // Obtener dimensiones reales
+  const rect = el.getBoundingClientRect();
+  const realH = Math.max(rect.height, el.scrollHeight, 400);
+  console.log('Dimensiones:', rect.width, 'x', realH);
   
-  if (realH === 0) {
-    realH = 600;
-    console.log('Usando alto mínimo:', realH);
-  }
+  // Hacer completamente visible para captura
+  el.style.opacity = '1';
+  el.style.zIndex = '999999';
   
   try {
-    // Hacer temporalmente visible para la captura
-    el.style.visibility = 'visible';
-    el.style.opacity = '1';
-    el.style.zIndex = '999999';
-    
     const canvas = await html2canvas(el, {
       scale: 2,
       useCORS: true,
       backgroundColor: '#ffffff',
       logging: false,
       width: 794,
-      height: realH,
-      windowWidth: 794,
-      windowHeight: realH,
-      x: 0,
-      y: 0
+      height: realH
     });
     
     // Restaurar estilos
@@ -1783,6 +1775,8 @@ async function captureRecord(r) {
     el.style.zIndex = orig.zIndex;
     el.style.left = orig.left;
     el.style.top = orig.top;
+    el.style.width = orig.width;
+    el.style.height = orig.height;
     
     console.log('Canvas generado:', canvas.width, 'x', canvas.height);
     return canvas;
@@ -1794,6 +1788,8 @@ async function captureRecord(r) {
     el.style.zIndex = orig.zIndex;
     el.style.left = orig.left;
     el.style.top = orig.top;
+    el.style.width = orig.width;
+    el.style.height = orig.height;
     console.error('Error en html2canvas:', err);
     throw new Error('Error al generar imagen: ' + err.message);
   }
