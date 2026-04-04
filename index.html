@@ -1819,10 +1819,33 @@ async function doCopyImage() {
 }
 
 /* MODAL ENVIAR */
-function openEnviarModal() { if (!lastSavedRecord) { showToast('Guardá un registro primero','info'); return; } const sub=document.getElementById('enviarModalBoletaSub'); if(sub)sub.textContent='Boleta '+(lastSavedRecord.boleta||'—')+' · '+(lastSavedRecord.nombre||''); document.getElementById('enviarModal').classList.add('open'); }
+function openEnviarModal() { 
+  console.log('openEnviarModal llamado');
+  console.log('lastSavedRecord:', lastSavedRecord);
+  if (!lastSavedRecord) { 
+    showToast('Guardá un registro primero','info'); 
+    return; 
+  } 
+  const sub=document.getElementById('enviarModalBoletaSub'); 
+  if(sub)sub.textContent='Boleta '+(lastSavedRecord.boleta||'—')+' · '+(lastSavedRecord.nombre||''); 
+  document.getElementById('enviarModal').classList.add('open'); 
+  console.log('Modal enviar abierto');
+}
 function closeEnviarModal() { document.getElementById('enviarModal').classList.remove('open'); }
-async function doSendEmail() { closeEnviarModal(); openPrintWindow(lastSavedRecord); setTimeout(()=>{window.location.href=buildMailtoUrl(lastSavedRecord||{}); showToast('Comprobante abierto · Outlook iniciando','success','Adjuntá el PDF al correo');},600); }
-async function doSendPrint() { closeEnviarModal(); openPrintWindow(lastSavedRecord); }
+async function doSendEmail() { 
+  console.log('doSendEmail llamado');
+  closeEnviarModal(); 
+  openPrintWindow(lastSavedRecord); 
+  setTimeout(()=>{
+    window.location.href=buildMailtoUrl(lastSavedRecord||{}); 
+    showToast('Comprobante abierto · Outlook iniciando','success','Adjuntá el PDF al correo');
+  },600); 
+}
+async function doSendPrint() { 
+  console.log('doSendPrint llamado');
+  closeEnviarModal(); 
+  openPrintWindow(lastSavedRecord); 
+}
 
 /* ══ BOTONES DE PRUEBA (un solo uso) ══ */
 function hidePruebaBtns() {
