@@ -1875,6 +1875,11 @@ async function doSavePDF() {
     const realH = Math.max(clone.scrollHeight, 400);
     console.log('Alto para PDF:', realH);
     
+    // Hacer visible temporalmente para html2pdf
+    clone.style.opacity = '1';
+    clone.style.left = '0';
+    await new Promise(res => setTimeout(res, 100));
+    
     // Opciones de html2pdf
     const opt = {
       margin: 0,
