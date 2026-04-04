@@ -1170,6 +1170,10 @@ async function doLogin() {
     await authSignIn(email, pass);
     hideLoginOverlay();
     showToast('Bienvenido/a ' + (currentPerfil?.nombre || email.split('@')[0]), 'success');
+    // Cargar datos ahora que hay sesión válida
+    await invLoad();
+    await loadRecords();
+    renderHeaderBoleta();
   } catch(e) {
     const msg = e.message || '';
     let friendly = 'Error al iniciar sesión';
@@ -1204,6 +1208,10 @@ async function doRegister() {
     await authSignUp(email, pass, nombre, apellido);
     hideLoginOverlay();
     showToast('Cuenta creada · Bienvenido/a ' + nombre, 'success');
+    // Cargar datos ahora que hay sesión válida
+    await invLoad();
+    await loadRecords();
+    renderHeaderBoleta();
   } catch(e) {
     const msg = e.message || '';
     let friendly = msg;
@@ -1606,6 +1614,10 @@ function invSortBy(col) {
 }
 
 async function invLoad() {
+  if (!authToken) {
+    console.warn('invLoad: sin authToken, se omite la carga');
+    return;
+  }
   try {
     // Traer en páginas de 1000 para superar el límite de PostgREST
     let all = [];
@@ -2872,16 +2884,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('Sesión restaurada:', restored);
     if (restored) {
       hideLoginOverlay();
+      // Cargar datos solo si la sesión es válida
+      console.log('Cargando inventario...');
+      await invLoad();
+      console.log('Cargando registros...');
+      await loadRecords();
     } else {
       showLoginOverlay();
       renderLoginForm();
     }
-
-    // Cargar datos
-    console.log('Cargando inventario...');
-    await invLoad();
-    console.log('Cargando registros...');
-    await loadRecords();
     console.log('Renderizando boleta...');
     renderHeaderBoleta();
     updateProgress();
