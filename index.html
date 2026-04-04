@@ -1839,24 +1839,23 @@ function openEnviarModal() {
   console.log('openEnviarModal llamado');
   console.log('lastSavedRecord:', lastSavedRecord);
   if (!lastSavedRecord) { 
-    showToast('Guardá un registro primero','info'); 
+    alert('Guardá un registro primero');
     return; 
   } 
   const sub=document.getElementById('enviarModalBoletaSub'); 
   if(sub)sub.textContent='Boleta '+(lastSavedRecord.boleta||'—')+' · '+(lastSavedRecord.nombre||''); 
   const modal = document.getElementById('enviarModal');
+  if (!modal) {
+    alert('ERROR: No se encontró el modal enviarModal en el DOM');
+    console.error('enviarModal no existe en el DOM');
+    return;
+  }
   modal.classList.add('open'); 
-  console.log('Modal enviar abierto. Clases:', modal.className);
-  console.log('Modal display:', getComputedStyle(modal).display);
-  console.log('Modal visibility:', getComputedStyle(modal).visibility);
-  console.log('Modal opacity:', getComputedStyle(modal).opacity);
-  console.log('Modal z-index:', getComputedStyle(modal).zIndex);
-  console.log('Modal rect:', modal.getBoundingClientRect());
-  
-  // Forzar visibilidad
   modal.style.display = 'flex';
   modal.style.visibility = 'visible';
   modal.style.opacity = '1';
+  console.log('Modal enviar forzado a visible');
+  alert('Modal debería estar visible ahora. ¿Lo ves?');
 }
 function closeEnviarModal() { document.getElementById('enviarModal').classList.remove('open'); }
 async function doSendEmail() { 
