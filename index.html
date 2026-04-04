@@ -664,24 +664,6 @@
         <div class="stat-card c-purple"><div class="stat-label">Hoy</div><div class="stat-value" id="st-hoy">—</div><div class="stat-sub">registros del día</div></div>
       </div>
 
-      <!-- BOTONES DE PRUEBA - SIEMPRE VISIBLES -->
-      <div id="admin-tools-buttons" style="margin:1.5rem 0;display:flex;flex-direction:column;gap:.75rem;max-width:600px;">
-        <div style="background:var(--blue-dim);border:1.5px solid rgba(37,99,235,.2);border-radius:var(--radius-lg);padding:1.25rem;">
-          <div style="font-size:.875rem;font-weight:700;color:var(--blue);margin-bottom:.25rem;">Herramientas de prueba</div>
-          <div style="font-size:.8125rem;color:var(--ink-3);margin-bottom:.875rem;">Funciones útiles para pruebas y desarrollo.</div>
-          <div style="display:flex;flex-direction:column;gap:.5rem;">
-            <button class="btn btn-secondary" id="revertBoletaBtn" onclick="revertBoleta()">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
-              Revertir contador a base (29178)
-            </button>
-            <button class="btn btn-secondary" id="deleteTestBtn" onclick="deleteTestRecords()">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-              Borrar registros de prueba (>29178)
-            </button>
-          </div>
-        </div>
-      </div>
-
       <!-- Panel def -->
       <div class="data-panel" id="panel-salidas-definitivas" style="display:none">
         <div class="data-panel-header">
@@ -761,7 +743,7 @@
       </div>
 
       <!-- PANEL HERRAMIENTAS -->
-      <div class="data-panel" id="panel-herramientas" style="display:block">
+      <div class="data-panel" id="panel-herramientas" style="display:none">
         <div class="data-panel-header">
           <div class="data-panel-title">
             <span class="panel-dot" style="background:var(--amber)"></span>
@@ -791,18 +773,25 @@
           
           <!-- Botones de prueba -->
           <div style="background:var(--blue-dim);border:1.5px solid rgba(37,99,235,.2);border-radius:var(--radius-lg);padding:1.25rem;">
-            <div style="font-size:.875rem;font-weight:700;color:var(--blue);margin-bottom:.25rem;">Herramientas de prueba</div>
-            <div style="font-size:.8125rem;color:var(--ink-3);margin-bottom:.875rem;">Funciones útiles para pruebas y desarrollo.</div>
+            <div style="font-size:.875rem;font-weight:700;color:var(--blue);margin-bottom:.25rem;">Revertir contador a número específico</div>
+            <div style="font-size:.8125rem;color:var(--ink-3);margin-bottom:.875rem;">Ingresá el número de boleta base. El próximo registro usará ese número + 1.</div>
             <div style="display:flex;flex-direction:column;gap:.5rem;">
-              <button class="btn btn-secondary" id="revertBoletaBtn" onclick="revertBoleta()">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
-                Revertir contador a base (29178)
-              </button>
-              <button class="btn btn-secondary" id="deleteTestBtn" onclick="deleteTestRecords()">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                Borrar registros de prueba (>29178)
-              </button>
+              <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+                <input type="number" id="revertBoletaInput" class="field-input" placeholder="Ej: 29100" style="width:180px;" min="1">
+                <button class="btn btn-secondary" id="revertBoletaBtn" onclick="revertBoletaPersonalizado()">
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                  Revertir contador
+                </button>
+              </div>
             </div>
+          </div>
+          <div style="background:var(--blue-dim);border:1.5px solid rgba(37,99,235,.2);border-radius:var(--radius-lg);padding:1.25rem;">
+            <div style="font-size:.875rem;font-weight:700;color:var(--blue);margin-bottom:.25rem;">Borrar registros de prueba</div>
+            <div style="font-size:.8125rem;color:var(--ink-3);margin-bottom:.875rem;">Elimina registros con número de boleta mayor al base ingresado arriba.</div>
+            <button class="btn btn-secondary" id="deleteTestBtn" onclick="deleteTestRecords()">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              Borrar registros de prueba
+            </button>
           </div>
         </div>
       </div>
@@ -2084,34 +2073,46 @@ function hidePruebaBtns() {
   document.getElementById('deleteTestBtn').style.display   = 'none';
 }
 
-function revertBoleta() {
-  if (!confirm('¿Revertir el contador al número base 29178? El próximo registro usará 29179.')) return;
-  consecutiveNum = 29178;
+function revertBoletaPersonalizado() {
+  const input = document.getElementById('revertBoletaInput');
+  const num = parseInt(input?.value);
+  if (!num || num < 1) {
+    showToast('Ingresá un número válido', 'error');
+    return;
+  }
+  if (!confirm('¿Revertir el contador al número ' + num + '? El próximo registro usará ' + (num + 1) + '.')) return;
+  consecutiveNum = num;
   renderHeaderBoleta();
-  showToast('Contador en 29178 · próximo será 29179', 'info');
+  showToast('Contador en ' + num + ' · próximo será ' + (num + 1), 'info');
 }
 
 async function deleteTestRecords() {
-  const toDelete = allRecords.filter(r => r.numero_consecutivo > 29178);
+  const input = document.getElementById('revertBoletaInput');
+  const baseNum = parseInt(input?.value) || 29178;
+  
+  const toDelete = allRecords.filter(r => r.numero_consecutivo > baseNum);
   if (!toDelete.length) {
-    showToast('No hay registros de prueba', 'info');
+    showToast('No hay registros de prueba (>' + baseNum + ')', 'info');
     return;
   }
-  if (!confirm('Se eliminarán ' + toDelete.length + ' registro(s) de prueba y el contador volverá a 29178.\n\n¿Continuar?')) return;
+  if (!confirm('Se eliminarán ' + toDelete.length + ' registro(s) con número > ' + baseNum + '.\n\n¿Continuar?')) return;
+  
   let deleted = 0;
   for (const r of toDelete) {
     try {
       await sbFetch('DELETE', TABLE + '?id=eq.' + r.id, null);
       allRecords = allRecords.filter(x => x.id !== r.id);
-      rawData.def  = rawData.def.filter(x => x.id !== r.id);
+      rawData.def = rawData.def.filter(x => x.id !== r.id);
       rawData.temp = rawData.temp.filter(x => x.id !== r.id);
       deleted++;
-    } catch(e) { showToast('Error eliminando ' + r.boleta, 'error', e.message); }
+    } catch(e) {
+      showToast('Error eliminando ' + r.boleta, 'error', e.message);
+    }
   }
-  consecutiveNum = 29178;
-  adminUpdateBadges(); adminApplyFilters('def'); adminApplyFilters('temp');
-  renderHeaderBoleta();
-  showToast(deleted + ' registro(s) eliminados · contador en 29178', 'success');
+  adminUpdateBadges();
+  adminApplyFilters('def');
+  adminApplyFilters('temp');
+  showToast(deleted + ' registro(s) eliminados', 'success');
 }
 
 
