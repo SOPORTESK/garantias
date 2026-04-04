@@ -1100,9 +1100,6 @@ async function doRegister() {
       friendly = 'Este correo ya está registrado. Intentá iniciar sesión.';
     } else if (msg.includes('rate limit') || msg.includes('Rate limit') || msg.includes('exceeded')) {
       friendly = 'Demasiados intentos de registro. Esperá unos minutos e intentá de nuevo.';
-    } else if (msg.includes('confirmación') || msg.includes('confirmation')) {
-      // No es un error — mostrar como info
-      showLoginError(msg);
       btn.disabled = false; btn.textContent = 'Crear cuenta';
       return;
     }
@@ -1427,58 +1424,15 @@ async function invLoad() {
 
 async function invHandleFile(file) {
   if (!file) return;
+async function invLoad() {
   try {
-    const rows = await invParseExcel(file);
-    if (!rows.length) { showToast('El archivo está vacío','error'); return; }
-    const sbRows = [];
-    rows.forEach(r => {
-      // Aceptar columna "Serie" o "Artículo" indistintamente
-      const articulo = String(r['Serie']||r['Artículo']||'').trim();
-      if (!articulo) return;
-      sbRows.push({
-        articulo,
-        bodega:      String(r['Bodega']                    ||'').trim(),
-        descripcion: String(r['Descripción del Artículo']  ||'').trim(),
-        marca:       String(r['Marca']                     ||'').trim(),
-        unidad:      String(r['Unidad de Medida Almacén']  ||'').trim(),
-        disponible:  String(r['Disponible Almacén']        ||'').trim(),
-        updated_at:  new Date().toISOString()
-      });
-    });
-    if (!sbRows.length) { showToast('Sin artículos válidos','error'); return; }
-
-    // Paso 1: borrar todo el inventario anterior
-    await fetch(SB_URL+'/rest/v1/'+INV_TABLE+'?id=neq.00000000-0000-0000-0000-000000000000', {
-      method: 'DELETE',
-      headers: { 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json' }
-    });
-
-    // Paso 2: insertar el inventario nuevo en lotes de 200
-    const BATCH = 200;
-    for (let i = 0; i < sbRows.length; i += BATCH) {
-      await fetch(SB_URL+'/rest/v1/'+INV_TABLE, {
-        method: 'POST',
-        headers: { 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
-        body: JSON.stringify(sbRows.slice(i, i+BATCH))
-      });
-    }
-
-    // Paso 3: recargar desde Supabase
-    const fresh = await sbFetch('GET', INV_TABLE+'?order=articulo.asc&limit=5000', null);
-    inventory = (fresh||[]).map(sbRowToInv);
+    const data = await sbFetch('GET', INV_TABLE+'?order=articulo.asc&limit=5000', null);
+    inventory = (data||[]).map(sbRowToInv);
     invRender(); invUpdateUI();
-    showToast('Inventario reemplazado', 'success', sbRows.length+' artículos cargados');
-  } catch(err) { showToast('Error al procesar','error',err.message); }
-}
-
-/* ═══════════════════════════════════════
-   SERIE AUTOCOMPLETE
-═══════════════════════════════════════ */
-let serieMatchedItem = null;
-
-function serieSearch(val) {
-  const q = val.trim().toLowerCase();
-  const drop = document.getElementById('serieDropdown');
+  } catch(e) {
+    inventory = [];
+    console.warn('inventario:', e.message);
+  }
   const status = document.getElementById('serieStatus');
   if (!q || !inventory.length) { drop.style.display='none'; status.style.display='none'; return; }
   const matches = inventory.filter(r => String(r['Artículo']||'').toLowerCase().includes(q)).slice(0,10);
