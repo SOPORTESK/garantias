@@ -1170,6 +1170,8 @@ async function doLogin() {
     await authSignIn(email, pass);
     hideLoginOverlay();
     showToast('Bienvenido/a ' + (currentPerfil?.nombre || email.split('@')[0]), 'success');
+    await invLoad();
+    await loadRecords();
   } catch(e) {
     const msg = e.message || '';
     let friendly = 'Error al iniciar sesión';
@@ -1649,13 +1651,13 @@ async function invHandleFile(file) {
         unidad:      item.unidad      || '',
         disponible:  item.disponible  || ''
       }));
-      await fetch(SB_URL + '/rest/v1/' + INV_TABLE + '?on_conflict=articulo', {
+      await fetch(SB_URL + '/rest/v1/' + INV_TABLE, {
         method: 'POST',
         headers: {
           'apikey': SB_KEY,
           'Authorization': 'Bearer ' + (authToken || SB_KEY),
           'Content-Type': 'application/json',
-          'Prefer': 'resolution=merge-duplicates,return=minimal'
+          'Prefer': 'resolution=ignore-duplicates,return=minimal'
         },
         body: JSON.stringify(batch)
       });
@@ -2849,16 +2851,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('Sesión restaurada:', restored);
     if (restored) {
       hideLoginOverlay();
+      // authToken ya está listo, cargar datos
+      console.log('Cargando inventario...');
+      await invLoad();
+      console.log('Cargando registros...');
+      await loadRecords();
     } else {
       showLoginOverlay();
       renderLoginForm();
     }
-
-    // Cargar datos
-    console.log('Cargando inventario...');
-    await invLoad();
-    console.log('Cargando registros...');
-    await loadRecords();
     console.log('Renderizando boleta...');
     renderHeaderBoleta();
     updateProgress();
