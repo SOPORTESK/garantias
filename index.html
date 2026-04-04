@@ -1207,17 +1207,45 @@ function toggleUserMenu(forceClose) {
 let logoClickCount = 0, logoClickTimer = null;
 
 function openAdminPassModal() {
-  const modal = document.getElementById('adminPassModal');
-  if (modal) {
-    modal.classList.add('open');
-    document.getElementById('adminPassInput').value = '';
-    setTimeout(() => document.getElementById('adminPassInput').focus(), 100);
-  }
+  // Eliminar modal anterior si existe
+  let oldModal = document.getElementById('adminPassModal');
+  if (oldModal) oldModal.remove();
+  
+  // Crear nuevo modal dinámicamente
+  const modal = document.createElement('div');
+  modal.id = 'adminPassModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;';
+  
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:16px;padding:2rem;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.4);text-align:center;">
+      <h3 style="margin:0 0 0.5rem 0;font-size:1.1rem;color:#1a1a1a;">Contraseña de administrador</h3>
+      <p style="margin:0 0 1.5rem 0;font-size:0.85rem;color:#666;">Ingresá tu contraseña para acceder al panel</p>
+      <input type="password" id="adminPassInput" placeholder="••••••••" style="width:100%;padding:0.75rem;border:1.5px solid #ddd;border-radius:8px;margin-bottom:1rem;font-size:1rem;box-sizing:border-box;">
+      <div style="display:flex;gap:0.5rem;">
+        <button id="btnAceptarPass" style="flex:1;padding:0.75rem;background:#2563EB;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;">Aceptar</button>
+        <button id="btnCancelarPass" style="flex:1;padding:0.75rem;background:#f3f4f6;color:#374151;border:none;border-radius:8px;cursor:pointer;">Cancelar</button>
+      </div>
+    </div>`;
+  
+  document.body.appendChild(modal);
+  
+  // Event listeners
+  document.getElementById('btnAceptarPass').onclick = verifyAdminPass;
+  document.getElementById('btnCancelarPass').onclick = closeAdminPassModal;
+  
+  // Cerrar al hacer clic fuera
+  modal.onclick = (e) => { if (e.target === modal) closeAdminPassModal(); };
+  
+  // Focus en el input
+  setTimeout(() => {
+    const input = document.getElementById('adminPassInput');
+    if (input) input.focus();
+  }, 100);
 }
 
 function closeAdminPassModal() {
   const modal = document.getElementById('adminPassModal');
-  if (modal) modal.classList.remove('open');
+  if (modal) modal.remove();
 }
 
 function verifyAdminPass() {
