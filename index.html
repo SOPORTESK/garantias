@@ -1170,10 +1170,6 @@ async function doLogin() {
     await authSignIn(email, pass);
     hideLoginOverlay();
     showToast('Bienvenido/a ' + (currentPerfil?.nombre || email.split('@')[0]), 'success');
-    // Cargar datos ahora que hay sesión válida
-    await invLoad();
-    await loadRecords();
-    renderHeaderBoleta();
   } catch(e) {
     const msg = e.message || '';
     let friendly = 'Error al iniciar sesión';
@@ -1208,10 +1204,6 @@ async function doRegister() {
     await authSignUp(email, pass, nombre, apellido);
     hideLoginOverlay();
     showToast('Cuenta creada · Bienvenido/a ' + nombre, 'success');
-    // Cargar datos ahora que hay sesión válida
-    await invLoad();
-    await loadRecords();
-    renderHeaderBoleta();
   } catch(e) {
     const msg = e.message || '';
     let friendly = msg;
@@ -1431,19 +1423,13 @@ async function sbFetch(method, path, body) {
   } else {
     hdrs['Prefer'] = 'count=none';
   }
-  const fullUrl = SB_URL + '/rest/v1/' + path;
-  console.log('sbFetch:', method, fullUrl);
-  const res = await fetch(fullUrl, {
+  const res = await fetch(SB_URL + '/rest/v1/' + path, {
     method,
     headers: hdrs,
     body: body ? JSON.stringify(body) : undefined
   });
-  console.log('sbFetch response:', res.status, res.statusText, path.split('?')[0]);
   const text = await res.text();
-  if (!res.ok) {
-    console.error('sbFetch error body:', text);
-    throw new Error(text || res.statusText);
-  }
+  if (!res.ok) throw new Error(text || res.statusText);
   return text ? JSON.parse(text) : null;
 }
 
@@ -1645,33 +1631,22 @@ function invSortBy(col) {
 }
 
 async function invLoad() {
-  if (!authToken) {
-    console.warn('invLoad: sin authToken, se omite la carga');
-    return;
-  }
-  console.log('invLoad: iniciando, authToken presente:', !!authToken);
   try {
-    // Primer intento: traer página 0
-    const url0 = INV_TABLE+'?order=articulo.asc&limit=1000&offset=0';
-    console.log('invLoad: GET', SB_URL + '/rest/v1/' + url0);
     let all = [];
     let offset = 0;
     const PAGE = 1000;
     while (true) {
       const data = await sbFetch('GET', INV_TABLE+'?order=articulo.asc&limit='+PAGE+'&offset='+offset, null);
       const page = data || [];
-      console.log('invLoad: página offset='+offset+' -> '+page.length+' filas');
       all = all.concat(page);
       if (page.length < PAGE) break;
       offset += PAGE;
     }
-    console.log('invLoad: total filas =', all.length);
     inventory = all.map(sbRowToInv);
     invRender(); invUpdateUI();
   } catch(e) {
     inventory = [];
-    console.error('invLoad ERROR:', e.message, e);
-    showToast('Error al cargar inventario', 'error', e.message);
+    console.warn('inventario:', e.message);
   }
 }
 
@@ -2920,15 +2895,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('Sesión restaurada:', restored);
     if (restored) {
       hideLoginOverlay();
-      // Cargar datos solo si la sesión es válida
-      console.log('Cargando inventario...');
-      await invLoad();
-      console.log('Cargando registros...');
-      await loadRecords();
     } else {
       showLoginOverlay();
       renderLoginForm();
     }
+
+    // Cargar datos siempre (el inventario usa anon key)
+    await invLoad();
+    await loadRecords();
     console.log('Renderizando boleta...');
     renderHeaderBoleta();
     updateProgress();
