@@ -883,7 +883,7 @@
 </div>
 
 <!-- MODAL CONTRASEÑA ADMIN -->
-<div class="save-modal-backdrop" id="adminPassModal" style="display:none;z-index:1000;">
+<div class="save-modal-backdrop" id="adminPassModal" style="z-index:1000;">
   <div class="save-modal" style="max-width:360px;">
     <div class="save-modal-title">Contraseña de administrador</div>
     <div style="padding:1rem 0;">
@@ -1206,13 +1206,14 @@ function toggleUserMenu(forceClose) {
 let logoClickCount = 0, logoClickTimer = null;
 
 function openAdminPassModal() {
-  document.getElementById('adminPassModal').style.display = 'flex';
+  const modal = document.getElementById('adminPassModal');
+  modal.classList.add('open');
   document.getElementById('adminPassInput').value = '';
-  document.getElementById('adminPassInput').focus();
+  setTimeout(() => document.getElementById('adminPassInput').focus(), 100);
 }
 
 function closeAdminPassModal() {
-  document.getElementById('adminPassModal').style.display = 'none';
+  document.getElementById('adminPassModal').classList.remove('open');
 }
 
 function verifyAdminPass() {
