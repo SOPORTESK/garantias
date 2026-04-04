@@ -1846,8 +1846,17 @@ function openEnviarModal() {
   if(sub)sub.textContent='Boleta '+(lastSavedRecord.boleta||'—')+' · '+(lastSavedRecord.nombre||''); 
   const modal = document.getElementById('enviarModal');
   modal.classList.add('open'); 
-  console.log('Modal enviar abierto. Clases del modal:', modal.className);
-  console.log('Modal display style:', getComputedStyle(modal).display);
+  console.log('Modal enviar abierto. Clases:', modal.className);
+  console.log('Modal display:', getComputedStyle(modal).display);
+  console.log('Modal visibility:', getComputedStyle(modal).visibility);
+  console.log('Modal opacity:', getComputedStyle(modal).opacity);
+  console.log('Modal z-index:', getComputedStyle(modal).zIndex);
+  console.log('Modal rect:', modal.getBoundingClientRect());
+  
+  // Forzar visibilidad
+  modal.style.display = 'flex';
+  modal.style.visibility = 'visible';
+  modal.style.opacity = '1';
 }
 function closeEnviarModal() { document.getElementById('enviarModal').classList.remove('open'); }
 async function doSendEmail() { 
