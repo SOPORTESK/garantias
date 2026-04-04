@@ -1615,8 +1615,8 @@ function invUpdateUI() {
   if (hasData) {
     document.getElementById('invSubtitle').textContent = 'Inventario activo · subí un nuevo Excel para actualizar';
     document.getElementById('invStatTotal').textContent = inventory.length + ' artículos';
-    const bodegas = new Set(inventory.map(r => r.bodega||'').filter(Boolean)).size;
-    document.getElementById('invStatBodegas').textContent = bodegas + (bodegas===1?' bodega':' bodegas');
+    // Ocultar contador de bodegas (ya no usamos esa columna)
+    document.getElementById('invStatBodegas').style.display = 'none';
     const el = document.getElementById('invCount');
     el.textContent = inventory.length; el.style.display = '';
   }
@@ -1625,8 +1625,8 @@ function invUpdateUI() {
 function invRender() {
   const q = (document.getElementById('invSearch')?.value||'').toLowerCase().trim();
   
-  // Buscar en todas las columnas estándar
-  const cols = ['articulo', 'descripcion', 'marca', 'bodega', 'unidad', 'disponible'];
+  // Buscar solo en articulo, descripcion, marca
+  const cols = ['articulo', 'descripcion', 'marca'];
   let rows = q ? inventory.filter(r => cols.some(c => String(r[c]||'').toLowerCase().includes(q))) : [...inventory];
   
   if (invSortCol) {
@@ -1636,27 +1636,21 @@ function invRender() {
   const tbody = document.getElementById('invTbody');
   const thead = document.querySelector('#invTable thead tr');
   
-  // Actualizar headers con nombres del Excel
-  if (thead && Object.keys(EXCEL_COLS).length > 0) {
-    const headers = ['articulo', 'descripcion', 'marca', 'bodega', 'unidad', 'disponible']
-      .filter(c => EXCEL_COLS[c])  // Solo mostrar columnas que existen
-      .map(c => `<th data-col="${c}">${EXCEL_COLS[c]}</th>`)
-      .join('');
-    thead.innerHTML = headers || '<th>Artículo</th><th>Descripción</th><th>Marca</th>';
+  // Headers fijos: Marca, Serie (Artículo), Descripción
+  if (thead) {
+    thead.innerHTML = '<th data-col="marca">Marca</th><th data-col="articulo">Serie / Artículo</th><th data-col="descripcion">Descripción</th>';
   }
   
-  const displayCols = Object.keys(EXCEL_COLS).filter(c => ['articulo','descripcion','marca','bodega','unidad','disponible'].includes(c));
-  
   if (!rows.length) { 
-    tbody.innerHTML=`<tr class="empty-row"><td colspan="${displayCols.length||3}"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>Sin resultados</td></tr>`; 
+    tbody.innerHTML='<tr class="empty-row"><td colspan="3"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>Sin resultados</td></tr>'; 
     return; 
   }
   
   tbody.innerHTML = rows.slice(0,500).map((r,i) => 
-    `<tr style="animation-delay:${Math.min(i,30)*0.015}s">${displayCols.map(c => `<td>${r[c]||'—'}</td>`).join('')}</tr>`
+    `<tr style="animation-delay:${Math.min(i,30)*0.015}s"><td>${r.marca||'—'}</td><td><strong>${r.articulo||'—'}</strong></td><td>${r.descripcion||'—'}</td></tr>`
   ).join('');
   
-  if (rows.length > 500) tbody.innerHTML += `<tr><td colspan="${displayCols.length||3}" style="text-align:center;padding:.75rem;font-size:.75rem;color:var(--ink-4)">Mostrando 500 de ${rows.length} — refiná la búsqueda</td></tr>`;
+  if (rows.length > 500) tbody.innerHTML += '<tr><td colspan="3" style="text-align:center;padding:.75rem;font-size:.75rem;color:var(--ink-4)">Mostrando 500 de ${rows.length} — refiná la búsqueda</td></tr>';
 }
 
 function invSortBy(col) {
@@ -1674,12 +1668,9 @@ async function invLoad() {
     const data = await sbFetch('GET', INV_TABLE+'?order=articulo.asc&limit=100000', null);
     if (data && data.length > 0) {
       inventory = data.map(r => ({
-        articulo: r.articulo || '',
-        descripcion: r.descripcion || '',
-        marca: r.marca || '',
-        bodega: r.bodega || '',
-        unidad: r.unidad || '',
-        disponible: r.disponible || ''
+        articulo: String(r.articulo || ''),
+        descripcion: String(r.descripcion || ''),
+        marca: String(r.marca || '')
       }));
     } else {
       inventory = [];
@@ -1713,15 +1704,12 @@ async function invHandleFile(file) {
     // ── Mapear datos del Excel a formato Supabase ────────────────────────
     const mappedData = rows.map(r => {
       const item = {
-        articulo: r[detected.articuloExcel] || ''
+        articulo: String(r[detected.articuloExcel] || '').trim(),
+        descripcion: detected.descExcel ? String(r[detected.descExcel] || '').trim() : '',
+        marca: detected.marcaExcel ? String(r[detected.marcaExcel] || '').trim() : ''
       };
-      if (detected.descExcel) item.descripcion = r[detected.descExcel] || '';
-      if (detected.marcaExcel) item.marca = r[detected.marcaExcel] || '';
-      if (detected.bodegaExcel) item.bodega = r[detected.bodegaExcel] || '';
-      if (detected.unidadExcel) item.unidad = r[detected.unidadExcel] || '';
-      if (detected.disponibleExcel) item.disponible = r[detected.disponibleExcel] || '';
       return item;
-    }).filter(r => r.articulo.trim() !== '');
+    }).filter(r => r.articulo !== '');
 
     if (!mappedData.length) { 
       showToast('No se encontraron artículos válidos', 'error'); 
