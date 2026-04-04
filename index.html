@@ -1411,9 +1411,21 @@ function limpiarFormulario() {
 
 /* sbFetch override para incluir auth token cuando esté disponible */
 async function sbFetch(method, path, body) {
+  const isGet = method === 'GET';
+  const hdrs = {
+    'apikey': SB_KEY,
+    'Authorization': 'Bearer ' + (authToken || SB_KEY),
+    'Accept': 'application/json'
+  };
+  if (!isGet) {
+    hdrs['Content-Type'] = 'application/json';
+    hdrs['Prefer'] = 'return=representation';
+  } else {
+    hdrs['Prefer'] = 'count=none';
+  }
   const res = await fetch(SB_URL + '/rest/v1/' + path, {
     method,
-    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + (authToken || SB_KEY), 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+    headers: hdrs,
     body: body ? JSON.stringify(body) : undefined
   });
   const text = await res.text();
@@ -1595,12 +1607,23 @@ function invSortBy(col) {
 
 async function invLoad() {
   try {
-    const data = await sbFetch('GET', INV_TABLE+'?order=articulo.asc&limit=100000', null);
-    inventory = (data||[]).map(sbRowToInv);
+    // Traer en páginas de 1000 para superar el límite de PostgREST
+    let all = [];
+    let offset = 0;
+    const PAGE = 1000;
+    while (true) {
+      const data = await sbFetch('GET', INV_TABLE+'?order=articulo.asc&limit='+PAGE+'&offset='+offset, null);
+      const page = data || [];
+      all = all.concat(page);
+      if (page.length < PAGE) break;
+      offset += PAGE;
+    }
+    inventory = all.map(sbRowToInv);
     invRender(); invUpdateUI();
   } catch(e) {
     inventory = [];
     console.warn('inventario:', e.message);
+    showToast('Error al cargar inventario', 'error', e.message);
   }
 }
 
