@@ -1844,8 +1844,10 @@ function openEnviarModal() {
   } 
   const sub=document.getElementById('enviarModalBoletaSub'); 
   if(sub)sub.textContent='Boleta '+(lastSavedRecord.boleta||'—')+' · '+(lastSavedRecord.nombre||''); 
-  document.getElementById('enviarModal').classList.add('open'); 
-  console.log('Modal enviar abierto');
+  const modal = document.getElementById('enviarModal');
+  modal.classList.add('open'); 
+  console.log('Modal enviar abierto. Clases del modal:', modal.className);
+  console.log('Modal display style:', getComputedStyle(modal).display);
 }
 function closeEnviarModal() { document.getElementById('enviarModal').classList.remove('open'); }
 async function doSendEmail() { 
