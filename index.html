@@ -1636,7 +1636,15 @@ async function invHandleFile(file) {
     showToast('Actualizando inventario…', 'info', normalized.length + ' artículos detectados');
 
     // ── 1. Borrar inventario existente completo ──────────────────────────
-    await sbFetch('DELETE', INV_TABLE + '?id=gt.0', null);
+    // Borrar todos — usar Prefer: return=minimal con filtro que siempre es verdadero
+    await fetch(SB_URL + '/rest/v1/' + INV_TABLE + '?articulo=neq.__NEVER__', {
+      method: 'DELETE',
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + (authToken || SB_KEY),
+        'Prefer': 'return=minimal'
+      }
+    });
 
     // ── 2. Insertar en lotes de 500 ──────────────────────────────────────
     const BATCH = 500;
