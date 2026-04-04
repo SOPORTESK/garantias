@@ -1849,7 +1849,6 @@ async function doSavePDF() {
   
   // Verificar que html2pdf esté disponible
   if (typeof html2pdf === 'undefined') {
-    // Fallback a vista previa de impresión si html2pdf no está cargado
     showToast('Abriendo para guardar PDF…','info'); 
     openPrintWindow(lastSavedRecord);
     return;
@@ -1866,9 +1865,15 @@ async function doSavePDF() {
     // Clonar para generar PDF
     const clone = original.cloneNode(true);
     clone.id = 'printForm';
-    clone.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:#fff;padding:32px 36px;font-family:"Plus Jakarta Sans",sans-serif;font-size:11px;color:#1A1108;';
+    // Posicionar visible para medir, igual que en captureRecord
+    clone.style.cssText = 'position:fixed;left:0;top:0;width:794px;background:#fff;padding:32px 36px;font-family:"Plus Jakarta Sans",sans-serif;font-size:11px;color:#1A1108;z-index:999999;opacity:0.01;pointer-events:none;';
     
     document.body.appendChild(clone);
+    
+    // Esperar renderizado y medir
+    await new Promise(res => setTimeout(res, 300));
+    const realH = Math.max(clone.scrollHeight, 400);
+    console.log('Alto para PDF:', realH);
     
     // Opciones de html2pdf
     const opt = {
@@ -1879,11 +1884,12 @@ async function doSavePDF() {
         scale: 2, 
         useCORS: true,
         backgroundColor: '#ffffff',
-        width: 794
+        width: 794,
+        height: realH
       },
       jsPDF: { 
         unit: 'pt', 
-        format: 'a4', 
+        format: [794, realH * 0.75], // Convertir px a pt (aprox)
         orientation: 'portrait'
       }
     };
