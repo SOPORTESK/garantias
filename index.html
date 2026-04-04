@@ -1665,8 +1665,7 @@ async function handleSubmit(e) {
     serie:document.getElementById('serie').value||null,
     descripcion:document.getElementById('descripcion').value,
     falla:fd.get('falla'),
-    fecha_creacion:new Date().toISOString(),
-    registrado_por: currentPerfil ? (currentPerfil.nombre + ' ' + currentPerfil.apellido).trim() : (currentUser?.email || null)
+    fecha_creacion:new Date().toISOString()
   };
 
   try {
