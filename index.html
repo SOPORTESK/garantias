@@ -1797,8 +1797,9 @@ function openPrintWindow(r) {
 function closeSaveModal() { document.getElementById('saveModal').classList.remove('open'); }
 
 async function doSavePNG() {
-  console.log('doSavePNG llamado, lastSavedRecord:', lastSavedRecord);
-  closeSaveModal(); showToast('Generando imagen…','info');
+  closeSaveModal(); 
+  closeEnviarModal();
+  showToast('Generando imagen…','info');
   try {
     if (!lastSavedRecord) { showToast('No hay registro guardado','error'); return; }
     const canvas=await captureRecord(lastSavedRecord);
@@ -1811,16 +1812,16 @@ async function doSavePNG() {
 }
 
 async function doSavePDF() { 
-  console.log('doSavePDF llamado, lastSavedRecord:', lastSavedRecord);
   closeSaveModal(); 
-  if (!lastSavedRecord) { showToast('No hay registro guardado','error'); return; }
+  closeEnviarModal();
   showToast('Abriendo para guardar PDF…','info'); 
   openPrintWindow(lastSavedRecord); 
 }
 
 async function doCopyImage() {
-  console.log('doCopyImage llamado, lastSavedRecord:', lastSavedRecord);
-  closeSaveModal(); showToast('Copiando imagen…','info');
+  closeSaveModal();
+  closeEnviarModal();
+  showToast('Copiando imagen…','info');
   try {
     if (!lastSavedRecord) { showToast('No hay registro guardado','error'); return; }
     const canvas=await captureRecord(lastSavedRecord);
