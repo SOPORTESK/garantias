@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
       --brand:#D1411E;--brand-2:#B5360F;--brand-dim:rgba(209,65,30,.1);--brand-glow:rgba(209,65,30,.25);
@@ -1847,66 +1847,42 @@ async function doSavePDF() {
     return; 
   }
   
-  // Verificar que html2pdf esté disponible
-  if (typeof html2pdf === 'undefined') {
-    showToast('Abriendo para guardar PDF…','info'); 
-    openPrintWindow(lastSavedRecord);
-    return;
-  }
-  
   showToast('Generando PDF…','info');
   
   try {
-    // Preparar el formulario de impresión
-    populatePrintForm(lastSavedRecord);
-    const original = document.getElementById('printForm');
-    if (!original) throw new Error('No se encontró printForm');
+    // Usar captureRecord para obtener el canvas (que ya funciona)
+    const canvas = await captureRecord(lastSavedRecord);
     
-    // Clonar para generar PDF
-    const clone = original.cloneNode(true);
-    clone.id = 'printForm';
-    // Posicionar visible para medir, igual que en captureRecord
-    clone.style.cssText = 'position:fixed;left:0;top:0;width:794px;background:#fff;padding:32px 36px;font-family:"Plus Jakarta Sans",sans-serif;font-size:11px;color:#1A1108;z-index:999999;opacity:0.01;pointer-events:none;';
+    // Verificar jsPDF
+    if (typeof window.jspdf === 'undefined') {
+      throw new Error('jsPDF no está cargado');
+    }
     
-    document.body.appendChild(clone);
+    const { jsPDF } = window.jspdf;
     
-    // Esperar renderizado y medir
-    await new Promise(res => setTimeout(res, 300));
-    const realH = Math.max(clone.scrollHeight, 400);
-    console.log('Alto para PDF:', realH);
+    // Calcular dimensiones
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
     
-    // Hacer visible temporalmente para html2pdf
-    clone.style.opacity = '1';
-    clone.style.left = '0';
-    await new Promise(res => setTimeout(res, 100));
+    // Crear PDF con tamaño exacto del contenido (en mm)
+    // 794px ≈ 210mm (A4 ancho)
+    const pdfWidth = 210; // A4 width in mm
+    const pdfHeight = (imgHeight * pdfWidth) / imgWidth;
     
-    // Opciones de html2pdf
-    const opt = {
-      margin: 0,
-      filename: 'Garantia_' + (lastSavedRecord?.boleta || 'comprobante') + '.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { 
-        scale: 2, 
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        width: 794,
-        height: realH,
-        windowWidth: 794,
-        windowHeight: realH
-      },
-      jsPDF: { 
-        unit: 'px', 
-        format: [794, realH + 64], // Ancho x Alto con padding extra
-        orientation: 'portrait',
-        compress: true
-      }
-    };
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: [pdfWidth, pdfHeight]
+    });
     
-    // Generar y descargar PDF
-    await html2pdf().set(opt).from(clone).save();
+    // Convertir canvas a imagen
+    const imgData = canvas.toDataURL('image/png');
     
-    // Eliminar el clon
-    document.body.removeChild(clone);
+    // Añadir imagen al PDF
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    
+    // Descargar
+    pdf.save('Garantia_' + (lastSavedRecord?.boleta || 'comprobante') + '.pdf');
     
     showToast('PDF descargado','success');
   } catch(err) {
