@@ -1595,7 +1595,7 @@ function invSortBy(col) {
 
 async function invLoad() {
   try {
-    const data = await sbFetch('GET', INV_TABLE+'?order=articulo.asc&limit=5000', null);
+    const data = await sbFetch('GET', INV_TABLE+'?order=articulo.asc&limit=100000', null);
     inventory = (data||[]).map(sbRowToInv);
     invRender(); invUpdateUI();
   } catch(e) {
@@ -1609,33 +1609,56 @@ async function invHandleFile(file) {
   try {
     const rows = await invParseExcel(file);
     if (!rows.length) { showToast('Archivo vacío o sin datos válidos', 'error'); return; }
-    // Normalizar columnas
+
+    // ── Normalizar columnas ──────────────────────────────────────────────
+    // "artículo" y "serie" se tratan como el mismo campo
     const headers = Object.keys(rows[0]);
     const keyMap = {};
     headers.forEach(h => {
-      const lower = h.toLowerCase().trim();
-      if (lower.includes('bodega')) keyMap[h] = 'bodega';
-      else if (lower.includes('artículo') || lower.includes('articulo')) keyMap[h] = 'articulo';
-      else if (lower.includes('descripción') || lower.includes('descripcion')) keyMap[h] = 'descripcion';
-      else if (lower.includes('marca')) keyMap[h] = 'marca';
-      else if (lower.includes('unidad')) keyMap[h] = 'unidad';
-      else if (lower.includes('disponible')) keyMap[h] = 'disponible';
+      const lower = h.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      if (lower.includes('bodega'))                            keyMap[h] = 'bodega';
+      else if (lower.includes('articulo') || lower.includes('serie')) keyMap[h] = 'articulo';
+      else if (lower.includes('descripcion'))                  keyMap[h] = 'descripcion';
+      else if (lower.includes('marca'))                        keyMap[h] = 'marca';
+      else if (lower.includes('unidad'))                       keyMap[h] = 'unidad';
+      else if (lower.includes('disponible'))                   keyMap[h] = 'disponible';
     });
+
     const normalized = rows.map(r => {
       const n = {};
-      for (const [k,v] of Object.entries(keyMap)) n[v] = r[k];
+      for (const [k,v] of Object.entries(keyMap)) n[v] = String(r[k]||'').trim();
       return n;
-    }).filter(r => r.articulo);
-    if (!normalized.length) { showToast('No se encontraron artículos válidos', 'error'); return; }
-    // Guardar en Supabase
-    for (const item of normalized) {
-      try {
-        await sbFetch('POST', INV_TABLE, { bodega: item.bodega||'', articulo: item.articulo, descripcion: item.descripcion||'', marca: item.marca||'', unidad: item.unidad||'', disponible: item.disponible||'' });
-      } catch(e) { console.warn('Error guardando item:', item.articulo, e.message); }
+    }).filter(r => r.articulo); // descartar filas sin artículo/serie
+
+    if (!normalized.length) { showToast('No se encontraron artículos válidos. Revisá los encabezados del Excel.', 'error'); return; }
+
+    // ── Mostrar progreso ─────────────────────────────────────────────────
+    showToast('Actualizando inventario…', 'info', normalized.length + ' artículos detectados');
+
+    // ── 1. Borrar inventario existente completo ──────────────────────────
+    await sbFetch('DELETE', INV_TABLE + '?id=gt.0', null);
+
+    // ── 2. Insertar en lotes de 500 ──────────────────────────────────────
+    const BATCH = 500;
+    let inserted = 0;
+    for (let i = 0; i < normalized.length; i += BATCH) {
+      const batch = normalized.slice(i, i + BATCH).map(item => ({
+        bodega:      item.bodega      || '',
+        articulo:    item.articulo,
+        descripcion: item.descripcion || '',
+        marca:       item.marca       || '',
+        unidad:      item.unidad      || '',
+        disponible:  item.disponible  || ''
+      }));
+      await sbFetch('POST', INV_TABLE, batch);
+      inserted += batch.length;
     }
+
     await invLoad();
-    showToast('Inventario actualizado','success',normalized.length+' artículos');
-  } catch(err) { showToast('Error al procesar Excel','error',err.message); }
+    showToast('Inventario reemplazado', 'success', inserted + ' artículos cargados');
+  } catch(err) {
+    showToast('Error al procesar Excel', 'error', err.message);
+  }
 }
 
 function serieSelect(idx) {
