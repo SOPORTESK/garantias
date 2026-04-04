@@ -1411,21 +1411,9 @@ function limpiarFormulario() {
 
 /* sbFetch override para incluir auth token cuando esté disponible */
 async function sbFetch(method, path, body) {
-  const isGet = method === 'GET';
-  const hdrs = {
-    'apikey': SB_KEY,
-    'Authorization': 'Bearer ' + (authToken || SB_KEY),
-    'Accept': 'application/json'
-  };
-  if (!isGet) {
-    hdrs['Content-Type'] = 'application/json';
-    hdrs['Prefer'] = 'return=representation';
-  } else {
-    hdrs['Prefer'] = 'count=none';
-  }
   const res = await fetch(SB_URL + '/rest/v1/' + path, {
     method,
-    headers: hdrs,
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + (authToken || SB_KEY), 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
     body: body ? JSON.stringify(body) : undefined
   });
   const text = await res.text();
@@ -1566,31 +1554,6 @@ function invUpdateUI() {
   document.getElementById('invTableCard').style.display  = hasData ? '' : 'none';
   document.getElementById('invSearchBox').style.display  = hasData ? '' : 'none';
   document.getElementById('invStatsBar').style.display   = hasData ? '' : 'none';
-  
-  // Mostrar/ocultar botón de reintento
-  let retryBtn = document.getElementById('invRetryBtn');
-  if (!hasData) {
-    if (!retryBtn) {
-      retryBtn = document.createElement('button');
-      retryBtn.id = 'invRetryBtn';
-      retryBtn.className = 'btn btn-ghost';
-      retryBtn.style.cssText = 'margin-top:1rem;';
-      retryBtn.innerHTML = '↻ Reintentar carga desde Supabase';
-      retryBtn.onclick = async () => {
-        retryBtn.disabled = true;
-        retryBtn.textContent = 'Cargando…';
-        await invLoad();
-        retryBtn.disabled = false;
-        retryBtn.innerHTML = '↻ Reintentar carga desde Supabase';
-      };
-      const zone = document.getElementById('uploadZone');
-      if (zone) zone.parentNode.insertBefore(retryBtn, zone.nextSibling);
-    }
-    retryBtn.style.display = '';
-  } else {
-    if (retryBtn) retryBtn.style.display = 'none';
-  }
-
   if (hasData) {
     document.getElementById('invSubtitle').textContent = 'Inventario activo · subí un nuevo Excel para actualizar';
     document.getElementById('invStatTotal').textContent = inventory.length + ' artículos';
@@ -1632,17 +1595,8 @@ function invSortBy(col) {
 
 async function invLoad() {
   try {
-    let all = [];
-    let offset = 0;
-    const PAGE = 1000;
-    while (true) {
-      const data = await sbFetch('GET', INV_TABLE+'?order=articulo.asc&limit='+PAGE+'&offset='+offset, null);
-      const page = data || [];
-      all = all.concat(page);
-      if (page.length < PAGE) break;
-      offset += PAGE;
-    }
-    inventory = all.map(sbRowToInv);
+    const data = await sbFetch('GET', INV_TABLE+'?order=articulo.asc&limit=100000', null);
+    inventory = (data||[]).map(sbRowToInv);
     invRender(); invUpdateUI();
   } catch(e) {
     inventory = [];
@@ -1682,7 +1636,7 @@ async function invHandleFile(file) {
     showToast('Actualizando inventario…', 'info', normalized.length + ' artículos detectados');
 
     // ── 1. Borrar inventario existente completo ──────────────────────────
-    // Usar UUID mínimo como filtro (id siempre >= este valor → borra todo)
+    // Borrar todos — usar Prefer: return=minimal con filtro que siempre es verdadero
     await fetch(SB_URL + '/rest/v1/' + INV_TABLE + '?id=gte.00000000-0000-0000-0000-000000000000', {
       method: 'DELETE',
       headers: {
@@ -2900,8 +2854,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       renderLoginForm();
     }
 
-    // Cargar datos siempre (el inventario usa anon key)
+    // Cargar datos
+    console.log('Cargando inventario...');
     await invLoad();
+    console.log('Cargando registros...');
     await loadRecords();
     console.log('Renderizando boleta...');
     renderHeaderBoleta();
