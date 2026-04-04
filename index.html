@@ -743,7 +743,7 @@
       </div>
 
       <!-- PANEL HERRAMIENTAS -->
-      <div class="data-panel" id="panel-herramientas" style="display:none">
+      <div class="data-panel" id="panel-herramientas" style="display:block">
         <div class="data-panel-header">
           <div class="data-panel-title">
             <span class="panel-dot" style="background:var(--amber)"></span>
@@ -1246,14 +1246,17 @@ function verifyAdminPass() {
 function logoClick(e) {
   e.preventDefault();
   logoClickCount++;
+  console.log('Logo click:', logoClickCount);
   clearTimeout(logoClickTimer);
   logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 2000);
   if (logoClickCount >= 5) {
     logoClickCount = 0;
+    console.log('Checking isAdmin:', isAdmin(), currentUser?.email);
     if (!isAdmin()) {
       showToast('Acceso denegado', 'error', 'No tenés permisos de administrador');
       return;
     }
+    console.log('Opening admin pass modal');
     openAdminPassModal();
   }
 }
