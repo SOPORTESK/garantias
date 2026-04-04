@@ -1703,10 +1703,14 @@ async function invHandleFile(file) {
 
     // ── Mapear datos del Excel a formato Supabase ────────────────────────
     const mappedData = rows.map(r => {
+      const valArticulo = r[detected.articuloExcel];
+      const valDesc = detected.descExcel ? r[detected.descExcel] : '';
+      const valMarca = detected.marcaExcel ? r[detected.marcaExcel] : '';
+      
       const item = {
-        articulo: String(r[detected.articuloExcel] || '').trim(),
-        descripcion: detected.descExcel ? String(r[detected.descExcel] || '').trim() : '',
-        marca: detected.marcaExcel ? String(r[detected.marcaExcel] || '').trim() : ''
+        articulo: (valArticulo !== undefined && valArticulo !== null) ? String(valArticulo).trim() : '',
+        descripcion: (valDesc !== undefined && valDesc !== null) ? String(valDesc).trim() : '',
+        marca: (valMarca !== undefined && valMarca !== null) ? String(valMarca).trim() : ''
       };
       return item;
     }).filter(r => r.articulo !== '');
