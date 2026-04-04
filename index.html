@@ -1952,7 +1952,10 @@ async function handleSubmit(e) {
     showToast('Registro guardado','success','Boleta '+boleta);
     lastSavedRecord = rec || payload;
     populatePrintForm(payload);
-    document.getElementById('saveModal').classList.add('open');
+    // Ya no abrimos el modal aqui - las opciones de exportar estan en el boton Enviar
+    // Limpiar el formulario para nuevo registro
+    document.getElementById('warrantyForm').reset();
+    serieClear();
     renderHeaderBoleta(); updateProgress();
   } catch(err) {
     console.error('Error completo:', err);
