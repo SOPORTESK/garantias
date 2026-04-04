@@ -1826,8 +1826,24 @@ async function doCopyImage() {
     if (!lastSavedRecord) { showToast('No hay registro guardado','error'); return; }
     const canvas=await captureRecord(lastSavedRecord);
     canvas.toBlob(async blob => {
-      try { await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); showToast('Imagen copiada al portapapeles','success'); }
-      catch { const a=document.createElement('a'); a.download='Garantia_'+(lastSavedRecord?.boleta||'comprobante')+'.png'; a.href=URL.createObjectURL(blob); a.click(); showToast('No se pudo copiar — imagen descargada','info'); }
+      if (!blob) {
+        showToast('Error al generar imagen','error');
+        return;
+      }
+      try { 
+        await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); 
+        showToast('Imagen copiada al portapapeles','success'); 
+      }
+      catch(e) { 
+        console.log('Clipboard falló, descargando...', e);
+        const url = window.URL.createObjectURL(blob);
+        const a=document.createElement('a'); 
+        a.download='Garantia_'+(lastSavedRecord?.boleta||'comprobante')+'.png'; 
+        a.href=url; 
+        a.click(); 
+        window.URL.revokeObjectURL(url);
+        showToast('No se pudo copiar — imagen descargada','info'); 
+      }
     },'image/png');
   } catch(err) { 
     console.error('Error en doCopyImage:', err);
