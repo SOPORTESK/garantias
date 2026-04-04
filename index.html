@@ -1617,12 +1617,27 @@ async function invHandleFile(file) {
     const keyMap = {};
     // Detectar el nombre original de la columna de artículo/serie
     let detectedArticuloCol = null;
+    
+    // Primero buscar columnas que contengan "serie" (prioridad alta)
     headers.forEach(h => {
       const lower = h.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-      if (lower.includes('articulo') || lower.includes('serie')) {
-        detectedArticuloCol = h; // Guardar el nombre original del encabezado
+      if (lower.includes('serie')) {
+        detectedArticuloCol = h;
       }
     });
+    
+    // Si no se encontró "serie", buscar "articulo" exacto o al inicio/final
+    // pero excluir "descripcion" para no confundir con "Descripcion del Articulo"
+    if (!detectedArticuloCol) {
+      headers.forEach(h => {
+        const lower = h.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+        const words = lower.split(/\s+/);
+        // Buscar si alguna palabra es exactamente "articulo" o si es igual a "articulo"
+        if ((words.includes('articulo') || lower === 'articulo') && !lower.includes('descripcion')) {
+          detectedArticuloCol = h;
+        }
+      });
+    }
     
     // Actualizar el nombre de columna global para búsquedas
     if (detectedArticuloCol) {
