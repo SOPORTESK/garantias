@@ -2189,11 +2189,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Form
-    document.getElementById('tipo').addEventListener('change', () => { renderHeaderBoleta(); updateProgress(); });
-    document.getElementById('categoria').addEventListener('change', () => { renderHeaderBoleta(); updateProgress(); });
-    document.getElementById('warrantyForm').addEventListener('submit', handleSubmit);
-    document.getElementById('revertBoletaBtn').addEventListener('click', revertBoleta);
-    document.getElementById('deleteTestBtn').addEventListener('click', deleteTestRecords);
+    const tipoEl = document.getElementById('tipo');
+    const categoriaEl = document.getElementById('categoria');
+    const warrantyFormEl = document.getElementById('warrantyForm');
+    const revertBtn = document.getElementById('revertBoletaBtn');
+    const deleteBtn = document.getElementById('deleteTestBtn');
+    
+    if (tipoEl) tipoEl.addEventListener('change', () => { renderHeaderBoleta(); updateProgress(); });
+    if (categoriaEl) categoriaEl.addEventListener('change', () => { renderHeaderBoleta(); updateProgress(); });
+    if (warrantyFormEl) warrantyFormEl.addEventListener('submit', handleSubmit);
+    if (revertBtn) revertBtn.addEventListener('click', revertBoleta);
+    if (deleteBtn) deleteBtn.addEventListener('click', deleteTestRecords);
     document.querySelectorAll('.field-input:not(#serie),.field-select,.field-textarea').forEach(el=>{
       el.addEventListener('input',()=>{el.classList.toggle('filled',!!el.value);el.classList.remove('error');});
       el.addEventListener('change',()=>{el.classList.toggle('filled',!!el.value);el.classList.remove('error');updateProgress();});
@@ -2201,27 +2207,38 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Serie
     const serieInput=document.getElementById('serie');
-    serieInput.addEventListener('input',()=>{if(serieMatchedItem)serieClear();serieCloseAdd();serieSearch(serieInput.value);});
-    serieInput.addEventListener('blur',()=>{setTimeout(()=>{document.getElementById('serieDropdown').style.display='none';},200);});
-    serieInput.addEventListener('keydown',e=>{if(e.key==='Escape'){document.getElementById('serieDropdown').style.display='none';serieCloseAdd();}});
+    if (serieInput) {
+      serieInput.addEventListener('input',()=>{if(serieMatchedItem)serieClear();serieCloseAdd();serieSearch(serieInput.value);});
+      serieInput.addEventListener('blur',()=>{setTimeout(()=>{const drop = document.getElementById('serieDropdown'); if(drop) drop.style.display='none';},200);});
+      serieInput.addEventListener('keydown',e=>{if(e.key==='Escape'){const drop = document.getElementById('serieDropdown'); if(drop) drop.style.display='none';serieCloseAdd();}});
+    }
 
     // Inventory
-    document.getElementById('invFileInput').addEventListener('change',e=>{if(e.target.files[0])invHandleFile(e.target.files[0]);e.target.value='';});
+    const invFileInput = document.getElementById('invFileInput');
+    if (invFileInput) invFileInput.addEventListener('change',e=>{if(e.target.files[0])invHandleFile(e.target.files[0]);e.target.value='';});
     const uploadZone=document.getElementById('uploadZone');
-    uploadZone.addEventListener('dragover',e=>{e.preventDefault();uploadZone.classList.add('drag-over');});
-    uploadZone.addEventListener('dragleave',()=>uploadZone.classList.remove('drag-over'));
-    uploadZone.addEventListener('drop',e=>{e.preventDefault();uploadZone.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)invHandleFile(f);});
+    if (uploadZone) {
+      uploadZone.addEventListener('dragover',e=>{e.preventDefault();uploadZone.classList.add('drag-over');});
+      uploadZone.addEventListener('dragleave',()=>uploadZone.classList.remove('drag-over'));
+      uploadZone.addEventListener('drop',e=>{e.preventDefault();uploadZone.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)invHandleFile(f);});
+    }
     document.querySelectorAll('#invTable thead th.sortable').forEach(th=>{th.addEventListener('click',()=>invSortBy(th.dataset.col));});
-    document.getElementById('invSearch').addEventListener('input',invRender);
+    const invSearch = document.getElementById('invSearch');
+    if (invSearch) invSearch.addEventListener('input',invRender);
 
     // Modals backdrop close
-    document.getElementById('editModal').addEventListener('click',e=>{if(e.target===document.getElementById('editModal'))closeModal();});
-    document.getElementById('saveModal').addEventListener('click',e=>{if(e.target===document.getElementById('saveModal'))closeSaveModal();});
-    document.getElementById('enviarModal').addEventListener('click',e=>{if(e.target===document.getElementById('enviarModal'))closeEnviarModal();});
+    const editModal = document.getElementById('editModal');
+    const saveModal = document.getElementById('saveModal');
+    const enviarModal = document.getElementById('enviarModal');
+    if (editModal) editModal.addEventListener('click',e=>{if(e.target===editModal)closeModal();});
+    if (saveModal) saveModal.addEventListener('click',e=>{if(e.target===saveModal)closeSaveModal();});
+    if (enviarModal) enviarModal.addEventListener('click',e=>{if(e.target===enviarModal)closeEnviarModal();});
 
     // Autoguardado — escuchar cambios en el formulario
-    document.getElementById('warrantyForm').addEventListener('input', draftSchedule);
-    document.getElementById('warrantyForm').addEventListener('change', draftSchedule);
+    if (warrantyFormEl) {
+      warrantyFormEl.addEventListener('input', draftSchedule);
+      warrantyFormEl.addEventListener('change', draftSchedule);
+    }
 
     // Cerrar user menu al click fuera
     document.addEventListener('click', e => {
