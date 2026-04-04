@@ -1723,43 +1723,32 @@ function populatePrintForm(r) {
 async function captureRecord(r) {
   if (!r) throw new Error('Sin registro');
   populatePrintForm(r);
-  const el = document.getElementById('printForm');
-  if (!el) throw new Error('No se encontró el elemento printForm');
   
   // Verificar que html2canvas esté disponible
   if (typeof html2canvas === 'undefined') {
     throw new Error('html2canvas no está cargado');
   }
   
-  // Guardar estilos originales
-  const orig = {
-    position: el.style.position,
-    visibility: el.style.visibility,
-    opacity: el.style.opacity,
-    zIndex: el.style.zIndex,
-    left: el.style.left,
-    top: el.style.top,
-    width: el.style.width,
-    height: el.style.height
-  };
+  // Clonar el printForm para capturar sin afectar el original
+  const original = document.getElementById('printForm');
+  if (!original) throw new Error('No se encontró printForm');
   
-  // Posicionar en viewport para renderizado pero con opacity 0.01 (casi invisible)
-  el.style.cssText = 'position:fixed;left:0;top:0;width:794px;height:auto;background:#fff;padding:32px 36px;font-family:"Plus Jakarta Sans",sans-serif;font-size:11px;color:#1A1108;visibility:visible;opacity:0.01;z-index:1;pointer-events:none;';
+  const clone = original.cloneNode(true);
+  clone.id = 'printFormClone';
+  clone.style.cssText = 'position:fixed;left:0;top:0;width:794px;background:#fff;padding:32px 36px;font-family:"Plus Jakarta Sans",sans-serif;font-size:11px;color:#1A1108;z-index:999999;visibility:visible;opacity:1;';
   
-  // Esperar a que el navegador renderice
+  document.body.appendChild(clone);
+  console.log('Clone añadido al DOM');
+  
+  // Esperar renderizado
   await new Promise(res => setTimeout(res, 300));
   
-  // Obtener dimensiones reales
-  const rect = el.getBoundingClientRect();
-  const realH = Math.max(rect.height, el.scrollHeight, 400);
-  console.log('Dimensiones:', rect.width, 'x', realH);
-  
-  // Hacer completamente visible para captura
-  el.style.opacity = '1';
-  el.style.zIndex = '999999';
+  // Medir alto
+  const realH = Math.max(clone.scrollHeight, clone.getBoundingClientRect().height, 400);
+  console.log('Alto del clon:', realH);
   
   try {
-    const canvas = await html2canvas(el, {
+    const canvas = await html2canvas(clone, {
       scale: 2,
       useCORS: true,
       backgroundColor: '#ffffff',
@@ -1768,28 +1757,16 @@ async function captureRecord(r) {
       height: realH
     });
     
-    // Restaurar estilos
-    el.style.position = orig.position;
-    el.style.visibility = orig.visibility;
-    el.style.opacity = orig.opacity;
-    el.style.zIndex = orig.zIndex;
-    el.style.left = orig.left;
-    el.style.top = orig.top;
-    el.style.width = orig.width;
-    el.style.height = orig.height;
+    // Eliminar el clon
+    document.body.removeChild(clone);
     
     console.log('Canvas generado:', canvas.width, 'x', canvas.height);
     return canvas;
   } catch (err) {
-    // Restaurar estilos en caso de error
-    el.style.position = orig.position;
-    el.style.visibility = orig.visibility;
-    el.style.opacity = orig.opacity;
-    el.style.zIndex = orig.zIndex;
-    el.style.left = orig.left;
-    el.style.top = orig.top;
-    el.style.width = orig.width;
-    el.style.height = orig.height;
+    // Asegurar que el clon se elimine incluso si hay error
+    if (clone.parentNode) {
+      document.body.removeChild(clone);
+    }
     console.error('Error en html2canvas:', err);
     throw new Error('Error al generar imagen: ' + err.message);
   }
