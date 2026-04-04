@@ -1431,13 +1431,19 @@ async function sbFetch(method, path, body) {
   } else {
     hdrs['Prefer'] = 'count=none';
   }
-  const res = await fetch(SB_URL + '/rest/v1/' + path, {
+  const fullUrl = SB_URL + '/rest/v1/' + path;
+  console.log('sbFetch:', method, fullUrl);
+  const res = await fetch(fullUrl, {
     method,
     headers: hdrs,
     body: body ? JSON.stringify(body) : undefined
   });
+  console.log('sbFetch response:', res.status, res.statusText, path.split('?')[0]);
   const text = await res.text();
-  if (!res.ok) throw new Error(text || res.statusText);
+  if (!res.ok) {
+    console.error('sbFetch error body:', text);
+    throw new Error(text || res.statusText);
+  }
   return text ? JSON.parse(text) : null;
 }
 
@@ -1574,6 +1580,31 @@ function invUpdateUI() {
   document.getElementById('invTableCard').style.display  = hasData ? '' : 'none';
   document.getElementById('invSearchBox').style.display  = hasData ? '' : 'none';
   document.getElementById('invStatsBar').style.display   = hasData ? '' : 'none';
+  
+  // Mostrar/ocultar botón de reintento
+  let retryBtn = document.getElementById('invRetryBtn');
+  if (!hasData) {
+    if (!retryBtn) {
+      retryBtn = document.createElement('button');
+      retryBtn.id = 'invRetryBtn';
+      retryBtn.className = 'btn btn-ghost';
+      retryBtn.style.cssText = 'margin-top:1rem;';
+      retryBtn.innerHTML = '↻ Reintentar carga desde Supabase';
+      retryBtn.onclick = async () => {
+        retryBtn.disabled = true;
+        retryBtn.textContent = 'Cargando…';
+        await invLoad();
+        retryBtn.disabled = false;
+        retryBtn.innerHTML = '↻ Reintentar carga desde Supabase';
+      };
+      const zone = document.getElementById('uploadZone');
+      if (zone) zone.parentNode.insertBefore(retryBtn, zone.nextSibling);
+    }
+    retryBtn.style.display = '';
+  } else {
+    if (retryBtn) retryBtn.style.display = 'none';
+  }
+
   if (hasData) {
     document.getElementById('invSubtitle').textContent = 'Inventario activo · subí un nuevo Excel para actualizar';
     document.getElementById('invStatTotal').textContent = inventory.length + ' artículos';
@@ -1618,23 +1649,28 @@ async function invLoad() {
     console.warn('invLoad: sin authToken, se omite la carga');
     return;
   }
+  console.log('invLoad: iniciando, authToken presente:', !!authToken);
   try {
-    // Traer en páginas de 1000 para superar el límite de PostgREST
+    // Primer intento: traer página 0
+    const url0 = INV_TABLE+'?order=articulo.asc&limit=1000&offset=0';
+    console.log('invLoad: GET', SB_URL + '/rest/v1/' + url0);
     let all = [];
     let offset = 0;
     const PAGE = 1000;
     while (true) {
       const data = await sbFetch('GET', INV_TABLE+'?order=articulo.asc&limit='+PAGE+'&offset='+offset, null);
       const page = data || [];
+      console.log('invLoad: página offset='+offset+' -> '+page.length+' filas');
       all = all.concat(page);
       if (page.length < PAGE) break;
       offset += PAGE;
     }
+    console.log('invLoad: total filas =', all.length);
     inventory = all.map(sbRowToInv);
     invRender(); invUpdateUI();
   } catch(e) {
     inventory = [];
-    console.warn('inventario:', e.message);
+    console.error('invLoad ERROR:', e.message, e);
     showToast('Error al cargar inventario', 'error', e.message);
   }
 }
