@@ -1523,15 +1523,62 @@ function updateProgress() {
 let inventory = [];
 let invSortCol = '', invSortDir = 1;
 let serieMatchedItem = null;
-let articuloColName = 'Artículo'; // Se actualiza dinámicamente según el Excel
-const INV_COLS = ['Bodega','Artículo','Descripción del Artículo','Marca','Unidad de Medida Almacén','Disponible Almacén'];
+let articuloColName = null; // Se detecta dinámicamente del Excel
+let invColNames = []; // Nombres originales de columnas del Excel
+let invColMapping = {}; // Mapeo de nombres normalizados a originales
+
+// Configuración de columnas especiales (se detectan automáticamente)
+let COL_ARTICULO = null;
+let COL_DESCRIPCION = null;
+let COL_MARCA = null;
+
+function normalizeHeader(h) {
+  return h.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+}
+
+function detectSpecialColumns(headers) {
+  const mapping = {};
+  headers.forEach(h => {
+    const norm = normalizeHeader(h);
+    mapping[norm] = h;
+    
+    // Detectar columna de artículo/serie
+    if (!COL_ARTICULO) {
+      if (norm === 'articulo' || norm === 'serie' || norm.includes('serie') || 
+          (norm.includes('articulo') && !norm.includes('descripcion'))) {
+        COL_ARTICULO = h;
+      }
+    }
+    
+    // Detectar columna de descripción
+    if (!COL_DESCRIPCION && (norm.includes('descripcion') || norm === 'descrip')) {
+      COL_DESCRIPCION = h;
+    }
+    
+    // Detectar columna de marca
+    if (!COL_MARCA && (norm === 'marca' || norm.includes('marca'))) {
+      COL_MARCA = h;
+    }
+  });
+  
+  // Si no se detectó artículo, usar la primera columna como fallback
+  if (!COL_ARTICULO && headers.length > 0) {
+    COL_ARTICULO = headers[0];
+  }
+  
+  articuloColName = COL_ARTICULO;
+  return mapping;
+}
 
 function sbRowToInv(r) {
-  return {
-    'Bodega': r.bodega||'', [articuloColName]: r.articulo||'',
-    'Descripción del Artículo': r.descripcion||'', 'Marca': r.marca||'',
-    'Unidad de Medida Almacén': r.unidad||'', 'Disponible Almacén': r.disponible||''
-  };
+  // Simplemente convertir todos los valores a string
+  const item = {};
+  Object.keys(r).forEach(k => {
+    if (!['id','created_at','updated_at'].includes(k)) {
+      item[k] = String(r[k] || '').trim();
+    }
+  });
+  return item;
 }
 
 function invParseExcel(file) {
@@ -1558,7 +1605,14 @@ function invUpdateUI() {
   if (hasData) {
     document.getElementById('invSubtitle').textContent = 'Inventario activo · subí un nuevo Excel para actualizar';
     document.getElementById('invStatTotal').textContent = inventory.length + ' artículos';
-    const bodegas = new Set(inventory.map(r => r['Bodega']||'').filter(Boolean)).size;
+    // Detectar columna de bodega dinámicamente - buscar cualquier columna que contenga "bodega"
+    let bodegaCol = invColNames.find(h => {
+      const norm = normalizeHeader(h);
+      return norm.includes('bodega') || norm.includes('bod');
+    });
+    console.log('Columna de bodega detectada:', bodegaCol);
+    console.log('Columnas disponibles:', invColNames);
+    const bodegas = bodegaCol ? new Set(inventory.map(r => r[bodegaCol]||'').filter(Boolean)).size : 0;
     document.getElementById('invStatBodegas').textContent = bodegas + (bodegas===1?' bodega':' bodegas');
     const el = document.getElementById('invCount');
     el.textContent = inventory.length; el.style.display = '';
@@ -1567,21 +1621,23 @@ function invUpdateUI() {
 
 function invRender() {
   const q = (document.getElementById('invSearch')?.value||'').toLowerCase().trim();
-  let rows = q ? inventory.filter(r => INV_COLS.some(c => String(r[c]||'').toLowerCase().includes(q))) : [...inventory];
-  if (invSortCol) {
+  // Buscar en todas las columnas dinámicamente
+  let rows = q ? inventory.filter(r => invColNames.some(c => String(r[c]||'').toLowerCase().includes(q))) : [...inventory];
+  if (invSortCol && invColNames.includes(invSortCol)) {
     rows.sort((a,b) => { const av=String(a[invSortCol]||''),bv=String(b[invSortCol]||''); return av<bv?-invSortDir:av>bv?invSortDir:0; });
   }
   const tbody = document.getElementById('invTbody');
-  if (!rows.length) { tbody.innerHTML='<tr class="empty-row"><td colspan="6"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>Sin resultados</td></tr>'; return; }
-  tbody.innerHTML = rows.slice(0,500).map((r,i) => `<tr style="animation-delay:${Math.min(i,30)*0.015}s">
-    <td class="td-mono">${r['Bodega']||'—'}</td>
-    <td><strong>${r[articuloColName]||'—'}</strong></td>
-    <td style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r['Descripción del Artículo']||'—'}</td>
-    <td><span class="badge badge-brand">${r['Marca']||'—'}</span></td>
-    <td class="td-mono">${r['Unidad de Medida Almacén']||'—'}</td>
-    <td class="td-mono" style="font-weight:600;color:var(--ink-1)">${r['Disponible Almacén']||'—'}</td>
-  </tr>`).join('');
-  if (rows.length > 500) tbody.innerHTML += `<tr><td colspan="6" style="text-align:center;padding:.75rem;font-size:.75rem;color:var(--ink-4)">Mostrando 500 de ${rows.length} — refiná la búsqueda</td></tr>`;
+  const thead = document.querySelector('#invTable thead tr');
+  
+  // Actualizar headers de tabla dinámicamente
+  if (thead && invColNames.length > 0) {
+    thead.innerHTML = invColNames.map(h => `<th data-col="${h}">${h}</th>`).join('');
+  }
+  
+  if (!rows.length) { tbody.innerHTML=`<tr class="empty-row"><td colspan="${invColNames.length||6}"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>Sin resultados</td></tr>`; return; }
+  
+  tbody.innerHTML = rows.slice(0,500).map((r,i) => `<tr style="animation-delay:${Math.min(i,30)*0.015}s">${invColNames.map(c => `<td>${r[c]||'—'}</td>`).join('')}</tr>`).join('');
+  if (rows.length > 500) tbody.innerHTML += `<tr><td colspan="${invColNames.length||6}" style="text-align:center;padding:.75rem;font-size:.75rem;color:var(--ink-4)">Mostrando 500 de ${rows.length} — refiná la búsqueda</td></tr>`;
 }
 
 function invSortBy(col) {
@@ -1597,7 +1653,45 @@ function invSortBy(col) {
 async function invLoad() {
   try {
     const data = await sbFetch('GET', INV_TABLE+'?order=articulo.asc&limit=100000', null);
-    inventory = (data||[]).map(sbRowToInv);
+    if (data && data.length > 0) {
+      // SIEMPRE detectar columnas de Supabase (pueden ser diferentes al Excel)
+      invColNames = Object.keys(data[0]).filter(k => !['id','created_at','updated_at'].includes(k));
+      
+      // Detectar columnas especiales de los datos de Supabase
+      COL_ARTICULO = invColNames.find(h => {
+        const norm = normalizeHeader(h);
+        return norm === 'articulo' || norm === 'serie' || norm.includes('serie');
+      }) || invColNames[0];
+      
+      COL_DESCRIPCION = invColNames.find(h => {
+        const norm = normalizeHeader(h);
+        return norm.includes('descripcion');
+      });
+      
+      COL_MARCA = invColNames.find(h => {
+        const norm = normalizeHeader(h);
+        return norm === 'marca' || norm.includes('marca');
+      });
+      
+      articuloColName = COL_ARTICULO;
+      
+      console.log('=== Columnas de Supabase ===');
+      console.log('Todas:', invColNames);
+      console.log('Artículo:', COL_ARTICULO);
+      console.log('Descripción:', COL_DESCRIPCION);
+      console.log('Marca:', COL_MARCA);
+      
+      inventory = data.map(r => {
+        // Mantener los datos exactamente como vienen de Supabase
+        const item = {};
+        invColNames.forEach(h => {
+          item[h] = String(r[h] || '').trim();
+        });
+        return item;
+      });
+    } else {
+      inventory = [];
+    }
     invRender(); invUpdateUI();
   } catch(e) {
     inventory = [];
@@ -1611,73 +1705,39 @@ async function invHandleFile(file) {
     const rows = await invParseExcel(file);
     if (!rows.length) { showToast('Archivo vacío o sin datos válidos', 'error'); return; }
 
-    // ── Normalizar columnas ──────────────────────────────────────────────
-    // "artículo" y "serie" se tratan como el mismo campo
+    // ── Detectar y mapear columnas del Excel ─────────────────────────────
     const headers = Object.keys(rows[0]);
-    const keyMap = {};
-    // Detectar el nombre original de la columna de artículo/serie
-    let detectedArticuloCol = null;
+    invColNames = headers;
     
-    // Primero buscar columnas que contengan "serie" (prioridad alta)
-    headers.forEach(h => {
-      const lower = h.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-      if (lower.includes('serie')) {
-        detectedArticuloCol = h;
-      }
-    });
+    // Resetear detección de columnas especiales
+    COL_ARTICULO = null;
+    COL_DESCRIPCION = null;
+    COL_MARCA = null;
+    invColMapping = detectSpecialColumns(headers);
     
-    // Si no se encontró "serie", buscar "articulo" exacto o al inicio/final
-    // pero excluir "descripcion" para no confundir con "Descripcion del Articulo"
-    if (!detectedArticuloCol) {
-      headers.forEach(h => {
-        const lower = h.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-        const words = lower.split(/\s+/);
-        // Buscar si alguna palabra es exactamente "articulo" o si es igual a "articulo"
-        if ((words.includes('articulo') || lower === 'articulo') && !lower.includes('descripcion')) {
-          detectedArticuloCol = h;
-        }
-      });
-    }
-    
-    // Actualizar el nombre de columna global para búsquedas
-    if (detectedArticuloCol) {
-      articuloColName = detectedArticuloCol;
-    }
+    console.log('=== Columnas detectadas del Excel ===');
+    console.log('Todas las columnas:', invColNames);
+    console.log('Columna de artículo/serie (COL_ARTICULO):', COL_ARTICULO);
+    console.log('Columna de descripción (COL_DESCRIPCION):', COL_DESCRIPCION);
+    console.log('Columna de marca (COL_MARCA):', COL_MARCA);
+    console.log('======================================');
 
-    headers.forEach(h => {
-      const lower = h.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-      if (lower.includes('bodega'))                            keyMap[h] = 'bodega';
-      else if (lower.includes('articulo') || lower.includes('serie')) keyMap[h] = 'articulo';
-      else if (lower.includes('descripcion'))                  keyMap[h] = 'descripcion';
-      else if (lower.includes('marca'))                        keyMap[h] = 'marca';
-      else if (lower.includes('unidad'))                       keyMap[h] = 'unidad';
-      else if (lower.includes('disponible'))                   keyMap[h] = 'disponible';
+    // ── Normalizar datos manteniendo nombres originales ──────────────────
+    const normalized = rows.map(r => sbRowToInv(r, headers)).filter(r => {
+      // Filtrar filas vacías (sin valor en columna de artículo)
+      const artVal = r[COL_ARTICULO] || '';
+      return artVal.trim() !== '';
     });
 
-    const normalized = rows.map(r => {
-      const n = {};
-      for (const [k,v] of Object.entries(keyMap)) n[v] = String(r[k]||'').trim();
-      return n;
-    }).filter(r => r.articulo); // descartar filas sin artículo/serie
-
-    // Eliminar duplicados por código de artículo (mantener el primero)
-    const uniqueMap = new Map();
-    for (const item of normalized) {
-      if (!uniqueMap.has(item.articulo)) {
-        uniqueMap.set(item.articulo, item);
-      }
+    if (!normalized.length) { 
+      showToast('No se encontraron artículos válidos. Revisá los encabezados del Excel.', 'error'); 
+      return; 
     }
-    const unique = Array.from(uniqueMap.values());
-
-    if (!unique.length) { showToast('No se encontraron artículos válidos. Revisá los encabezados del Excel.', 'error'); return; }
 
     // ── Mostrar progreso ─────────────────────────────────────────────────
-    const duplicados = normalized.length - unique.length;
-    const msg = unique.length + ' artículos detectados' + (duplicados > 0 ? ' (' + duplicados + ' duplicados omitidos)' : '');
-    showToast('Actualizando inventario…', 'info', msg);
+    showToast('Actualizando inventario…', 'info', normalized.length + ' artículos detectados');
 
     // ── 1. Borrar inventario existente completo ──────────────────────────
-    // Borrar todos — usar Prefer: return=minimal con filtro que siempre es verdadero
     await fetch(SB_URL + '/rest/v1/' + INV_TABLE + '?articulo=neq.__NEVER__', {
       method: 'DELETE',
       headers: {
@@ -1690,15 +1750,36 @@ async function invHandleFile(file) {
     // ── 2. Insertar en lotes de 500 con manejo de duplicados ─────────────
     const BATCH = 500;
     let inserted = 0;
+    
+    // Eliminar duplicados por código de artículo
+    const uniqueMap = new Map();
+    for (const item of normalized) {
+      const artCode = item[COL_ARTICULO] || '';
+      if (artCode && !uniqueMap.has(artCode)) {
+        uniqueMap.set(artCode, item);
+      }
+    }
+    const unique = Array.from(uniqueMap.values());
+    const duplicados = normalized.length - unique.length;
+    
     for (let i = 0; i < unique.length; i += BATCH) {
-      const batch = unique.slice(i, i + BATCH).map(item => ({
-        bodega:      item.bodega      || '',
-        articulo:    item.articulo,
-        descripcion: item.descripcion || '',
-        marca:       item.marca       || '',
-        unidad:      item.unidad      || '',
-        disponible:  item.disponible  || ''
-      }));
+      const batch = unique.slice(i, i + BATCH).map(item => {
+        // Mapear a los nombres de columnas de Supabase
+        const row = {
+          articulo:    item[COL_ARTICULO]    || '',
+          descripcion: COL_DESCRIPCION ? (item[COL_DESCRIPCION] || '') : '',
+          marca:       COL_MARCA ? (item[COL_MARCA] || '') : ''
+        };
+        // Agregar todas las demás columnas del Excel
+        invColNames.forEach(col => {
+          const norm = normalizeHeader(col);
+          if (!row.hasOwnProperty(norm) && !['id','created_at','updated_at'].includes(norm)) {
+            row[norm] = item[col] || '';
+          }
+        });
+        return row;
+      });
+      
       await fetch(SB_URL + '/rest/v1/' + INV_TABLE + '?on_conflict=articulo', {
         method: 'POST',
         headers: {
@@ -1715,6 +1796,7 @@ async function invHandleFile(file) {
     await invLoad();
     showToast('Inventario reemplazado', 'success', inserted + ' artículos cargados' + (duplicados > 0 ? ' · ' + duplicados + ' duplicados omitidos' : ''));
   } catch(err) {
+    console.error('Error procesando Excel:', err);
     showToast('Error al procesar Excel', 'error', err.message);
   }
 }
@@ -1726,14 +1808,16 @@ function serieSelect(idx) {
   document.getElementById('serie').value = item[articuloColName]||'';
   document.getElementById('serieDropdown').style.display='none';
   const marcaEl = document.getElementById('marca');
-  marcaEl.value=item['Marca']||''; marcaEl.disabled=true; marcaEl.classList.add('filled');
+  marcaEl.value= COL_MARCA ? (item[COL_MARCA]||'') : ''; 
+  marcaEl.disabled=true; marcaEl.classList.add('filled');
   document.getElementById('marcaLock').style.display='';
   const descEl = document.getElementById('descripcion');
-  descEl.value=item['Descripción del Artículo']||''; descEl.disabled=true; descEl.classList.add('filled');
+  descEl.value= COL_DESCRIPCION ? (item[COL_DESCRIPCION]||'') : ''; 
+  descEl.disabled=true; descEl.classList.add('filled');
   document.getElementById('descLock').style.display='';
   const status=document.getElementById('serieStatus');
   status.textContent='✓ Encontrado'; status.className='serie-status found'; status.style.display='';
-  showToast('Serie encontrada','success',item['Marca']+' · '+(item['Descripción del Artículo']||'').slice(0,40));
+  showToast('Serie encontrada','success',(COL_MARCA ? item[COL_MARCA] : '')+' · '+(COL_DESCRIPCION ? (item[COL_DESCRIPCION]||'').slice(0,40) : ''));
   updateProgress();
 }
 
@@ -1792,7 +1876,12 @@ function serieSearch(q) {
   
   console.log('Mostrando dropdown con', matches.length, 'resultados');
   if (drop) {
-    drop.innerHTML = matches.map((r,i) => `<div class="autocomplete-item" onmousedown="serieSelect(${i})"><div class="ac-serie">${r[articuloColName]||'—'}</div><div class="ac-desc">${r['Descripción del Artículo']||'—'}</div><div class="ac-marca">${r['Marca']||'—'}</div></div>`).join('');
+    drop.innerHTML = matches.map((r,i) => {
+      const artVal = r[articuloColName] || '—';
+      const descVal = COL_DESCRIPCION ? (r[COL_DESCRIPCION] || '—') : '—';
+      const marcaVal = COL_MARCA ? (r[COL_MARCA] || '—') : '—';
+      return `<div class="autocomplete-item" onmousedown="serieSelect(${i})"><div class="ac-serie">${artVal}</div><div class="ac-desc">${descVal}</div><div class="ac-marca">${marcaVal}</div></div>`;
+    }).join('');
     drop.style.display=''; 
     drop._matches=matches; 
   }
