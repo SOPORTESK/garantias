@@ -1111,6 +1111,8 @@ function hideLoginOverlay() {
 
 }
 
+let loginMode = 'login';
+
 function showLoginTab(mode) {
   loginMode = mode;
   document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
