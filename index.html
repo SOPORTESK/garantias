@@ -1596,11 +1596,13 @@ function invSortBy(col) {
 async function invLoad() {
   try {
     const data = await sbFetch('GET', INV_TABLE+'?order=articulo.asc&limit=100000', null);
+    console.log('invLoad result:', Array.isArray(data) ? data.length + ' filas' : data);
     inventory = (data||[]).map(sbRowToInv);
     invRender(); invUpdateUI();
   } catch(e) {
     inventory = [];
-    console.warn('inventario:', e.message);
+    console.error('invLoad ERROR:', e.message);
+    showToast('Error cargando inventario', 'error', e.message);
   }
 }
 
@@ -1647,7 +1649,7 @@ async function invHandleFile(file) {
         unidad:      item.unidad      || '',
         disponible:  item.disponible  || ''
       }));
-      await fetch(SB_URL + '/rest/v1/' + INV_TABLE, {
+      await fetch(SB_URL + '/rest/v1/' + INV_TABLE + '?on_conflict=articulo', {
         method: 'POST',
         headers: {
           'apikey': SB_KEY,
