@@ -882,6 +882,20 @@
   </div>
 </div>
 
+<!-- MODAL CONTRASEÑA ADMIN -->
+<div class="save-modal-backdrop" id="adminPassModal" style="display:none;z-index:300;">
+  <div class="save-modal" style="max-width:360px;">
+    <div class="save-modal-title">Contraseña de administrador</div>
+    <div style="padding:1rem 0;">
+      <input type="password" id="adminPassInput" class="field-input" placeholder="••••••••" style="width:100%;margin-bottom:1rem;" autocomplete="off">
+      <div style="display:flex;gap:.5rem;">
+        <button class="btn btn-primary" onclick="verifyAdminPass()" style="flex:1;">Aceptar</button>
+        <button class="btn btn-ghost" onclick="closeAdminPassModal()" style="flex:1;">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- PRINT FORM (oculto, para captura) -->
 <div id="printForm">
   <div class="pf-header">
@@ -1191,6 +1205,44 @@ function toggleUserMenu(forceClose) {
 ══════════════════════════════════════════════════ */
 let logoClickCount = 0, logoClickTimer = null;
 
+function openAdminPassModal() {
+  document.getElementById('adminPassModal').style.display = 'flex';
+  document.getElementById('adminPassInput').value = '';
+  document.getElementById('adminPassInput').focus();
+}
+
+function closeAdminPassModal() {
+  document.getElementById('adminPassModal').style.display = 'none';
+}
+
+function verifyAdminPass() {
+  const pass = document.getElementById('adminPassInput').value;
+  if (!pass) {
+    showToast('Ingresá la contraseña', 'error');
+    return;
+  }
+  closeAdminPassModal();
+  // Verificar contra Supabase
+  const email = currentUser?.email;
+  if (!email) return;
+  fetch(SB_URL + '/auth/v1/token?grant_type=password', {
+    method: 'POST',
+    headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password: pass })
+  }).then(r => r.json()).then(data => {
+    if (data.access_token) {
+      const adminBtn = document.getElementById('adminNavBtn');
+      if (adminBtn) adminBtn.style.display = '';
+      switchTab('admin');
+      showToast('Panel de administrador', 'info');
+    } else {
+      showToast('Contraseña incorrecta', 'error');
+    }
+  }).catch(e => {
+    showToast('Error al verificar', 'error', e.message);
+  });
+}
+
 function logoClick(e) {
   e.preventDefault();
   logoClickCount++;
@@ -1202,26 +1254,7 @@ function logoClick(e) {
       showToast('Acceso denegado', 'error', 'No tenés permisos de administrador');
       return;
     }
-    // Pedir contraseña antes de mostrar el panel
-    const pass = prompt('Contraseña de administrador:');
-    if (!pass) return;
-    // Verificar contra Supabase
-    const email = currentUser?.email;
-    if (!email) return;
-    fetch(SB_URL + '/auth/v1/token?grant_type=password', {
-      method: 'POST',
-      headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password: pass })
-    }).then(r => r.json()).then(data => {
-      if (data.access_token) {
-        const adminBtn = document.getElementById('adminNavBtn');
-        if (adminBtn) adminBtn.style.display = '';
-        switchTab('admin');
-        showToast('Panel de administrador', 'info');
-      } else {
-        showToast('Contraseña incorrecta', 'error');
-      }
-    }).catch(() => showToast('Error al verificar', 'error'));
+    openAdminPassModal();
   }
 }
 
