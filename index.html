@@ -1731,33 +1731,38 @@ async function captureRecord(r) {
     throw new Error('html2canvas no está cargado');
   }
   
-  // Mover fuera de pantalla pero visible para html2canvas (no z-index negativo)
-  const orig = el.style.cssText;
-  el.style.cssText = 'position:fixed;left:0;top:-9999px;width:794px;background:#fff;padding:32px 36px;font-family:"Plus Jakarta Sans",sans-serif;font-size:11px;color:#1A1108;visibility:visible;opacity:1;';
+  // Guardar estilos originales
+  const orig = {
+    position: el.style.position,
+    visibility: el.style.visibility,
+    opacity: el.style.opacity,
+    zIndex: el.style.zIndex,
+    left: el.style.left,
+    top: el.style.top
+  };
   
-  // Esperar más tiempo para que el DOM se renderice completamente
+  // Hacer visible para html2canvas pero oculto para el usuario
+  // Usar z-index negativo en lugar de top:-9999px
+  el.style.cssText = 'position:fixed;left:0;top:0;width:794px;background:#fff;padding:32px 36px;font-family:"Plus Jakarta Sans",sans-serif;font-size:11px;color:#1A1108;visibility:hidden;opacity:0;z-index:-1;';
+  
+  // Esperar renderizado
   await new Promise(res => setTimeout(res, 500));
   
-  // Medir alto real del contenido
+  // Medir alto
   let realH = el.scrollHeight;
-  console.log('scrollHeight inicial:', realH);
+  console.log('scrollHeight:', realH);
   
-  // Si el alto es 0, intentar forzar el renderizado
   if (realH === 0) {
-    // Forzar reflow
-    el.offsetHeight;
-    await new Promise(res => setTimeout(res, 300));
-    realH = el.scrollHeight;
-    console.log('scrollHeight después de reflow:', realH);
-  }
-  
-  // Usar alto mínimo si sigue siendo 0
-  if (realH === 0) {
-    realH = 600; // Alto mínimo estimado
+    realH = 600;
     console.log('Usando alto mínimo:', realH);
   }
   
   try {
+    // Hacer temporalmente visible para la captura
+    el.style.visibility = 'visible';
+    el.style.opacity = '1';
+    el.style.zIndex = '999999';
+    
     const canvas = await html2canvas(el, {
       scale: 2,
       useCORS: true,
@@ -1770,11 +1775,25 @@ async function captureRecord(r) {
       x: 0,
       y: 0
     });
-    el.style.cssText = orig;
+    
+    // Restaurar estilos
+    el.style.position = orig.position;
+    el.style.visibility = orig.visibility;
+    el.style.opacity = orig.opacity;
+    el.style.zIndex = orig.zIndex;
+    el.style.left = orig.left;
+    el.style.top = orig.top;
+    
     console.log('Canvas generado:', canvas.width, 'x', canvas.height);
     return canvas;
   } catch (err) {
-    el.style.cssText = orig;
+    // Restaurar estilos en caso de error
+    el.style.position = orig.position;
+    el.style.visibility = orig.visibility;
+    el.style.opacity = orig.opacity;
+    el.style.zIndex = orig.zIndex;
+    el.style.left = orig.left;
+    el.style.top = orig.top;
     console.error('Error en html2canvas:', err);
     throw new Error('Error al generar imagen: ' + err.message);
   }
