@@ -1854,8 +1854,20 @@ function openEnviarModal() {
   modal.style.display = 'flex';
   modal.style.visibility = 'visible';
   modal.style.opacity = '1';
+  
+  // Forzar estilos del contenido del modal
+  const modalContent = modal.querySelector('.save-modal');
+  if (modalContent) {
+    modalContent.style.background = 'var(--surface)';
+    modalContent.style.opacity = '1';
+    modalContent.style.visibility = 'visible';
+  }
+  
   console.log('Modal enviar forzado a visible');
-  alert('Modal debería estar visible ahora. ¿Lo ves?');
+  console.log('Modal rect:', modal.getBoundingClientRect());
+  if (modalContent) {
+    console.log('Modal content rect:', modalContent.getBoundingClientRect());
+  }
 }
 function closeEnviarModal() { document.getElementById('enviarModal').classList.remove('open'); }
 async function doSendEmail() { 
