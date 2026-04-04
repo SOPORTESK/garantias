@@ -1797,25 +1797,41 @@ function openPrintWindow(r) {
 function closeSaveModal() { document.getElementById('saveModal').classList.remove('open'); }
 
 async function doSavePNG() {
+  console.log('doSavePNG llamado, lastSavedRecord:', lastSavedRecord);
   closeSaveModal(); showToast('Generando imagen…','info');
   try {
+    if (!lastSavedRecord) { showToast('No hay registro guardado','error'); return; }
     const canvas=await captureRecord(lastSavedRecord);
     const a=document.createElement('a'); a.download='Garantia_'+(lastSavedRecord?.boleta||'comprobante')+'.png'; a.href=canvas.toDataURL('image/png'); a.click();
     showToast('PNG descargado','success');
-  } catch(err) { showToast('Error al generar imagen','error',err.message); }
+  } catch(err) { 
+    console.error('Error en doSavePNG:', err);
+    showToast('Error al generar imagen','error',err.message); 
+  }
 }
 
-async function doSavePDF() { closeSaveModal(); showToast('Abriendo para guardar PDF…','info'); openPrintWindow(lastSavedRecord); }
+async function doSavePDF() { 
+  console.log('doSavePDF llamado, lastSavedRecord:', lastSavedRecord);
+  closeSaveModal(); 
+  if (!lastSavedRecord) { showToast('No hay registro guardado','error'); return; }
+  showToast('Abriendo para guardar PDF…','info'); 
+  openPrintWindow(lastSavedRecord); 
+}
 
 async function doCopyImage() {
+  console.log('doCopyImage llamado, lastSavedRecord:', lastSavedRecord);
   closeSaveModal(); showToast('Copiando imagen…','info');
   try {
+    if (!lastSavedRecord) { showToast('No hay registro guardado','error'); return; }
     const canvas=await captureRecord(lastSavedRecord);
     canvas.toBlob(async blob => {
       try { await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); showToast('Imagen copiada al portapapeles','success'); }
       catch { const a=document.createElement('a'); a.download='Garantia_'+(lastSavedRecord?.boleta||'comprobante')+'.png'; a.href=URL.createObjectURL(blob); a.click(); showToast('No se pudo copiar — imagen descargada','info'); }
     },'image/png');
-  } catch(err) { showToast('Error al copiar imagen','error',err.message); }
+  } catch(err) { 
+    console.error('Error en doCopyImage:', err);
+    showToast('Error al copiar imagen','error',err.message); 
+  }
 }
 
 /* MODAL ENVIAR */
