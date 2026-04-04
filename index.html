@@ -1860,25 +1860,28 @@ async function doSavePDF() {
     
     const { jsPDF } = window.jspdf;
     
-    // Calcular dimensiones
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
+    // Calcular dimensiones del canvas (ya está con scale 2)
+    const canvasWidth = canvas.width;  // 1588px (794 * 2)
+    const canvasHeight = canvas.height;
     
-    // Crear PDF con tamaño exacto del contenido (en mm)
-    // 794px ≈ 210mm (A4 ancho)
-    const pdfWidth = 210; // A4 width in mm
-    const pdfHeight = (imgHeight * pdfWidth) / imgWidth;
+    // Crear PDF con dimensiones exactas del canvas convertidas a mm
+    // 1px ≈ 0.264583 mm
+    const pdfWidth = canvasWidth * 0.264583;
+    const pdfHeight = canvasHeight * 0.264583;
+    
+    console.log('Canvas:', canvasWidth, 'x', canvasHeight, 'px');
+    console.log('PDF:', pdfWidth.toFixed(2), 'x', pdfHeight.toFixed(2), 'mm');
     
     const pdf = new jsPDF({
-      orientation: 'portrait',
+      orientation: pdfWidth > pdfHeight ? 'landscape' : 'portrait',
       unit: 'mm',
       format: [pdfWidth, pdfHeight]
     });
     
-    // Convertir canvas a imagen
+    // Convertir canvas a imagen PNG (mejor calidad)
     const imgData = canvas.toDataURL('image/png');
     
-    // Añadir imagen al PDF
+    // Añadir imagen al PDF ocupando toda la página
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
     
     // Descargar
