@@ -286,6 +286,7 @@
     .stat-card.c-purple .stat-value{color:var(--purple);}
     .stat-sub{font-size:.7rem;color:var(--ink-4);margin-top:.25rem;}
     .data-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;margin-bottom:1.5rem;box-shadow:var(--shadow-sm);}
+    #panel-herramientas{overflow:visible !important;height:auto !important;}
     .data-panel-header{display:flex;align-items:center;justify-content:space-between;padding:.875rem 1.25rem;border-bottom:1.5px solid var(--border-2);gap:1rem;flex-wrap:wrap;background:var(--surface-2);}
     .data-panel-title{display:flex;align-items:center;gap:.625rem;}
     .panel-dot{width:8px;height:8px;border-radius:50%;}
@@ -740,10 +741,11 @@
               <tr class="empty-row"><td colspan="5"><span class="spinner"></span> Cargando…</td></tr>
             </tbody>
           </table>
+        </div>
       </div>
 
       <!-- PANEL HERRAMIENTAS -->
-      <div class="data-panel" id="panel-herramientas" style="display:block !important;">
+      <div class="data-panel" id="panel-herramientas" style="display:none;">
         <div class="data-panel-header">
           <div class="data-panel-title">
             <span class="panel-dot" style="background:var(--amber)"></span>
@@ -1207,6 +1209,7 @@ function toggleUserMenu(forceClose) {
 let logoClickCount = 0, logoClickTimer = null;
 
 function openAdminPassModal() {
+  console.log('Creando modal de contraseña...');
   // Eliminar modal anterior si existe
   let oldModal = document.getElementById('adminPassModal');
   if (oldModal) oldModal.remove();
@@ -1216,7 +1219,7 @@ function openAdminPassModal() {
   modal.id = 'adminPassModal';
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;';
   
-  modal.innerHTML = `
+  const modalContent = `
     <div style="background:#fff;border-radius:16px;padding:2rem;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.4);text-align:center;">
       <h3 style="margin:0 0 0.5rem 0;font-size:1.1rem;color:#1a1a1a;">Contraseña de administrador</h3>
       <p style="margin:0 0 1.5rem 0;font-size:0.85rem;color:#666;">Ingresá tu contraseña para acceder al panel</p>
@@ -1227,7 +1230,10 @@ function openAdminPassModal() {
       </div>
     </div>`;
   
+  console.log('Contenido del modal:', modalContent);
+  modal.innerHTML = modalContent;
   document.body.appendChild(modal);
+  console.log('Modal agregado al DOM');
   
   // Event listeners
   document.getElementById('btnAceptarPass').onclick = verifyAdminPass;
@@ -2362,7 +2368,7 @@ function adminSwitchSection(sec) {
   document.getElementById('panel-usuarios').style.display            = sec==='usuarios'            ? '' : 'none';
   const ph = document.getElementById('panel-herramientas');
   if (ph) {
-    ph.style.display = 'block';
+    ph.style.display = sec==='herramientas' ? 'block' : 'none';
     if (sec === 'herramientas') ensureAdminButtons();
   }
   const titles = {
