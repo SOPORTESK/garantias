@@ -1636,8 +1636,8 @@ async function invHandleFile(file) {
     showToast('Actualizando inventario…', 'info', normalized.length + ' artículos detectados');
 
     // ── 1. Borrar inventario existente completo ──────────────────────────
-    // Borrar todos — usar Prefer: return=minimal con filtro que siempre es verdadero
-    await fetch(SB_URL + '/rest/v1/' + INV_TABLE + '?articulo=neq.__NEVER__', {
+    // Usar UUID mínimo como filtro (id siempre >= este valor → borra todo)
+    await fetch(SB_URL + '/rest/v1/' + INV_TABLE + '?id=gte.00000000-0000-0000-0000-000000000000', {
       method: 'DELETE',
       headers: {
         'apikey': SB_KEY,
