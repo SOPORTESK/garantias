@@ -947,9 +947,33 @@ async function loadPerfil() {
     const res = await fetch(SB_URL + '/rest/v1/perfiles?id=eq.' + currentUser.id, {
       headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + authToken }
     });
+    
+    if (!res.ok) {
+      // Si la tabla no existe o hay error de permisos, crear perfil en memoria
+      const meta = currentUser.user_metadata || {};
+      currentPerfil = {
+        id: currentUser.id,
+        nombre: meta.nombre || currentUser.email.split('@')[0],
+        apellido: meta.apellido || '',
+        correo: currentUser.email,
+        rol: isAdminEmail(currentUser.email) ? 'admin' : 'usuario'
+      };
+      return;
+    }
+    
     const data = await res.json();
-    currentPerfil = data[0] || null;
-  } catch(e) { currentPerfil = null; }
+    currentPerfil = data.length ? data[0] : null;
+  } catch(e) { 
+    // Error de red o parsing, crear perfil fallback
+    const meta = currentUser.user_metadata || {};
+    currentPerfil = {
+      id: currentUser.id,
+      nombre: meta.nombre || currentUser.email.split('@')[0],
+      apellido: meta.apellido || '',
+      correo: currentUser.email,
+      rol: isAdminEmail(currentUser.email) ? 'admin' : 'usuario'
+    };
+  }
 }
 
 function authSignOut() {
@@ -1065,16 +1089,23 @@ async function doLogin() {
   try {
     await authSignIn(email, pass);
     hideLoginOverlay();
+    showToast('Bienvenido/a ' + (currentPerfil?.nombre || email.split('@')[0]), 'success');
   } catch(e) {
     const msg = e.message || '';
-    let friendly = msg;
+    let friendly = 'Error al iniciar sesión';
+    
     if (msg.includes('Invalid login') || msg.includes('invalid_grant') || msg.includes('Invalid credentials')) {
       friendly = 'Correo o contraseña incorrectos';
     } else if (msg.includes('Email not confirmed')) {
       friendly = 'Debés confirmar tu correo antes de iniciar sesión. Revisá tu bandeja de entrada.';
     } else if (msg.includes('rate limit') || msg.includes('Rate limit') || msg.includes('exceeded')) {
       friendly = 'Demasiados intentos. Esperá unos minutos e intentá de nuevo.';
+    } else if (msg.includes('network') || msg.includes('fetch')) {
+      friendly = 'Error de conexión. Verificá tu internet e intentá de nuevo.';
+    } else if (msg.includes('database') || msg.includes('schema')) {
+      friendly = 'Error del servidor. Intentá más tarde.';
     }
+    
     showLoginError(friendly);
     btn.disabled = false; btn.textContent = 'Ingresar';
   }
@@ -2055,19 +2086,24 @@ async function restoreSession() {
     // Intentar refrescar el token primero
     if (session.refresh_token) {
       try {
-        const res = await fetch(SB_URL + '/auth/v1/token?grant_type=refresh_token', {
+        const refreshRes = await fetch(SB_URL + '/auth/v1/token?grant_type=refresh_token', {
           method: 'POST',
-          headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json' },
+          headers: { 
+            'apikey': SB_KEY, 
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + session.refresh_token
+          },
           body: JSON.stringify({ refresh_token: session.refresh_token })
         });
-        if (res.ok) {
-          const data = await res.json();
+        
+        if (refreshRes.ok) {
+          const data = await refreshRes.json();
           if (data.access_token) {
             authToken   = data.access_token;
             currentUser = data.user;
             localStorage.setItem('sb_session', JSON.stringify({
               access_token:  data.access_token,
-              refresh_token: data.refresh_token,
+              refresh_token: data.refresh_token || session.refresh_token,
               user:          data.user
             }));
           } else {
@@ -2076,18 +2112,29 @@ async function restoreSession() {
             currentUser = session.user;
           }
         } else {
-          // Refresh rechazado — usar token guardado como fallback
-          // (el token JWT puede seguir siendo válido aunque el refresh falle)
-          authToken   = session.access_token;
+          // Refresh rechazado — usar token guardado pero verificar validez
+          authToken = session.access_token;
           currentUser = session.user;
+          // Verificar que el token aún sea válido haciendo una petición simple
+          try {
+            const testRes = await fetch(SB_URL + '/rest/v1/perfiles?id=eq.' + currentUser.id + '&select=id', {
+              headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + authToken }
+            });
+            if (!testRes.ok) {
+              throw new Error('Token inválido');
+            }
+          } catch(testError) {
+            localStorage.removeItem('sb_session');
+            return false;
+          }
         }
-      } catch(e) {
-        // Error de red — usar token guardado
-        authToken   = session.access_token;
-        currentUser = session.user;
+      } catch (refreshError) {
+        // Si hay error en el refresh, limpiar sesión
+        localStorage.removeItem('sb_session');
+        return false;
       }
     } else {
-      authToken   = session.access_token;
+      authToken = session.access_token;
       currentUser = session.user;
     }
 
