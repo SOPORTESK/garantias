@@ -2268,7 +2268,7 @@ function openEnviarModal() {
     +'<button onclick="doSendEmail()" style="display:flex;align-items:center;gap:.875rem;padding:.9rem 1rem;border:2px solid #D1411E;border-radius:11px;background:#fff8f7;cursor:pointer;text-align:left;width:100%;font-family:inherit;">'
     +'<div style="width:40px;height:40px;background:#fef0ed;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;">✉️</div>'
     +'<div><div style="font-size:.875rem;font-weight:700;color:#1A1108;">Enviar por correo</div>'
-    +'<div style="font-size:.7rem;color:#A89E92;margin-top:2px;">Copia imagen al portapapeles + abre Outlook con asunto prellenado · pegá con Ctrl+V</div></div></button>'
+    +'<div style="font-size:.7rem;color:#A89E92;margin-top:2px;">Copia el comprobante formateado + abre Outlook · pegá con Ctrl+V</div></div></button>'
     +'</div>'
     +'<button onclick="closeEnviarModal()" style="margin-top:1rem;padding:.4rem 1rem;border:none;background:none;color:#A89E92;cursor:pointer;font-family:inherit;font-size:.78rem;display:block;width:100%;text-align:center;">Cerrar</button>'
     +'</div>';
@@ -2290,22 +2290,15 @@ async function doSendEmail() {
   var ticket = r.ticket ? 'Ticket #' + r.ticket : '';
   var subject = encodeURIComponent([tipo,cat,ticket].filter(Boolean).join(' · ') + ' · Boleta ' + boleta);
   var body    = encodeURIComponent(buildEmailBody(r));
-  // Copiar imagen PNG al portapapeles (funciona en Outlook al pegar)
-  showToast('Copiando imagen…','info');
+  var htmlContent = buildOutlookHTML(r);
   try {
-    const canvas = await captureRecord(r);
-    await new Promise(function(resolve, reject) {
-      canvas.toBlob(async function(blob) {
-        if (!blob) { reject(new Error('No blob')); return; }
-        try {
-          await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
-          showToast('Imagen copiada · pegá con Ctrl+V en el correo','success');
-          resolve();
-        } catch(e) { reject(e); }
-      }, 'image/png');
-    });
+    await navigator.clipboard.write([new ClipboardItem({
+      'text/html': new Blob([htmlContent], {type:'text/html'}),
+      'text/plain': new Blob([boleta], {type:'text/plain'})
+    })]);
+    showToast('Comprobante copiado · pegá con Ctrl+V en el correo','success');
   } catch(e) {
-    showToast('No se pudo copiar la imagen automáticamente','info','Usá "Copiar imagen" y pegala manualmente');
+    showToast('No se pudo copiar automáticamente','info','Usá "Copiar formulario" y pegalo manualmente');
   }
   setTimeout(function() { window.location.href = 'mailto:?subject=' + subject + '&body=' + body; }, 400);
 }
@@ -2334,31 +2327,125 @@ function buildEmailBody(r) {
 
 function buildOutlookHTML(r) {
   if (!r) return '';
-  var BRAND='#D1411E',INK1='#1A1108',INK3='#7A6E62',INK4='#A89E92',BORDER='#E8E5E0';
-  var tipo      = TIPO_LABELS[r.tipo]     || r.tipo     || '—';
-  var cat       = CAT_LABELS[r.categoria] || r.categoria || '—';
-  var motivo    = MOT_LABELS[r.motivo]   || r.motivo   || '—';
-  var boleta    = r.boleta || '—';
+  var B='#D1411E', INK1='#1A1108', INK3='#7A6E62', INK4='#A89E92', BORDER='#E8E5E0', BG='#ffffff';
+  var F="font-family:Segoe UI,Arial,sans-serif;";
+  var tipo      = TIPO_LABELS[r.tipo]     || r.tipo     || '&mdash;';
+  var cat       = CAT_LABELS[r.categoria] || r.categoria || '&mdash;';
+  var motivo    = MOT_LABELS[r.motivo]    || r.motivo   || '&mdash;';
+  var boleta    = r.boleta || '&mdash;';
   var fechaDoc  = new Date().toLocaleDateString('es-CR',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  var fechaComp = r.fecha_compra ? new Date(r.fecha_compra+'T12:00:00').toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric'}) : '—';
-  function cell(l,v,w){return '<td style="padding:0 14px 0 0;width:'+w+';vertical-align:top;"><div style="font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:'+INK4+';margin-bottom:3px;">'+l+'</div><div style="font-size:11px;color:'+INK1+';border-bottom:1px solid '+BORDER+';padding-bottom:4px;min-height:18px;">'+(v||'—')+'</div></td>';}
-  function secTitle(t){return '<div style="font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:'+BRAND+';border-bottom:1px solid '+BORDER+';padding-bottom:4px;margin:16px 0 8px 0;">'+t+'</div>';}
-  function row(t,fields){var w=Math.floor(100/fields.length)+'%';return '<tr><td colspan="1" style="padding:0;">'+secTitle(t)+'<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>'+fields.map(function(f){return cell(f[0],f[1],w);}).join('')+'</tr></table></td></tr>';}
-  function rowFull(t,fields){return '<tr><td colspan="1" style="padding:0;">'+secTitle(t)+fields.map(function(f){return '<div style="font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:'+INK4+';margin-bottom:3px;">'+f[0]+'</div><div style="font-size:11px;color:'+INK1+';border-bottom:1px solid '+BORDER+';padding-bottom:6px;min-height:22px;margin-bottom:10px;white-space:pre-wrap;">'+(f[1]||'—')+'</div>';}).join('')+'</td></tr>';}
-  // Sección cliente: Ticket/Sede/Factura en row de 3 + Nombre del Cliente ancho completo
-  var clienteSection = '<tr><td colspan="1" style="padding:0;">'
-    +secTitle('Información del Cliente')
-    +'<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>'
-    +cell('Ticket N°',r.ticket,'33%')
-    +cell('Sede',r.sede,'33%')
-    +cell('Factura N°',r.factura,'33%')
-    +'</tr></table>'
-    +'<div style="margin-top:8px;">'
-    +'<div style="font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:'+INK4+';margin-bottom:3px;">Nombre del Cliente</div>'
-    +'<div style="font-size:11px;color:'+INK1+';border-bottom:1px solid '+BORDER+';padding-bottom:4px;min-height:18px;">'+(r.nombre||'—')+'</div>'
-    +'</div>'
-    +'</td></tr>';
-  return '<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="background:#ffffff;"><tr><td style="background:#ffffff;padding:20px 24px;font-family:Segoe UI,Arial,sans-serif;"><table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="background:#ffffff;max-width:680px;border-bottom:2px solid '+BRAND+';padding-bottom:14px;margin-bottom:6px;"><tr><td style="vertical-align:middle;background:#ffffff;"><span style="font-size:18px;font-weight:800;color:'+BRAND+';font-family:Segoe UI,Arial,sans-serif;">Garantías · Sekunet</span></td><td style="text-align:right;vertical-align:middle;background:#ffffff;"><div style="font-size:12px;font-weight:700;color:'+INK1+';font-family:Segoe UI,Arial,sans-serif;">Boleta '+boleta+'</div><div style="font-size:9px;color:'+INK3+';margin-top:2px;font-family:Segoe UI,Arial,sans-serif;">'+fechaDoc+'</div></td></tr></table><table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="background:#ffffff;max-width:680px;margin-top:4px;">'+row('Clasificación',[['Tipo de Salida',tipo],['Categoría',cat],['Motivo',motivo]])+clienteSection+row('Información del Producto',[['Marca',r.marca],['Serie',r.serie],['Cantidad',String(r.cantidad||'—')],['Fecha de Compra',fechaComp]])+rowFull('Descripción y Falla',[['Descripción del Artículo',r.descripcion],['Descripción de la Falla',r.falla]])+'</table></td></tr></table>';
+  var fechaComp = r.fecha_compra ? new Date(r.fecha_compra+'T12:00:00').toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric'}) : '&mdash;';
+
+  // Celda de campo: label arriba (pequeño, gris), valor abajo con línea inferior
+  function field(label, value, w) {
+    w = w || 'auto';
+    return ''
+      +'<td width="'+w+'" valign="top" bgcolor="'+BG+'" style="background:'+BG+';padding:0 12px 0 0;vertical-align:top;">'
+        +'<table width="100%" cellpadding="0" cellspacing="0" border="0">'
+          +'<tr><td bgcolor="'+BG+'" style="background:'+BG+';'+F+'font-size:8px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:'+INK4+';padding:0 0 3px 0;">'+label+'</td></tr>'
+          +'<tr><td bgcolor="'+BG+'" style="background:'+BG+';'+F+'font-size:11px;color:'+INK1+';font-weight:500;padding:0 0 5px 0;border-bottom:1px solid '+BORDER+';">'+(value||'&mdash;')+'</td></tr>'
+          +'<tr><td bgcolor="'+BG+'" style="background:'+BG+';padding:8px 0 0 0;font-size:0;">&nbsp;</td></tr>'
+        +'</table>'
+      +'</td>';
+  }
+
+  // Título de sección con línea roja inferior
+  function secHead(title) {
+    return ''
+      +'<tr>'
+        +'<td colspan="4" bgcolor="'+BG+'" style="background:'+BG+';padding:14px 0 0 0;">'
+          +'<table width="100%" cellpadding="0" cellspacing="0" border="0">'
+            +'<tr><td bgcolor="'+BG+'" style="background:'+BG+';'+F+'font-size:8px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:'+B+';padding:0 0 4px 0;border-bottom:1px solid '+BORDER+';">'
+              +title
+            +'</td></tr>'
+            +'<tr><td bgcolor="'+BG+'" style="background:'+BG+';padding:8px 0 0 0;font-size:0;">&nbsp;</td></tr>'
+          +'</table>'
+        +'</td>'
+      +'</tr>';
+  }
+
+  // Fila de campo de texto largo (full width)
+  function fieldFull(label, value) {
+    return ''
+      +'<tr>'
+        +'<td colspan="4" bgcolor="'+BG+'" style="background:'+BG+';padding:0;">'
+          +'<table width="100%" cellpadding="0" cellspacing="0" border="0">'
+            +'<tr><td bgcolor="'+BG+'" style="background:'+BG+';'+F+'font-size:8px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:'+INK4+';padding:0 0 3px 0;">'+label+'</td></tr>'
+            +'<tr><td bgcolor="'+BG+'" style="background:'+BG+';'+F+'font-size:11px;color:'+INK1+';font-weight:500;padding:0 0 6px 0;border-bottom:1px solid '+BORDER+';white-space:pre-wrap;min-height:28px;">'+(value||'&mdash;')+'</td></tr>'
+            +'<tr><td bgcolor="'+BG+'" style="background:'+BG+';padding:8px 0 0 0;font-size:0;">&nbsp;</td></tr>'
+          +'</table>'
+        +'</td>'
+      +'</tr>';
+  }
+
+  var html = ''
+  // Wrapper exterior — fondo blanco forzado
+  +'<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="'+BG+'" style="background:'+BG+';">'
+  +'<tr><td bgcolor="'+BG+'" style="background:'+BG+';padding:24px 28px;'+F+'">'
+
+  // Contenido centrado máx 680px
+  +'<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="'+BG+'" style="background:'+BG+';max-width:680px;">'
+
+  // HEADER: logo-texto izquierda, boleta/fecha derecha
+  +'<tr>'
+    +'<td bgcolor="'+BG+'" style="background:'+BG+';padding:0 0 14px 0;border-bottom:2px solid '+B+';vertical-align:middle;">'
+      +'<span style="'+F+'font-size:20px;font-weight:800;color:'+B+';">Garant&#237;as &middot; Sekunet</span>'
+    +'</td>'
+    +'<td bgcolor="'+BG+'" style="background:'+BG+';padding:0 0 14px 0;border-bottom:2px solid '+B+';vertical-align:middle;text-align:right;">'
+      +'<table cellpadding="0" cellspacing="0" border="0" align="right">'
+        +'<tr><td bgcolor="'+BG+'" style="background:'+BG+';'+F+'font-size:13px;font-weight:bold;color:'+INK1+';text-align:right;">Boleta '+boleta+'</td></tr>'
+        +'<tr><td bgcolor="'+BG+'" style="background:'+BG+';'+F+'font-size:9px;color:'+INK3+';text-align:right;padding-top:2px;">'+fechaDoc+'</td></tr>'
+      +'</table>'
+    +'</td>'
+  +'</tr>'
+
+  // Espacio post-header
+  +'<tr><td colspan="2" bgcolor="'+BG+'" style="background:'+BG+';padding:0;font-size:0;">&nbsp;</td></tr>'
+
+  // CUERPO — tabla de secciones
+  +'<tr><td colspan="2" bgcolor="'+BG+'" style="background:'+BG+';padding:0;">'
+  +'<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="'+BG+'" style="background:'+BG+';">'
+
+  // Clasificación
+  +secHead('Clasificaci&#243;n')
+  +'<tr>'
+    +field('Tipo de Salida', tipo, '33%')
+    +field('Categor&#237;a', cat, '33%')
+    +field('Motivo', motivo, '33%')
+    +'<td bgcolor="'+BG+'" style="background:'+BG+';padding:0;"></td>'
+  +'</tr>'
+
+  // Información del Cliente
+  +secHead('Informaci&#243;n del Cliente')
+  +'<tr>'
+    +field('Ticket N&#176;', r.ticket, '33%')
+    +field('Sede', r.sede, '33%')
+    +field('Factura N&#176;', r.factura, '33%')
+    +'<td bgcolor="'+BG+'" style="background:'+BG+';padding:0;"></td>'
+  +'</tr>'
+  +fieldFull('Nombre del Cliente', r.nombre)
+
+  // Información del Producto
+  +secHead('Informaci&#243;n del Producto')
+  +'<tr>'
+    +field('Marca', r.marca, '25%')
+    +field('Serie', r.serie, '25%')
+    +field('Cantidad', String(r.cantidad||'&mdash;'), '25%')
+    +field('Fecha de Compra', fechaComp, '25%')
+  +'</tr>'
+
+  // Descripción y Falla
+  +secHead('Descripci&#243;n y Falla')
+  +fieldFull('Descripci&#243;n del Art&#237;culo', r.descripcion)
+  +fieldFull('Descripci&#243;n de la Falla', r.falla)
+
+  +'</table>'
+  +'</td></tr>'
+  +'</table>'
+  +'</td></tr>'
+  +'</table>';
+
+  return html;
 }
 
 async function doCopyFormHTML() {
