@@ -2207,117 +2207,112 @@ async function doCopyImage() {
 }
 
 /* MODAL ENVIAR */
-function openEnviarModal() { 
-  console.log('openEnviarModal llamado');
-  console.log('lastSavedRecord:', lastSavedRecord);
-  if (!lastSavedRecord) { 
-    showToast('Guardá un registro primero','info'); 
-    return; 
-  }
-  
-  // Crear modal dinámicamente para evitar problemas de CSS
-  let modal = document.getElementById('enviarModal');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.id = 'enviarModal';
-  }
-  
-  modal.innerHTML = `
-    <div style="background:#fff;border-radius:16px;padding:2rem;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.4);text-align:center;font-family:system-ui,sans-serif;">
-      <h3 style="margin:0 0 0.5rem 0;font-size:1.1rem;color:#1a1a1a;">Enviar comprobante</h3>
-      <p style="margin:0 0 1.5rem 0;font-size:0.85rem;color:#666;">Boleta ${lastSavedRecord.boleta||'—'} · ${lastSavedRecord.nombre||''}</p>
-      <div style="display:flex;flex-direction:column;gap:0.5rem;">
-        <button onclick="doSendEmail()" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border:1.5px solid #ddd;border-radius:8px;background:#fafafa;cursor:pointer;text-align:left;width:100%;font-family:inherit;">
-          <div style="width:36px;height:36px;background:#fef3f2;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#D1411E;">✉</div>
-          <div><div style="font-size:0.85rem;font-weight:600;color:#1a1a1a;">Por correo</div><div style="font-size:0.7rem;color:#888;">Abre el comprobante y Outlook</div></div>
-        </button>
-        <button onclick="doSendPrint()" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border:1.5px solid #ddd;border-radius:8px;background:#fafafa;cursor:pointer;text-align:left;width:100%;font-family:inherit;">
-          <div style="width:36px;height:36px;background:#eff6ff;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#2563EB;">🖨</div>
-          <div><div style="font-size:0.85rem;font-weight:600;color:#1a1a1a;">Vista previa de impresión</div><div style="font-size:0.7rem;color:#888;">Abre el diálogo de impresión</div></div>
-        </button>
-        <button onclick="doCopyImage()" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border:1.5px solid #ddd;border-radius:8px;background:#fafafa;cursor:pointer;text-align:left;width:100%;font-family:inherit;">
-          <div style="width:36px;height:36px;background:#f0fdf4;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#059669;">📋</div>
-          <div><div style="font-size:0.85rem;font-weight:600;color:#1a1a1a;">Copiar imagen</div><div style="font-size:0.7rem;color:#888;">Copia el comprobante al portapapeles</div></div>
-        </button>
-        <button onclick="doSavePNG()" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border:1.5px solid #ddd;border-radius:8px;background:#fafafa;cursor:pointer;text-align:left;width:100%;font-family:inherit;">
-          <div style="width:36px;height:36px;background:#f5f3ff;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#7C3AED;">🖼</div>
-          <div><div style="font-size:0.85rem;font-weight:600;color:#1a1a1a;">Guardar PNG</div><div style="font-size:0.7rem;color:#888;">Descarga el comprobante como imagen</div></div>
-        </button>
-        <button onclick="doSavePDF()" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border:1.5px solid #ddd;border-radius:8px;background:#fafafa;cursor:pointer;text-align:left;width:100%;font-family:inherit;">
-          <div style="width:36px;height:36px;background:#fffbeb;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#D97706;">📄</div>
-          <div><div style="font-size:0.85rem;font-weight:600;color:#1a1a1a;">Guardar PDF</div><div style="font-size:0.7rem;color:#888;">Abre para guardar como PDF</div></div>
-        </button>
-      </div>
-      <button onclick="closeEnviarModal()" style="margin-top:1rem;padding:0.5rem 1rem;border:none;background:none;color:#666;cursor:pointer;font-family:inherit;font-size:0.8rem;">Cerrar</button>
-    </div>
-  `;
-  
-  modal.style.cssText = 'display:flex !important;position:fixed !important;inset:0 !important;background:rgba(0,0,0,0.6) !important;z-index:999999 !important;align-items:center !important;justify-content:center !important;padding:1rem !important;';
-  
+function openEnviarModal() {
+  if (!lastSavedRecord) { showToast('Guardá un registro primero','info'); return; }
+  var modal = document.getElementById('enviarModal');
+  if (modal) modal.remove();
+  modal = document.createElement('div');
+  modal.id = 'enviarModal';
+  var boleta = lastSavedRecord.boleta || '—';
+  var nombre = lastSavedRecord.nombre || '';
+  modal.innerHTML = '<div style="background:#fff;border-radius:18px;padding:1.75rem;max-width:380px;width:90%;box-shadow:0 24px 64px rgba(0,0,0,0.4);font-family:system-ui,sans-serif;">'
+    +'<h3 style="margin:0 0 .2rem 0;font-size:1.05rem;color:#1A1108;font-weight:800;">Enviar comprobante</h3>'
+    +'<p style="margin:0 0 1.25rem 0;font-size:.78rem;color:#A89E92;">Boleta <strong style="color:#1A1108">' + boleta + '</strong> · ' + nombre + '</p>'
+    +'<div style="display:flex;flex-direction:column;gap:.45rem;">'
+    +'<button onclick="doSendEmail()" style="display:flex;align-items:center;gap:.875rem;padding:.9rem 1rem;border:2px solid #D1411E;border-radius:11px;background:#fff8f7;cursor:pointer;text-align:left;width:100%;font-family:inherit;">'
+    +'<div style="width:40px;height:40px;background:#fef0ed;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;">✉️</div>'
+    +'<div><div style="font-size:.875rem;font-weight:700;color:#1A1108;">Enviar por correo</div>'
+    +'<div style="font-size:.7rem;color:#A89E92;margin-top:2px;">Copia el formulario + abre Outlook con asunto y cuerpo prellenados</div></div></button>'
+    +'<div style="height:1px;background:#F2F0EC;margin:.3rem 0;"></div>'
+    +'<button onclick="doCopyFormHTML()" style="display:flex;align-items:center;gap:.875rem;padding:.75rem 1rem;border:1.5px solid #E8E5E0;border-radius:11px;background:#FAFAF8;cursor:pointer;text-align:left;width:100%;font-family:inherit;">'
+    +'<div style="width:38px;height:38px;background:#f0fdf4;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">📋</div>'
+    +'<div><div style="font-size:.84rem;font-weight:600;color:#1A1108;">Copiar formulario</div>'
+    +'<div style="font-size:.7rem;color:#A89E92;margin-top:2px;">HTML listo para pegar en Outlook · texto seleccionable</div></div></button>'
+    +'<button onclick="doCopyImage()" style="display:flex;align-items:center;gap:.875rem;padding:.75rem 1rem;border:1.5px solid #E8E5E0;border-radius:11px;background:#FAFAF8;cursor:pointer;text-align:left;width:100%;font-family:inherit;">'
+    +'<div style="width:38px;height:38px;background:#eff6ff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">🖼️</div>'
+    +'<div><div style="font-size:.84rem;font-weight:600;color:#1A1108;">Copiar imagen</div>'
+    +'<div style="font-size:.7rem;color:#A89E92;margin-top:2px;">PNG al portapapeles para pegar en cualquier lugar</div></div></button>'
+    +'<button onclick="doSavePNG()" style="display:flex;align-items:center;gap:.875rem;padding:.75rem 1rem;border:1.5px solid #E8E5E0;border-radius:11px;background:#FAFAF8;cursor:pointer;text-align:left;width:100%;font-family:inherit;">'
+    +'<div style="width:38px;height:38px;background:#f5f3ff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">⬇️</div>'
+    +'<div><div style="font-size:.84rem;font-weight:600;color:#1A1108;">Guardar PNG</div>'
+    +'<div style="font-size:.7rem;color:#A89E92;margin-top:2px;">Descarga el comprobante como imagen</div></div></button>'
+    +'</div>'
+    +'<button onclick="closeEnviarModal()" style="margin-top:1rem;padding:.4rem 1rem;border:none;background:none;color:#A89E92;cursor:pointer;font-family:inherit;font-size:.78rem;display:block;width:100%;text-align:center;">Cerrar</button>'
+    +'</div>';
+  modal.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);z-index:999999;align-items:center;justify-content:center;padding:1rem;';
+  modal.addEventListener('click', function(e) { if (e.target === modal) closeEnviarModal(); });
   document.body.appendChild(modal);
-  console.log('Modal enviar creado dinámicamente');
 }
 function closeEnviarModal() { 
   const modal = document.getElementById('enviarModal');
   if (modal) modal.remove();
 }
-async function doSendEmail() { 
-  console.log('doSendEmail llamado');
-  closeEnviarModal(); 
-  
-  if (!lastSavedRecord) { 
-    showToast('No hay registro guardado','error'); 
-    return; 
-  }
-  
-  showToast('Generando PDF para adjuntar…','info');
-  
+async function doSendEmail() {
+  closeEnviarModal();
+  if (!lastSavedRecord) { showToast('No hay registro guardado','error'); return; }
+  var r      = lastSavedRecord;
+  var boleta = r.boleta || 'comprobante';
+  var tipo   = TIPO_LABELS[r.tipo]     || r.tipo     || '';
+  var cat    = CAT_LABELS[r.categoria] || r.categoria || '';
+  var ticket = r.ticket ? 'Ticket #' + r.ticket : '';
+  var subject = encodeURIComponent([tipo,cat,ticket].filter(Boolean).join(' · ') + ' · Boleta ' + boleta);
+  var body    = encodeURIComponent(buildEmailBody(r));
+  var htmlContent = buildOutlookHTML(r);
   try {
-    // Generar el PDF usando la misma lógica que doSavePDF
-    const canvas = await captureRecord(lastSavedRecord);
-    
-    if (typeof window.jspdf === 'undefined') {
-      throw new Error('jsPDF no está cargado');
-    }
-    
-    const { jsPDF } = window.jspdf;
-    
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
-    
-    const pdfWidth = canvasWidth * 0.264583;
-    const pdfHeight = canvasHeight * 0.264583;
-    
-    const pdf = new jsPDF({
-      orientation: pdfWidth > pdfHeight ? 'landscape' : 'portrait',
-      unit: 'mm',
-      format: [pdfWidth, pdfHeight]
-    });
-    
-    const imgData = canvas.toDataURL('image/png');
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    
-    // Descargar el PDF
-    pdf.save('Garantia_' + (lastSavedRecord?.boleta || 'comprobante') + '.pdf');
-    
-    showToast('PDF descargado · Abriendo Outlook','success','Adjuntá el PDF descargado al correo');
-    
-    // Abrir Outlook después de un breve delay
-    setTimeout(()=>{
-      window.location.href=buildMailtoUrl(lastSavedRecord||{}); 
-    },800); 
-    
-  } catch(err) {
-    console.error('Error generando PDF:', err);
-    showToast('Error al generar PDF','error', err.message);
-    // Fallback: abrir solo el mailto
-    window.location.href=buildMailtoUrl(lastSavedRecord||{});
+    await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([htmlContent],{type:'text/html'}),'text/plain':new Blob([boleta],{type:'text/plain'})})]);
+    showToast('Formulario copiado','success','Pegalo al final del correo con Ctrl+V');
+  } catch(e) {
+    showToast('Formulario no se pudo copiar automáticamente','info','Usá "Copiar formulario" y pegalo manualmente');
   }
+  setTimeout(function() { window.location.href = 'mailto:?subject=' + subject + '&body=' + body; }, 350);
 }
 async function doSendPrint() { 
   console.log('doSendPrint llamado');
   closeEnviarModal(); 
   openPrintWindow(lastSavedRecord); 
+}
+
+function buildEmailBody(r) {
+  var tipo   = TIPO_LABELS[r.tipo]     || r.tipo     || '—';
+  var cat    = CAT_LABELS[r.categoria] || r.categoria || '—';
+  var motivo = MOT_LABELS[r.motivo]   || r.motivo   || '—';
+  return [
+    'Saludos.',
+    '',
+    'Se solicita la ' + tipo + ' con ' + cat + ' para el dispositivo especificado. Con el propósito de completar el proceso correspondiente. Motivo: ' + motivo,
+    '',
+    'El formulario de referencia se encuentra adjunto al final de este mensaje.',
+    '',
+    'Gracias de antemano, quedo a su disposición para cualquier consulta adicional.',
+    '',
+    'Atentamente,'
+  ].join('\n');
+}
+
+function buildOutlookHTML(r) {
+  if (!r) return '';
+  var BRAND='#D1411E',INK1='#1A1108',INK3='#7A6E62',INK4='#A89E92',BORDER='#E8E5E0';
+  var tipo      = TIPO_LABELS[r.tipo]     || r.tipo     || '—';
+  var cat       = CAT_LABELS[r.categoria] || r.categoria || '—';
+  var motivo    = MOT_LABELS[r.motivo]   || r.motivo   || '—';
+  var boleta    = r.boleta || '—';
+  var fechaDoc  = new Date().toLocaleDateString('es-CR',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  var fechaComp = r.fecha_compra ? new Date(r.fecha_compra+'T12:00:00').toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric'}) : '—';
+  function cell(l,v,w){return '<td style="padding:0 14px 0 0;width:'+w+';vertical-align:top;"><div style="font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:'+INK4+';margin-bottom:3px;">'+l+'</div><div style="font-size:11px;color:'+INK1+';border-bottom:1px solid '+BORDER+';padding-bottom:4px;min-height:18px;">'+(v||'—')+'</div></td>';}
+  function secTitle(t){return '<div style="font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:'+BRAND+';border-bottom:1px solid '+BORDER+';padding-bottom:4px;margin:16px 0 8px 0;">'+t+'</div>';}
+  function row(t,fields){var w=Math.floor(100/fields.length)+'%';return '<tr><td colspan="1" style="padding:0;">'+secTitle(t)+'<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>'+fields.map(function(f){return cell(f[0],f[1],w);}).join('')+'</tr></table></td></tr>';}
+  function rowFull(t,fields){return '<tr><td colspan="1" style="padding:0;">'+secTitle(t)+fields.map(function(f){return '<div style="font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:'+INK4+';margin-bottom:3px;">'+f[0]+'</div><div style="font-size:11px;color:'+INK1+';border-bottom:1px solid '+BORDER+';padding-bottom:6px;min-height:22px;margin-bottom:10px;white-space:pre-wrap;">'+(f[1]||'—')+'</div>';}).join('')+'</td></tr>';}
+  return '<div style="font-family:Segoe UI,Arial,sans-serif;max-width:680px;background:#ffffff;padding:0;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-bottom:2px solid '+BRAND+';padding-bottom:14px;margin-bottom:6px;"><tr><td style="vertical-align:middle;"><span style="font-size:18px;font-weight:800;color:'+BRAND+';">Garantías · Sekunet</span></td><td style="text-align:right;vertical-align:middle;"><div style="font-size:12px;font-weight:700;color:'+INK1+';">Boleta '+boleta+'</div><div style="font-size:9px;color:'+INK3+';margin-top:2px;">'+fechaDoc+'</div></td></tr></table><table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:4px;">'+row('Clasificación',[['Tipo de Salida',tipo],['Categoría',cat],['Motivo',motivo]])+row('Información del Cliente',[['Ticket N°',r.ticket],['Sede',r.sede],['Factura N°',r.factura],['Nombre del Cliente',r.nombre]])+row('Información del Producto',[['Marca',r.marca],['Serie',r.serie],['Cantidad',String(r.cantidad||'—')],['Fecha de Compra',fechaComp]])+rowFull('Descripción y Falla',[['Descripción del Artículo',r.descripcion],['Descripción de la Falla',r.falla]])+'</table></div>';
+}
+
+async function doCopyFormHTML() {
+  closeEnviarModal();
+  if (!lastSavedRecord) { showToast('No hay registro guardado','error'); return; }
+  var html = buildOutlookHTML(lastSavedRecord);
+  try {
+    await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([lastSavedRecord.boleta||''],{type:'text/plain'})})]);
+    showToast('Formulario copiado','success','Pegalo en el correo con Ctrl+V');
+  } catch(e) { showToast('Error al copiar','error',e.message); }
 }
 
 /* ══ BOTONES DE PRUEBA ══ */
