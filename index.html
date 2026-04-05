@@ -242,9 +242,7 @@
     tbody td{padding:.625rem 1rem;color:var(--ink-2);vertical-align:middle;white-space:nowrap;}
     tbody td strong{color:var(--ink-1);font-weight:600;}
     .td-truncate{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:default;}
-    .td-tooltip{position:relative;}
-    .td-tooltip::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1A1108;color:#fff;font-size:.72rem;font-weight:500;padding:.4rem .65rem;border-radius:6px;white-space:pre-wrap;max-width:320px;width:max-content;box-shadow:0 4px 12px rgba(0,0,0,.25);z-index:999;pointer-events:none;opacity:0;transition:opacity .15s ease;}
-    .td-tooltip:hover::after{opacity:1;}
+    #js-tooltip{position:fixed;background:#1A1108;color:#fff;font-size:.75rem;font-weight:500;padding:.45rem .7rem;border-radius:7px;white-space:pre-wrap;max-width:320px;box-shadow:0 4px 14px rgba(0,0,0,.3);z-index:9999;pointer-events:none;display:none;line-height:1.45;}
     .td-actions{display:flex;gap:.375rem;}
     .empty-row td{padding:3rem 1rem;text-align:center;color:var(--ink-4);}
     .empty-row svg{display:block;margin:0 auto .75rem;opacity:.25;}
@@ -1663,7 +1661,7 @@ function invRender() {
   tbody.innerHTML = rows.slice(0,500).map((r,i) => {
     const desc = r.descripcion||'—';
     const descEsc = desc.replace(/"/g,'&quot;');
-    return `<tr style="animation-delay:${Math.min(i,30)*0.015}s"><td>${r.marca||'—'}</td><td><strong>${r.articulo||'—'}</strong></td><td class="td-truncate td-tooltip" data-tip="${descEsc}">${desc}</td></tr>`;
+    return `<tr style="animation-delay:${Math.min(i,30)*0.015}s"><td>${r.marca||'—'}</td><td><strong>${r.articulo||'—'}</strong></td><td>${desc}</td></tr>`;
   }).join('');
   
   if (rows.length > 500) tbody.innerHTML += '<tr><td colspan="3" style="text-align:center;padding:.75rem;font-size:.75rem;color:var(--ink-4)">Mostrando 500 de ${rows.length} — refiná la búsqueda</td></tr>';
@@ -3141,6 +3139,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     alert('Error al iniciar la aplicación: ' + error.message);
   }
 });
+</script>
+<div id="js-tooltip"></div>
+<script>
+(function(){
+  var tip = document.getElementById('js-tooltip');
+  document.addEventListener('mouseover', function(e){
+    var el = e.target.closest('[data-tip]');
+    if (!el) { tip.style.display='none'; return; }
+    tip.textContent = el.getAttribute('data-tip');
+    tip.style.display = 'block';
+  });
+  document.addEventListener('mousemove', function(e){
+    if (tip.style.display==='none') return;
+    var x = e.clientX + 14, y = e.clientY - 10;
+    if (x + 330 > window.innerWidth) x = e.clientX - 334;
+    if (y + tip.offsetHeight > window.innerHeight) y = e.clientY - tip.offsetHeight - 10;
+    tip.style.left = x + 'px';
+    tip.style.top  = y + 'px';
+  });
+  document.addEventListener('mouseout', function(e){
+    if (e.target.closest('[data-tip]')) tip.style.display='none';
+  });
+})();
 </script>
 </body>
 </html>
