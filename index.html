@@ -2061,7 +2061,7 @@ function buildPrintHTML(r) {
 <div class="no-print"><button class="btn-print" onclick="window.print()">Imprimir / PDF</button><button class="btn-close" onclick="window.close()">Cerrar</button></div>
 <div class="pf-header"><img class="pf-logo" src="${LOGO_SRC}" alt="Sekunet"><div class="pf-title-area"><div class="pf-main-title">Garantías · Sekunet</div><div class="pf-boleta">Boleta ${boleta}</div><div class="pf-date">${fecha}</div></div></div>
 <div class="pf-section"><div class="pf-section-title">Clasificación</div><div class="pf-grid"><div class="pf-field"><div class="pf-label">Tipo de Salida</div><div class="pf-value">${TIPO_LABELS[r.tipo]||r.tipo||'—'}</div></div><div class="pf-field"><div class="pf-label">Categoría</div><div class="pf-value">${CAT_LABELS[r.categoria]||r.categoria||'—'}</div></div><div class="pf-field"><div class="pf-label">Motivo</div><div class="pf-value">${MOT_LABELS[r.motivo]||r.motivo||'—'}</div></div></div></div>
-<div class="pf-section"><div class="pf-section-title">Información del Cliente</div><div class="pf-grid"><div class="pf-field"><div class="pf-label">Ticket N°</div><div class="pf-value">${r.ticket||'—'}</div></div><div class="pf-field"><div class="pf-label">Sede</div><div class="pf-value">${r.sede||'—'}</div></div><div class="pf-field"><div class="pf-label">Cliente</div><div class="pf-value">${r.nombre||'—'}</div></div><div class="pf-field"><div class="pf-label">Factura N°</div><div class="pf-value">${r.factura||'—'}</div></div></div></div>
+<div class="pf-section"><div class="pf-section-title">Información del Cliente</div><div class="pf-grid"><div class="pf-field"><div class="pf-label">Ticket N°</div><div class="pf-value">${r.ticket||'—'}</div></div><div class="pf-field"><div class="pf-label">Sede</div><div class="pf-value">${r.sede||'—'}</div></div><div class="pf-field"><div class="pf-label">Factura N°</div><div class="pf-value">${r.factura||'—'}</div></div></div><div class="pf-field pf-full" style="margin-top:6px;"><div class="pf-label">Nombre del Cliente</div><div class="pf-value">${r.nombre||'—'}</div></div></div>
 <div class="pf-section"><div class="pf-section-title">Información del Producto</div><div class="pf-grid"><div class="pf-field"><div class="pf-label">Marca</div><div class="pf-value">${r.marca||'—'}</div></div><div class="pf-field"><div class="pf-label">Serie</div><div class="pf-value">${r.serie||'—'}</div></div><div class="pf-field"><div class="pf-label">Cantidad</div><div class="pf-value">${r.cantidad||'—'}</div></div><div class="pf-field"><div class="pf-label">Fecha de Compra</div><div class="pf-value">${fechaCompra}</div></div></div></div>
 <div class="pf-section"><div class="pf-section-title">Descripción y Falla</div><div class="pf-grid-2"><div class="pf-field pf-full"><div class="pf-label">Descripción del Artículo</div><div class="pf-value pf-text-area">${r.descripcion||'—'}</div></div><div class="pf-field pf-full"><div class="pf-label">Descripción de la Falla</div><div class="pf-value pf-text-area">${r.falla||'—'}</div></div></div></div>
 </body></html>`;
@@ -2173,6 +2173,35 @@ async function doSavePDF() {
   }
 }
 
+async function doSavePDFandPrint() {
+  closeEnviarModal();
+  if (!lastSavedRecord) { showToast('No hay registro guardado','error'); return; }
+  showToast('Generando PDF…','info');
+  try {
+    const canvas = await captureRecord(lastSavedRecord);
+    if (typeof window.jspdf === 'undefined') throw new Error('jsPDF no está cargado');
+    const { jsPDF } = window.jspdf;
+    const canvasWidth  = canvas.width;
+    const canvasHeight = canvas.height;
+    const pdfWidth  = canvasWidth  * 0.264583;
+    const pdfHeight = canvasHeight * 0.264583;
+    const pdf = new jsPDF({
+      orientation: pdfWidth > pdfHeight ? 'landscape' : 'portrait',
+      unit: 'mm',
+      format: [pdfWidth, pdfHeight]
+    });
+    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save('Garantia_' + (lastSavedRecord.boleta || 'comprobante') + '.pdf');
+    showToast('PDF descargado · abriendo vista de impresión…','success');
+    // Pequeña pausa para que el navegador procese la descarga antes de abrir la ventana
+    setTimeout(function() { openPrintWindow(lastSavedRecord); }, 800);
+  } catch(err) {
+    console.error('Error en doSavePDFandPrint:', err);
+    showToast('Error al generar PDF · abriendo vista previa','error');
+    openPrintWindow(lastSavedRecord);
+  }
+}
+
 async function doCopyImage() {
   closeSaveModal();
   closeEnviarModal();
@@ -2217,25 +2246,29 @@ function openEnviarModal() {
   var nombre = lastSavedRecord.nombre || '';
   modal.innerHTML = '<div style="background:#fff;border-radius:18px;padding:1.75rem;max-width:380px;width:90%;box-shadow:0 24px 64px rgba(0,0,0,0.4);font-family:system-ui,sans-serif;">'
     +'<h3 style="margin:0 0 .2rem 0;font-size:1.05rem;color:#1A1108;font-weight:800;">Enviar comprobante</h3>'
-    +'<p style="margin:0 0 1.25rem 0;font-size:.78rem;color:#A89E92;">Boleta <strong style="color:#1A1108">' + boleta + '</strong> · ' + nombre + '</p>'
+    +'<p style="margin:0 0 1.25rem 0;font-size:.78rem;color:#A89E92;">Boleta <strong style="color:#1A1108">' + boleta + '</strong>' + (nombre ? ' · ' + nombre : '') + '</p>'
     +'<div style="display:flex;flex-direction:column;gap:.45rem;">'
-    +'<button onclick="doSendEmail()" style="display:flex;align-items:center;gap:.875rem;padding:.9rem 1rem;border:2px solid #D1411E;border-radius:11px;background:#fff8f7;cursor:pointer;text-align:left;width:100%;font-family:inherit;">'
-    +'<div style="width:40px;height:40px;background:#fef0ed;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;">✉️</div>'
-    +'<div><div style="font-size:.875rem;font-weight:700;color:#1A1108;">Enviar por correo</div>'
-    +'<div style="font-size:.7rem;color:#A89E92;margin-top:2px;">Copia el formulario + abre Outlook con asunto y cuerpo prellenados</div></div></button>'
-    +'<div style="height:1px;background:#F2F0EC;margin:.3rem 0;"></div>'
-    +'<button onclick="doCopyFormHTML()" style="display:flex;align-items:center;gap:.875rem;padding:.75rem 1rem;border:1.5px solid #E8E5E0;border-radius:11px;background:#FAFAF8;cursor:pointer;text-align:left;width:100%;font-family:inherit;">'
-    +'<div style="width:38px;height:38px;background:#f0fdf4;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">📋</div>'
-    +'<div><div style="font-size:.84rem;font-weight:600;color:#1A1108;">Copiar formulario</div>'
-    +'<div style="font-size:.7rem;color:#A89E92;margin-top:2px;">HTML listo para pegar en Outlook · texto seleccionable</div></div></button>'
+    // Opción 1: Copiar imagen
     +'<button onclick="doCopyImage()" style="display:flex;align-items:center;gap:.875rem;padding:.75rem 1rem;border:1.5px solid #E8E5E0;border-radius:11px;background:#FAFAF8;cursor:pointer;text-align:left;width:100%;font-family:inherit;">'
     +'<div style="width:38px;height:38px;background:#eff6ff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">🖼️</div>'
     +'<div><div style="font-size:.84rem;font-weight:600;color:#1A1108;">Copiar imagen</div>'
-    +'<div style="font-size:.7rem;color:#A89E92;margin-top:2px;">PNG al portapapeles para pegar en cualquier lugar</div></div></button>'
+    +'<div style="font-size:.7rem;color:#A89E92;margin-top:2px;">PNG al portapapeles · para pegar en cualquier lugar</div></div></button>'
+    // Opción 2: Guardar PNG
     +'<button onclick="doSavePNG()" style="display:flex;align-items:center;gap:.875rem;padding:.75rem 1rem;border:1.5px solid #E8E5E0;border-radius:11px;background:#FAFAF8;cursor:pointer;text-align:left;width:100%;font-family:inherit;">'
     +'<div style="width:38px;height:38px;background:#f5f3ff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">⬇️</div>'
     +'<div><div style="font-size:.84rem;font-weight:600;color:#1A1108;">Guardar PNG</div>'
     +'<div style="font-size:.7rem;color:#A89E92;margin-top:2px;">Descarga el comprobante como imagen</div></div></button>'
+    // Opción 3: Guardar PDF + Imprimir
+    +'<button onclick="doSavePDFandPrint()" style="display:flex;align-items:center;gap:.875rem;padding:.75rem 1rem;border:1.5px solid #E8E5E0;border-radius:11px;background:#FAFAF8;cursor:pointer;text-align:left;width:100%;font-family:inherit;">'
+    +'<div style="width:38px;height:38px;background:#fff7ed;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">📄</div>'
+    +'<div><div style="font-size:.84rem;font-weight:600;color:#1A1108;">Guardar / Imprimir PDF</div>'
+    +'<div style="font-size:.7rem;color:#A89E92;margin-top:2px;">Descarga el PDF automáticamente · luego abre vista de impresión</div></div></button>'
+    +'<div style="height:1px;background:#F2F0EC;margin:.2rem 0;"></div>'
+    // Opción 4: Enviar por correo (destacada)
+    +'<button onclick="doSendEmail()" style="display:flex;align-items:center;gap:.875rem;padding:.9rem 1rem;border:2px solid #D1411E;border-radius:11px;background:#fff8f7;cursor:pointer;text-align:left;width:100%;font-family:inherit;">'
+    +'<div style="width:40px;height:40px;background:#fef0ed;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;">✉️</div>'
+    +'<div><div style="font-size:.875rem;font-weight:700;color:#1A1108;">Enviar por correo</div>'
+    +'<div style="font-size:.7rem;color:#A89E92;margin-top:2px;">Copia imagen al portapapeles + abre Outlook con asunto prellenado · pegá con Ctrl+V</div></div></button>'
     +'</div>'
     +'<button onclick="closeEnviarModal()" style="margin-top:1rem;padding:.4rem 1rem;border:none;background:none;color:#A89E92;cursor:pointer;font-family:inherit;font-size:.78rem;display:block;width:100%;text-align:center;">Cerrar</button>'
     +'</div>';
@@ -2257,14 +2290,24 @@ async function doSendEmail() {
   var ticket = r.ticket ? 'Ticket #' + r.ticket : '';
   var subject = encodeURIComponent([tipo,cat,ticket].filter(Boolean).join(' · ') + ' · Boleta ' + boleta);
   var body    = encodeURIComponent(buildEmailBody(r));
-  var htmlContent = buildOutlookHTML(r);
+  // Copiar imagen PNG al portapapeles (funciona en Outlook al pegar)
+  showToast('Copiando imagen…','info');
   try {
-    await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([htmlContent],{type:'text/html'}),'text/plain':new Blob([boleta],{type:'text/plain'})})]);
-    showToast('Formulario copiado','success','Pegalo al final del correo con Ctrl+V');
+    const canvas = await captureRecord(r);
+    await new Promise(function(resolve, reject) {
+      canvas.toBlob(async function(blob) {
+        if (!blob) { reject(new Error('No blob')); return; }
+        try {
+          await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+          showToast('Imagen copiada · pegá con Ctrl+V en el correo','success');
+          resolve();
+        } catch(e) { reject(e); }
+      }, 'image/png');
+    });
   } catch(e) {
-    showToast('Formulario no se pudo copiar automáticamente','info','Usá "Copiar formulario" y pegalo manualmente');
+    showToast('No se pudo copiar la imagen automáticamente','info','Usá "Copiar imagen" y pegala manualmente');
   }
-  setTimeout(function() { window.location.href = 'mailto:?subject=' + subject + '&body=' + body; }, 350);
+  setTimeout(function() { window.location.href = 'mailto:?subject=' + subject + '&body=' + body; }, 400);
 }
 async function doSendPrint() { 
   console.log('doSendPrint llamado');
@@ -2302,7 +2345,20 @@ function buildOutlookHTML(r) {
   function secTitle(t){return '<div style="font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:'+BRAND+';border-bottom:1px solid '+BORDER+';padding-bottom:4px;margin:16px 0 8px 0;">'+t+'</div>';}
   function row(t,fields){var w=Math.floor(100/fields.length)+'%';return '<tr><td colspan="1" style="padding:0;">'+secTitle(t)+'<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>'+fields.map(function(f){return cell(f[0],f[1],w);}).join('')+'</tr></table></td></tr>';}
   function rowFull(t,fields){return '<tr><td colspan="1" style="padding:0;">'+secTitle(t)+fields.map(function(f){return '<div style="font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:'+INK4+';margin-bottom:3px;">'+f[0]+'</div><div style="font-size:11px;color:'+INK1+';border-bottom:1px solid '+BORDER+';padding-bottom:6px;min-height:22px;margin-bottom:10px;white-space:pre-wrap;">'+(f[1]||'—')+'</div>';}).join('')+'</td></tr>';}
-  return '<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="background:#ffffff;"><tr><td style="background:#ffffff;padding:20px 24px;font-family:Segoe UI,Arial,sans-serif;"><table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="background:#ffffff;max-width:680px;border-bottom:2px solid '+BRAND+';padding-bottom:14px;margin-bottom:6px;"><tr><td style="vertical-align:middle;background:#ffffff;"><span style="font-size:18px;font-weight:800;color:'+BRAND+';font-family:Segoe UI,Arial,sans-serif;">Garantías · Sekunet</span></td><td style="text-align:right;vertical-align:middle;background:#ffffff;"><div style="font-size:12px;font-weight:700;color:'+INK1+';font-family:Segoe UI,Arial,sans-serif;">Boleta '+boleta+'</div><div style="font-size:9px;color:'+INK3+';margin-top:2px;font-family:Segoe UI,Arial,sans-serif;">'+fechaDoc+'</div></td></tr></table><table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="background:#ffffff;max-width:680px;margin-top:4px;">'+row('Clasificación',[['Tipo de Salida',tipo],['Categoría',cat],['Motivo',motivo]])+row('Información del Cliente',[['Ticket N°',r.ticket],['Sede',r.sede],['Factura N°',r.factura],['Nombre del Cliente',r.nombre]])+row('Información del Producto',[['Marca',r.marca],['Serie',r.serie],['Cantidad',String(r.cantidad||'—')],['Fecha de Compra',fechaComp]])+rowFull('Descripción y Falla',[['Descripción del Artículo',r.descripcion],['Descripción de la Falla',r.falla]])+'</table></td></tr></table>';
+  // Sección cliente: Ticket/Sede/Factura en row de 3 + Nombre del Cliente ancho completo
+  var clienteSection = '<tr><td colspan="1" style="padding:0;">'
+    +secTitle('Información del Cliente')
+    +'<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>'
+    +cell('Ticket N°',r.ticket,'33%')
+    +cell('Sede',r.sede,'33%')
+    +cell('Factura N°',r.factura,'33%')
+    +'</tr></table>'
+    +'<div style="margin-top:8px;">'
+    +'<div style="font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:'+INK4+';margin-bottom:3px;">Nombre del Cliente</div>'
+    +'<div style="font-size:11px;color:'+INK1+';border-bottom:1px solid '+BORDER+';padding-bottom:4px;min-height:18px;">'+(r.nombre||'—')+'</div>'
+    +'</div>'
+    +'</td></tr>';
+  return '<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="background:#ffffff;"><tr><td style="background:#ffffff;padding:20px 24px;font-family:Segoe UI,Arial,sans-serif;"><table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="background:#ffffff;max-width:680px;border-bottom:2px solid '+BRAND+';padding-bottom:14px;margin-bottom:6px;"><tr><td style="vertical-align:middle;background:#ffffff;"><span style="font-size:18px;font-weight:800;color:'+BRAND+';font-family:Segoe UI,Arial,sans-serif;">Garantías · Sekunet</span></td><td style="text-align:right;vertical-align:middle;background:#ffffff;"><div style="font-size:12px;font-weight:700;color:'+INK1+';font-family:Segoe UI,Arial,sans-serif;">Boleta '+boleta+'</div><div style="font-size:9px;color:'+INK3+';margin-top:2px;font-family:Segoe UI,Arial,sans-serif;">'+fechaDoc+'</div></td></tr></table><table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="background:#ffffff;max-width:680px;margin-top:4px;">'+row('Clasificación',[['Tipo de Salida',tipo],['Categoría',cat],['Motivo',motivo]])+clienteSection+row('Información del Producto',[['Marca',r.marca],['Serie',r.serie],['Cantidad',String(r.cantidad||'—')],['Fecha de Compra',fechaComp]])+rowFull('Descripción y Falla',[['Descripción del Artículo',r.descripcion],['Descripción de la Falla',r.falla]])+'</table></td></tr></table>';
 }
 
 async function doCopyFormHTML() {
