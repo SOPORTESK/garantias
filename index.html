@@ -241,7 +241,10 @@
     tbody tr:hover{background:var(--surface-2);}
     tbody td{padding:.625rem 1rem;color:var(--ink-2);vertical-align:middle;white-space:nowrap;}
     tbody td strong{color:var(--ink-1);font-weight:600;}
-    .td-mono{font-family:var(--mono);font-size:.75rem;}
+    .td-truncate{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:default;}
+    .td-tooltip{position:relative;}
+    .td-tooltip::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1A1108;color:#fff;font-size:.72rem;font-weight:500;padding:.4rem .65rem;border-radius:6px;white-space:pre-wrap;max-width:320px;width:max-content;box-shadow:0 4px 12px rgba(0,0,0,.25);z-index:999;pointer-events:none;opacity:0;transition:opacity .15s ease;}
+    .td-tooltip:hover::after{opacity:1;}
     .td-actions{display:flex;gap:.375rem;}
     .empty-row td{padding:3rem 1rem;text-align:center;color:var(--ink-4);}
     .empty-row svg{display:block;margin:0 auto .75rem;opacity:.25;}
@@ -690,10 +693,12 @@
           <th class="sortable" data-sort-type="def" data-sort-col="sede">Sede <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="factura">Factura <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="marca">Marca <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="def" data-sort-col="descripcion">Descripción <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="def" data-sort-col="falla">Falla <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="registrado_por">Registrado por <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="modificado_por">Modificado por <span class="sort-icon">↕</span></th>
           <th>Acciones</th>
-        </tr></thead><tbody id="tbody-def"><tr class="empty-row"><td colspan="12"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
+        </tr></thead><tbody id="tbody-def"><tr class="empty-row"><td colspan="14"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
       </div>
       <!-- Panel temp -->
       <div class="data-panel" id="panel-salidas-temporales" style="display:none">
@@ -715,10 +720,12 @@
           <th class="sortable" data-sort-type="temp" data-sort-col="sede">Sede <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="factura">Factura <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="marca">Marca <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="temp" data-sort-col="descripcion">Descripción <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="temp" data-sort-col="falla">Falla <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="registrado_por">Registrado por <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="modificado_por">Modificado por <span class="sort-icon">↕</span></th>
           <th>Acciones</th>
-        </tr></thead><tbody id="tbody-temp"><tr class="empty-row"><td colspan="12"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
+        </tr></thead><tbody id="tbody-temp"><tr class="empty-row"><td colspan="14"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
       </div>
 
       <!-- PANEL USUARIOS -->
@@ -1653,9 +1660,11 @@ function invRender() {
     return; 
   }
   
-  tbody.innerHTML = rows.slice(0,500).map((r,i) => 
-    `<tr style="animation-delay:${Math.min(i,30)*0.015}s"><td>${r.marca||'—'}</td><td><strong>${r.articulo||'—'}</strong></td><td>${r.descripcion||'—'}</td></tr>`
-  ).join('');
+  tbody.innerHTML = rows.slice(0,500).map((r,i) => {
+    const desc = r.descripcion||'—';
+    const descEsc = desc.replace(/"/g,'&quot;');
+    return `<tr style="animation-delay:${Math.min(i,30)*0.015}s"><td>${r.marca||'—'}</td><td><strong>${r.articulo||'—'}</strong></td><td class="td-truncate td-tooltip" data-tip="${descEsc}">${desc}</td></tr>`;
+  }).join('');
   
   if (rows.length > 500) tbody.innerHTML += '<tr><td colspan="3" style="text-align:center;padding:.75rem;font-size:.75rem;color:var(--ink-4)">Mostrando 500 de ${rows.length} — refiná la búsqueda</td></tr>';
 }
@@ -2838,7 +2847,7 @@ function fmtDate(iso){if(!iso)return'—';return new Date(iso).toLocaleDateStrin
 
 function adminRenderTable(type){
   const tbody=document.getElementById('tbody-'+type), rows=records[type];
-  if(!rows.length){tbody.innerHTML=`<tr class="empty-row"><td colspan="12"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;return;}
+  if(!rows.length){tbody.innerHTML=`<tr class="empty-row"><td colspan="14"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;return;}
   tbody.innerHTML=rows.map((r,i)=>{
     const regPor = r.registrado_por || '—';
     const modPor = r.modificado_por ? ` <span style="font-size:.65rem;color:var(--ink-4)" title="Modificado por ${r.modificado_por}">(mod.)</span>` : '';
@@ -2852,6 +2861,8 @@ function adminRenderTable(type){
     <td style="color:var(--ink-3)">${r.sede||'—'}</td>
     <td class="td-mono">${r.factura||'—'}</td>
     <td>${r.marca||'—'}</td>
+    <td class="td-truncate td-tooltip" data-tip="${(r.descripcion||'—').replace(/"/g,'&quot;')}">${r.descripcion||'—'}</td>
+    <td class="td-truncate td-tooltip" data-tip="${(r.falla||'—').replace(/"/g,'&quot;')}">${r.falla||'—'}</td>
     <td style="font-size:.75rem;color:var(--ink-3)">${regPor}</td>
     <td style="font-size:.75rem;color:var(--ink-3)">${r.modificado_por||'—'}</td>
     <td><div class="td-actions">
