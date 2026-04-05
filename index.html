@@ -240,7 +240,6 @@
     tbody tr:last-child{border-bottom:none;}
     tbody tr:hover{background:var(--surface-2);}
     tbody td{padding:.625rem 1rem;color:var(--ink-2);vertical-align:middle;white-space:nowrap;}
-    tbody td.td-wrap{white-space:normal;width:100%;}
     tbody td strong{color:var(--ink-1);font-weight:600;}
     .td-mono{font-family:var(--mono);font-size:.75rem;}
     .td-actions{display:flex;gap:.375rem;}
@@ -681,19 +680,7 @@
             <button class="btn btn-success btn-sm" onclick="exportExcel('def')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Excel</button>
           </div>
         </div>
-        <div class="table-wrap"><table style="table-layout:fixed;width:100%;"><colgroup>
-          <col style="width:110px"><!-- Consecutivo -->
-          <col style="width:90px"> <!-- Fecha -->
-          <col style="width:130px"><!-- Categoría -->
-          <col style="width:130px"><!-- Motivo -->
-          <col style="width:70px"> <!-- Ticket -->
-          <col>                   <!-- Cliente — flexible -->
-          <col style="width:80px"> <!-- Sede -->
-          <col style="width:90px"> <!-- Factura -->
-          <col style="width:90px"> <!-- Marca -->
-          <col style="width:110px"><!-- Registrado por -->
-          <col style="width:120px"><!-- Acciones -->
-        </colgroup><thead><tr>
+        <div class="table-wrap"><table style="table-layout:auto;width:auto;min-width:100%;"><thead><tr>
           <th class="sortable" data-sort-type="def" data-sort-col="boleta">Consecutivo <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="fecha_creacion">Fecha <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="categoria">Categoría <span class="sort-icon">↕</span></th>
@@ -704,8 +691,9 @@
           <th class="sortable" data-sort-type="def" data-sort-col="factura">Factura <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="marca">Marca <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="registrado_por">Registrado por <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="def" data-sort-col="modificado_por">Modificado por <span class="sort-icon">↕</span></th>
           <th>Acciones</th>
-        </tr></thead><tbody id="tbody-def"><tr class="empty-row"><td colspan="11"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
+        </tr></thead><tbody id="tbody-def"><tr class="empty-row"><td colspan="12"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
       </div>
       <!-- Panel temp -->
       <div class="data-panel" id="panel-salidas-temporales" style="display:none">
@@ -717,19 +705,7 @@
             <button class="btn btn-success btn-sm" onclick="exportExcel('temp')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Excel</button>
           </div>
         </div>
-        <div class="table-wrap"><table style="table-layout:fixed;width:100%;"><colgroup>
-          <col style="width:110px">
-          <col style="width:90px">
-          <col style="width:130px">
-          <col style="width:130px">
-          <col style="width:70px">
-          <col>
-          <col style="width:80px">
-          <col style="width:90px">
-          <col style="width:90px">
-          <col style="width:110px">
-          <col style="width:120px">
-        </colgroup><thead><tr>
+        <div class="table-wrap"><table style="table-layout:auto;width:auto;min-width:100%;"><thead><tr>
           <th class="sortable" data-sort-type="temp" data-sort-col="boleta">Consecutivo <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="fecha_creacion">Fecha <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="categoria">Categoría <span class="sort-icon">↕</span></th>
@@ -740,8 +716,9 @@
           <th class="sortable" data-sort-type="temp" data-sort-col="factura">Factura <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="marca">Marca <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="registrado_por">Registrado por <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="temp" data-sort-col="modificado_por">Modificado por <span class="sort-icon">↕</span></th>
           <th>Acciones</th>
-        </tr></thead><tbody id="tbody-temp"><tr class="empty-row"><td colspan="11"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
+        </tr></thead><tbody id="tbody-temp"><tr class="empty-row"><td colspan="12"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
       </div>
 
       <!-- PANEL USUARIOS -->
@@ -2861,7 +2838,7 @@ function fmtDate(iso){if(!iso)return'—';return new Date(iso).toLocaleDateStrin
 
 function adminRenderTable(type){
   const tbody=document.getElementById('tbody-'+type), rows=records[type];
-  if(!rows.length){tbody.innerHTML=`<tr class="empty-row"><td colspan="11"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;return;}
+  if(!rows.length){tbody.innerHTML=`<tr class="empty-row"><td colspan="12"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;return;}
   tbody.innerHTML=rows.map((r,i)=>{
     const regPor = r.registrado_por || '—';
     const modPor = r.modificado_por ? ` <span style="font-size:.65rem;color:var(--ink-4)" title="Modificado por ${r.modificado_por}">(mod.)</span>` : '';
@@ -2875,7 +2852,8 @@ function adminRenderTable(type){
     <td style="color:var(--ink-3)">${r.sede||'—'}</td>
     <td class="td-mono">${r.factura||'—'}</td>
     <td>${r.marca||'—'}</td>
-    <td style="font-size:.75rem;color:var(--ink-3)">${regPor}${modPor}</td>
+    <td style="font-size:.75rem;color:var(--ink-3)">${regPor}</td>
+    <td style="font-size:.75rem;color:var(--ink-3)">${r.modificado_por||'—'}</td>
     <td><div class="td-actions">
       <button class="btn btn-amber btn-sm" onclick="openEdit('${r.id}')">Editar</button>
       <button class="btn btn-danger btn-sm" onclick="askDelete('${r.id}','${r.boleta||''}')">Eliminar</button>
