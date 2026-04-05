@@ -228,7 +228,7 @@
     #invFileInput{display:none;}
     .table-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;box-shadow:var(--shadow-sm);}
     .table-wrap{overflow-x:auto;}
-    table{width:100%;border-collapse:collapse;font-size:.8125rem;table-layout:auto;}
+    table{border-collapse:collapse;font-size:.8125rem;}
     thead{border-bottom:1.5px solid var(--border-2);}
     thead th{padding:.75rem 1rem;text-align:left;font-size:.6rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-4);white-space:nowrap;background:var(--surface-2);}
     thead th.sortable{cursor:pointer;user-select:none;}
@@ -240,7 +240,7 @@
     tbody tr:last-child{border-bottom:none;}
     tbody tr:hover{background:var(--surface-2);}
     tbody td{padding:.625rem 1rem;color:var(--ink-2);vertical-align:middle;white-space:nowrap;}
-    tbody td.td-wrap{white-space:normal;min-width:140px;max-width:260px;}
+    tbody td.td-wrap{white-space:normal;width:100%;}
     tbody td strong{color:var(--ink-1);font-weight:600;}
     .td-mono{font-family:var(--mono);font-size:.75rem;}
     .td-actions{display:flex;gap:.375rem;}
@@ -681,7 +681,19 @@
             <button class="btn btn-success btn-sm" onclick="exportExcel('def')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Excel</button>
           </div>
         </div>
-        <div class="table-wrap"><table><thead><tr>
+        <div class="table-wrap"><table style="table-layout:fixed;width:100%;"><colgroup>
+          <col style="width:110px"><!-- Consecutivo -->
+          <col style="width:90px"> <!-- Fecha -->
+          <col style="width:130px"><!-- Categoría -->
+          <col style="width:130px"><!-- Motivo -->
+          <col style="width:70px"> <!-- Ticket -->
+          <col>                   <!-- Cliente — flexible -->
+          <col style="width:80px"> <!-- Sede -->
+          <col style="width:90px"> <!-- Factura -->
+          <col style="width:90px"> <!-- Marca -->
+          <col style="width:110px"><!-- Registrado por -->
+          <col style="width:120px"><!-- Acciones -->
+        </colgroup><thead><tr>
           <th class="sortable" data-sort-type="def" data-sort-col="boleta">Consecutivo <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="fecha_creacion">Fecha <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="categoria">Categoría <span class="sort-icon">↕</span></th>
@@ -705,7 +717,19 @@
             <button class="btn btn-success btn-sm" onclick="exportExcel('temp')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Excel</button>
           </div>
         </div>
-        <div class="table-wrap"><table><thead><tr>
+        <div class="table-wrap"><table style="table-layout:fixed;width:100%;"><colgroup>
+          <col style="width:110px">
+          <col style="width:90px">
+          <col style="width:130px">
+          <col style="width:130px">
+          <col style="width:70px">
+          <col>
+          <col style="width:80px">
+          <col style="width:90px">
+          <col style="width:90px">
+          <col style="width:110px">
+          <col style="width:120px">
+        </colgroup><thead><tr>
           <th class="sortable" data-sort-type="temp" data-sort-col="boleta">Consecutivo <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="fecha_creacion">Fecha <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="categoria">Categoría <span class="sort-icon">↕</span></th>
