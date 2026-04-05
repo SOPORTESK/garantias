@@ -1659,7 +1659,7 @@ function invRender() {
   tbody.innerHTML = rows.slice(0,500).map((r,i) => {
     const desc = r.descripcion||'—';
     const descEsc = desc.replace(/"/g,'&quot;');
-    return `<tr style="animation-delay:${Math.min(i,30)*0.015}s"><td>${r.marca||'—'}</td><td><strong>${r.articulo||'—'}</strong></td><td class="td-truncate" data-tip="${descEsc}">${desc}</td></tr>`;
+    return `<tr style="animation-delay:${Math.min(i,30)*0.015}s"><td>${r.marca||'—'}</td><td><strong>${r.articulo||'—'}</strong></td><td style="width:100%;white-space:nowrap;" data-tip="${descEsc}">${desc}</td></tr>`;
   }).join('');
   
   if (rows.length > 500) tbody.innerHTML += '<tr><td colspan="3" style="text-align:center;padding:.75rem;font-size:.75rem;color:var(--ink-4)">Mostrando 500 de ${rows.length} — refiná la búsqueda</td></tr>';
