@@ -410,6 +410,10 @@
       <span class="label">Inventario</span>
       <span class="badge-count" id="invCount" style="display:none">0</span>
     </button>
+    <button class="pill-btn" data-tab="registros" role="tab">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      <span class="label">Registros</span>
+    </button>
     <button class="pill-btn" data-tab="admin" role="tab" style="display:none" id="adminNavBtn">
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
       <span class="label">Admin</span>
@@ -628,6 +632,85 @@
         </table>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- PANEL: REGISTROS -->
+<div class="panel" id="panel-registros">
+  <div class="admin-content" style="max-width:1400px;margin:0 auto;padding:1.75rem;">
+
+    <!-- Salidas Definitivas -->
+    <div class="data-panel" style="margin-bottom:1.5rem;">
+      <div class="data-panel-header">
+        <div class="data-panel-title">
+          <span class="panel-dot" style="background:var(--brand);"></span>
+          <span style="font-size:.9375rem;font-weight:700;color:var(--ink-1)">Salidas Definitivas</span>
+          <span style="font-size:.75rem;color:var(--ink-4)" id="reg-count-def"></span>
+        </div>
+        <div class="data-panel-actions">
+          <div class="search-box" style="padding:.3rem .625rem;">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
+            <input type="text" id="reg-search-def" placeholder="Buscar…" oninput="regApplyFilters('def')" style="width:140px;">
+          </div>
+          <button class="btn btn-success btn-sm" onclick="regExportExcel('def')">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Excel
+          </button>
+        </div>
+      </div>
+      <div class="table-wrap"><table style="table-layout:auto;width:auto;min-width:100%;"><thead><tr>
+        <th>Consecutivo</th>
+        <th>Fecha</th>
+        <th>Categoría</th>
+        <th>Motivo</th>
+        <th>Ticket</th>
+        <th>Cliente</th>
+        <th>Sede</th>
+        <th>Factura</th>
+        <th>Marca</th>
+        <th>Falla</th>
+        <th>Registrado por</th>
+        <th>Modificado por</th>
+        <th>Acciones</th>
+      </tr></thead><tbody id="reg-tbody-def"><tr class="empty-row"><td colspan="13"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
+    </div>
+
+    <!-- Salidas Temporales -->
+    <div class="data-panel">
+      <div class="data-panel-header">
+        <div class="data-panel-title">
+          <span class="panel-dot dot-green"></span>
+          <span style="font-size:.9375rem;font-weight:700;color:var(--ink-1)">Salidas Temporales</span>
+          <span style="font-size:.75rem;color:var(--ink-4)" id="reg-count-temp"></span>
+        </div>
+        <div class="data-panel-actions">
+          <div class="search-box" style="padding:.3rem .625rem;">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
+            <input type="text" id="reg-search-temp" placeholder="Buscar…" oninput="regApplyFilters('temp')" style="width:140px;">
+          </div>
+          <button class="btn btn-success btn-sm" onclick="regExportExcel('temp')">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Excel
+          </button>
+        </div>
+      </div>
+      <div class="table-wrap"><table style="table-layout:auto;width:auto;min-width:100%;"><thead><tr>
+        <th>Consecutivo</th>
+        <th>Fecha</th>
+        <th>Categoría</th>
+        <th>Motivo</th>
+        <th>Ticket</th>
+        <th>Cliente</th>
+        <th>Sede</th>
+        <th>Factura</th>
+        <th>Marca</th>
+        <th>Falla</th>
+        <th>Registrado por</th>
+        <th>Modificado por</th>
+        <th>Acciones</th>
+      </tr></thead><tbody id="reg-tbody-temp"><tr class="empty-row"><td colspan="13"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
+    </div>
+
   </div>
 </div>
 
@@ -1145,11 +1228,11 @@ function renderLoginForm() {
       <div class="login-row">
         <div class="login-field">
           <label class="login-label">Nombre</label>
-          <input id="li-nombre" type="text" class="login-input" placeholder="César">
+          <input id="li-nombre" type="text" class="login-input" placeholder="Nombre">
         </div>
         <div class="login-field">
           <label class="login-label">Primer apellido</label>
-          <input id="li-apellido" type="text" class="login-input" placeholder="Batista">
+          <input id="li-apellido" type="text" class="login-input" placeholder="Apellido">
         </div>
       </div>
       <div class="login-field">
@@ -1464,6 +1547,10 @@ function switchTab(tab) {
   document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
   document.getElementById('boletaChip').style.display = tab === 'formulario' ? '' : 'none';
   if (tab === 'admin' && !adminLoaded) { adminLoaded = true; adminLoadAll(); }
+  if (tab === 'registros') {
+    if (!adminLoaded) { adminLoaded = true; adminLoadAll().then(() => regLoadAll()); }
+    else { regLoadAll(); }
+  }
   if (tab === 'admin') {
     const ru = document.getElementById('railUsuarios');
     if (ru && isAdmin()) ru.style.display = '';
@@ -2470,7 +2557,86 @@ async function doCopyFormHTML() {
   } catch(e) { showToast('Error al copiar','error',e.message); }
 }
 
-/* ══ BOTONES DE PRUEBA ══ */
+/* ═══════════════════════════════════════
+   PANEL REGISTROS (solo lectura)
+═══════════════════════════════════════ */
+let regLoaded = false;
+const regRecords = { def: [], temp: [] };
+
+function regRenderTable(type) {
+  const tbody = document.getElementById('reg-tbody-' + type);
+  const rows  = regRecords[type];
+  const count = document.getElementById('reg-count-' + type);
+  if (count) count.textContent = rows.length + ' registro' + (rows.length !== 1 ? 's' : '');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="13"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>';
+    return;
+  }
+  const myName = (function(){
+    const n = currentPerfil?.nombre || currentUser?.user_metadata?.nombre || '';
+    const a = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
+    return a ? n + ' ' + a : n;
+  })();
+  tbody.innerHTML = rows.map((r, i) => {
+    const canEdit = isAdmin() || (r.registrado_por && myName && r.registrado_por === myName);
+    const modInfo = r.modificado_por
+      ? `${r.modificado_por}${r.fecha_modificacion ? '<br><span style="font-size:.65rem;color:var(--ink-4)">' + fmtDate(r.fecha_modificacion) + '</span>' : ''}`
+      : '—';
+    return `<tr style="animation-delay:${i*0.02}s">
+    <td class="td-mono">${boletaBadge(r.boleta)}</td>
+    <td>${fmtDate(r.fecha_creacion)}</td>
+    <td>${catBadge(r.categoria)}</td>
+    <td style="color:var(--ink-3);font-size:.75rem">${MOT_LABELS[r.motivo]||r.motivo||'—'}</td>
+    <td class="td-mono">${r.ticket||'—'}</td>
+    <td><strong>${r.nombre||'—'}</strong></td>
+    <td style="color:var(--ink-3)">${r.sede||'—'}</td>
+    <td class="td-mono">${r.factura||'—'}</td>
+    <td>${r.marca||'—'}</td>
+    <td class="td-truncate" data-tip="${(r.falla||'—').replace(/"/g,'&quot;')}">${r.falla||'—'}</td>
+    <td style="font-size:.75rem;color:var(--ink-3)">${r.registrado_por||'—'}</td>
+    <td style="font-size:.75rem;color:var(--ink-3)">${modInfo}</td>
+    <td><div class="td-actions">${canEdit ? `<button class="btn btn-amber btn-sm" onclick="openEdit('${r.id}')">Editar</button>` : ''}</div></td>
+  </tr>`;
+  }).join('');
+}
+
+function regApplyFilters(type) {
+  const q = (document.getElementById('reg-search-' + type)?.value || '').toLowerCase();
+  let rows = rawData[type] || [];
+  if (q) rows = rows.filter(r => [r.boleta,r.nombre,r.ticket,r.marca,r.factura,r.serie,r.sede].map(x=>(x||'').toLowerCase()).join(' ').includes(q));
+  regRecords[type] = rows;
+  regRenderTable(type);
+}
+
+function regLoadAll() {
+  regLoaded = true;
+  regRecords.def  = [...(rawData.def  || [])];
+  regRecords.temp = [...(rawData.temp || [])];
+  regRenderTable('def');
+  regRenderTable('temp');
+}
+
+function regExportExcel(type) {
+  const rows = regRecords[type];
+  if (!rows.length) { showToast('No hay registros', 'info'); return; }
+  const headers = ['Consecutivo','Fecha','Tipo','Categoría','Motivo','Ticket','Cliente','Sede','Factura','Cantidad','Fecha Compra','Marca','Serie','Falla','Registrado por'];
+  const data = rows.map(r => [
+    r.boleta||'', r.fecha_creacion ? new Date(r.fecha_creacion).toLocaleDateString('es-CR') : '',
+    r.tipo==='salida_definitiva'?'Salida Definitiva':'Salida Temporal',
+    CAT_LABELS[r.categoria]||r.categoria||'', MOT_LABELS[r.motivo]||r.motivo||'',
+    r.ticket||'', r.nombre||'', r.sede||'', r.factura||'', r.cantidad||'',
+    r.fecha_compra||'', r.marca||'', r.serie||'', r.falla||'', r.registrado_por||''
+  ]);
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+  ws['!cols'] = [12,12,18,18,18,10,22,14,12,8,12,14,14,30,18].map(w=>({wch:w}));
+  const wb = XLSX.utils.book_new();
+  const sn = type==='def' ? 'Salidas Definitivas' : 'Salidas Temporales';
+  XLSX.utils.book_append_sheet(wb, ws, sn);
+  XLSX.writeFile(wb, `Sekunet_${sn.replace(/ /g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  showToast('Excel exportado', 'success');
+}
+
+  
 function revertBoletaPersonalizado() {
   const input = document.getElementById('revertBoletaInput');
   const num = parseInt(input?.value);
@@ -2927,6 +3093,7 @@ async function saveEdit(){
     const allM=[...rawData.def,...rawData.temp].map(patch);
     rawData.def=allM.filter(r=>r.tipo==='salida_definitiva'); rawData.temp=allM.filter(r=>r.tipo==='salida_temporal');
     adminUpdateBadges(); adminApplyFilters('def'); adminApplyFilters('temp'); closeModal();
+    if (regLoaded) regLoadAll();
     showToast('Registro actualizado','success');
   }catch(err){showToast('Error al actualizar','error',err.message);}
   finally{btn.disabled=false;btn.innerHTML='<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Guardar Cambios';}
