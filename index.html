@@ -2449,16 +2449,25 @@ async function doSendEmail() {
   var subject = encodeURIComponent([tipo,cat,ticket].filter(Boolean).join(' · ') + ' · Boleta ' + boleta);
   var body    = encodeURIComponent(buildEmailBody(r));
   var htmlContent = buildOutlookHTML(r);
+
+  // Abrir cliente de correo predeterminado PRIMERO (dentro del evento de click)
+  var a = document.createElement('a');
+  a.href = 'mailto:?subject=' + subject + '&body=' + body;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  // Luego copiar HTML al portapapeles
   try {
     await navigator.clipboard.write([new ClipboardItem({
       'text/html': new Blob([htmlContent], {type:'text/html'}),
       'text/plain': new Blob([boleta], {type:'text/plain'})
     })]);
-    showToast('Comprobante copiado · pegá con Ctrl+V en el correo','success');
+    showToast('Correo abierto · comprobante copiado · pegá con Ctrl+V','success');
   } catch(e) {
-    showToast('No se pudo copiar automáticamente','info','Usá "Copiar formulario" y pegalo manualmente');
+    showToast('Correo abierto · copiá el comprobante manualmente','info');
   }
-  setTimeout(function() { window.location.href = 'mailto:?subject=' + subject + '&body=' + body; }, 400);
 }
 async function doSendPrint() { 
   console.log('doSendPrint llamado');
