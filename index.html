@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
@@ -410,6 +411,10 @@
       <span class="label">Inventario</span>
       <span class="badge-count" id="invCount" style="display:none">0</span>
     </button>
+    <button class="pill-btn" data-tab="estadisticas" role="tab" id="statsNavBtn" style="display:none">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      <span class="label">Estadísticas</span>
+    </button>
     <button class="pill-btn" data-tab="registros" role="tab">
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
       <span class="label">Registros</span>
@@ -605,7 +610,7 @@
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
           <input id="invSearch" type="text" placeholder="Buscar artículo, serie, marca…">
         </div>
-        <button class="btn btn-primary" onclick="document.getElementById('invFileInput').click()">
+        <button class="btn btn-primary" id="invUploadBtn" onclick="document.getElementById('invFileInput').click()">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
           Subir Excel
         </button>
@@ -631,6 +636,54 @@
           <tbody id="invTbody"></tbody>
         </table>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL: ESTADÍSTICAS (solo admin) -->
+<div class="panel" id="panel-estadisticas">
+  <div style="max-width:1200px;margin:0 auto;padding:1.75rem;">
+    <div class="stat-grid" style="margin-bottom:1.5rem;">
+      <div class="stat-card c-brand"><div class="stat-label">Total</div><div class="stat-value" id="st-total">—</div><div class="stat-sub">en la base</div></div>
+      <div class="stat-card c-blue"><div class="stat-label">Definitivas</div><div class="stat-value" id="st-def">—</div><div class="stat-sub">salida definitiva</div></div>
+      <div class="stat-card c-green"><div class="stat-label">Temporales</div><div class="stat-value" id="st-temp">—</div><div class="stat-sub">salida temporal</div></div>
+      <div class="stat-card c-purple"><div class="stat-label">Hoy</div><div class="stat-value" id="st-hoy">—</div><div class="stat-sub">registros del día</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;">
+      <div class="data-panel" style="padding:1.25rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <div style="font-size:.875rem;font-weight:700;color:var(--ink-1);">Registros por mes</div>
+          <button class="btn btn-ghost btn-sm" onclick="statsDownloadChart('chart-por-mes','registros_por_mes')">⬇ PNG</button>
+        </div>
+        <canvas id="chart-por-mes" height="220"></canvas>
+      </div>
+      <div class="data-panel" style="padding:1.25rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <div style="font-size:.875rem;font-weight:700;color:var(--ink-1);">Por categoría</div>
+          <button class="btn btn-ghost btn-sm" onclick="statsDownloadChart('chart-por-cat','por_categoria')">⬇ PNG</button>
+        </div>
+        <canvas id="chart-por-cat" height="220"></canvas>
+      </div>
+      <div class="data-panel" style="padding:1.25rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <div style="font-size:.875rem;font-weight:700;color:var(--ink-1);">Por motivo</div>
+          <button class="btn btn-ghost btn-sm" onclick="statsDownloadChart('chart-por-mot','por_motivo')">⬇ PNG</button>
+        </div>
+        <canvas id="chart-por-mot" height="220"></canvas>
+      </div>
+      <div class="data-panel" style="padding:1.25rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <div style="font-size:.875rem;font-weight:700;color:var(--ink-1);">Por sede</div>
+          <button class="btn btn-ghost btn-sm" onclick="statsDownloadChart('chart-por-sede','por_sede')">⬇ PNG</button>
+        </div>
+        <canvas id="chart-por-sede" height="220"></canvas>
+      </div>
+    </div>
+    <div style="text-align:right;">
+      <button class="btn btn-success" onclick="statsDownloadExcel()">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Descargar resumen Excel
+      </button>
     </div>
   </div>
 </div>
@@ -747,13 +800,6 @@
           <button class="btn btn-ghost btn-sm" onclick="adminLoadAll()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Actualizar</button>
         </div>
       </div>
-      <div class="stat-grid">
-        <div class="stat-card c-brand"><div class="stat-label">Total</div><div class="stat-value" id="st-total">—</div><div class="stat-sub">en la base</div></div>
-        <div class="stat-card c-blue"><div class="stat-label">Definitivas</div><div class="stat-value" id="st-def">—</div><div class="stat-sub">salida definitiva</div></div>
-        <div class="stat-card c-green"><div class="stat-label">Temporales</div><div class="stat-value" id="st-temp">—</div><div class="stat-sub">salida temporal</div></div>
-        <div class="stat-card c-purple"><div class="stat-label">Hoy</div><div class="stat-value" id="st-hoy">—</div><div class="stat-sub">registros del día</div></div>
-      </div>
-
       <!-- Panel def -->
       <div class="data-panel" id="panel-salidas-definitivas" style="display:none">
         <div class="data-panel-header">
@@ -1196,7 +1242,16 @@ function hideLoginOverlay() {
   if (menuName)  menuName.textContent  = fullName;
   if (menuEmail) menuEmail.textContent = email;
 
-
+  // Permisos por rol
+  const admin = isAdmin();
+  // Estadísticas solo admin
+  const statsBtn = document.getElementById('statsNavBtn');
+  if (statsBtn) statsBtn.style.display = admin ? '' : 'none';
+  // Subir inventario solo admin
+  const invUpload = document.getElementById('invUploadBtn');
+  const uploadZone = document.getElementById('uploadZone');
+  if (invUpload) invUpload.style.display = admin ? '' : 'none';
+  if (uploadZone) uploadZone.style.display = admin ? '' : 'none';
 }
 
 function showLoginTab(mode) {
@@ -1550,6 +1605,10 @@ function switchTab(tab) {
   if (tab === 'registros') {
     if (!adminLoaded) { adminLoaded = true; adminLoadAll().then(() => regLoadAll()); }
     else { regLoadAll(); }
+  }
+  if (tab === 'estadisticas') {
+    if (!adminLoaded) { adminLoaded = true; adminLoadAll().then(() => statsInit()); }
+    else { statsInit(); }
   }
   if (tab === 'admin') {
     const ru = document.getElementById('railUsuarios');
@@ -2608,6 +2667,81 @@ function regApplyFilters(type) {
   regRenderTable(type);
 }
 
+/* ═══════════════════════════════════════
+   ESTADÍSTICAS (solo admin)
+═══════════════════════════════════════ */
+const statsCharts = {};
+
+function statsInit() {
+  const all = [...(rawData.def||[]), ...(rawData.temp||[])];
+  if (!all.length) return;
+  const COLORS = ['#D1411E','#2563EB','#059669','#7C3AED','#D97706','#DB2777','#0891B2','#65A30D'];
+  Object.values(statsCharts).forEach(c => c.destroy());
+
+  // Por mes
+  const meses = {};
+  all.forEach(r => { if(!r.fecha_creacion)return; const m=r.fecha_creacion.slice(0,7); meses[m]=(meses[m]||0)+1; });
+  const mKeys = Object.keys(meses).sort().slice(-12);
+  statsCharts['mes'] = new Chart(document.getElementById('chart-por-mes'), {
+    type:'bar', data:{ labels:mKeys.map(m=>{const[y,mo]=m.split('-');return mo+'/'+y.slice(2);}), datasets:[{label:'Registros',data:mKeys.map(k=>meses[k]),backgroundColor:'#D1411E',borderRadius:4}] },
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+  });
+
+  // Por categoría
+  const cats = {};
+  all.forEach(r=>{const k=CAT_LABELS[r.categoria]||r.categoria||'Sin categoría';cats[k]=(cats[k]||0)+1;});
+  const catKeys = Object.keys(cats);
+  statsCharts['cat'] = new Chart(document.getElementById('chart-por-cat'), {
+    type:'doughnut', data:{labels:catKeys,datasets:[{data:catKeys.map(k=>cats[k]),backgroundColor:COLORS}]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:11}}}}}
+  });
+
+  // Por motivo
+  const mots = {};
+  all.forEach(r=>{const k=MOT_LABELS[r.motivo]||r.motivo||'Sin motivo';mots[k]=(mots[k]||0)+1;});
+  const motKeys = Object.keys(mots);
+  statsCharts['mot'] = new Chart(document.getElementById('chart-por-mot'), {
+    type:'bar', data:{labels:motKeys,datasets:[{label:'Registros',data:motKeys.map(k=>mots[k]),backgroundColor:'#2563EB',borderRadius:4}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+  });
+
+  // Por sede
+  const sedes = {};
+  all.forEach(r=>{const k=r.sede||'Sin sede';sedes[k]=(sedes[k]||0)+1;});
+  const sedeKeys = Object.keys(sedes);
+  statsCharts['sede'] = new Chart(document.getElementById('chart-por-sede'), {
+    type:'doughnut', data:{labels:sedeKeys,datasets:[{data:sedeKeys.map(k=>sedes[k]),backgroundColor:COLORS}]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:11}}}}}
+  });
+}
+
+function statsDownloadChart(canvasId, filename) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const a = document.createElement('a');
+  a.download = filename + '.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
+
+function statsDownloadExcel() {
+  const all = [...(rawData.def||[]), ...(rawData.temp||[])];
+  if (!all.length) { showToast('Sin datos','info'); return; }
+  const wb = XLSX.utils.book_new();
+  const today = new Date().toISOString().slice(0,10);
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Métrica','Valor'],['Total',all.length],['Definitivas',rawData.def.length],['Temporales',rawData.temp.length],['Hoy',all.filter(r=>r.fecha_creacion&&r.fecha_creacion.startsWith(today)).length]]), 'Resumen');
+  const cats={};all.forEach(r=>{const k=CAT_LABELS[r.categoria]||r.categoria||'Sin categoría';cats[k]=(cats[k]||0)+1;});
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Categoría','Cantidad'],...Object.entries(cats)]), 'Por Categoría');
+  const mots={};all.forEach(r=>{const k=MOT_LABELS[r.motivo]||r.motivo||'Sin motivo';mots[k]=(mots[k]||0)+1;});
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Motivo','Cantidad'],...Object.entries(mots)]), 'Por Motivo');
+  const sedes={};all.forEach(r=>{const k=r.sede||'Sin sede';sedes[k]=(sedes[k]||0)+1;});
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Sede','Cantidad'],...Object.entries(sedes)]), 'Por Sede');
+  const meses={};all.forEach(r=>{if(!r.fecha_creacion)return;const m=r.fecha_creacion.slice(0,7);meses[m]=(meses[m]||0)+1;});
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Mes','Cantidad'],...Object.entries(meses).sort()]), 'Por Mes');
+  XLSX.writeFile(wb, 'Sekunet_Estadisticas_'+today+'.xlsx');
+  showToast('Excel descargado','success');
+}
+
 function regLoadAll() {
   regLoaded = true;
   regRecords.def  = [...(rawData.def  || [])];
@@ -2821,14 +2955,14 @@ async function saveUser() {
       });
       // ── Cambiar contraseña si se ingresó ──
       if (password) {
-        const r = await fetch(SB_URL + '/auth/v1/admin/users/' + _editingUserId, {
-          method: 'PUT',
+        const r = await fetch(SB_URL + '/functions/v1/admin-change-password', {
+          method: 'POST',
           headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + authToken, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password })
+          body: JSON.stringify({ userId: _editingUserId, password })
         });
         if (!r.ok) {
-          const err = await r.json();
-          throw new Error(err.message || 'Error al cambiar contraseña');
+          const err = await r.json().catch(()=>({}));
+          throw new Error(err.error || 'Error al cambiar contraseña');
         }
       }
       showToast('Usuario actualizado', 'success', nombre + ' ' + apellido);
