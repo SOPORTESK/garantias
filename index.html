@@ -670,10 +670,12 @@
         <th>Factura</th>
         <th>Marca</th>
         <th>Falla</th>
+        <th>DEV</th>
+        <th>Aprobación</th>
         <th>Registrado por</th>
         <th>Modificado por</th>
         <th>Acciones</th>
-      </tr></thead><tbody id="reg-tbody-def"><tr class="empty-row"><td colspan="13"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
+      </tr></thead><tbody id="reg-tbody-def"><tr class="empty-row"><td colspan="15"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
     </div>
 
     <!-- Salidas Temporales -->
@@ -706,10 +708,12 @@
         <th>Factura</th>
         <th>Marca</th>
         <th>Falla</th>
+        <th>DEV</th>
+        <th>Aprobación</th>
         <th>Registrado por</th>
         <th>Modificado por</th>
         <th>Acciones</th>
-      </tr></thead><tbody id="reg-tbody-temp"><tr class="empty-row"><td colspan="13"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
+      </tr></thead><tbody id="reg-tbody-temp"><tr class="empty-row"><td colspan="15"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
     </div>
 
   </div>
@@ -775,7 +779,7 @@
           <th class="sortable" data-sort-type="def" data-sort-col="registrado_por">Registrado por <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="modificado_por">Modificado por <span class="sort-icon">↕</span></th>
           <th>Acciones</th>
-        </tr></thead><tbody id="tbody-def"><tr class="empty-row"><td colspan="13"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
+        </tr></thead><tbody id="tbody-def"><tr class="empty-row"><td colspan="15"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
       </div>
       <!-- Panel temp -->
       <div class="data-panel" id="panel-salidas-temporales" style="display:none">
@@ -801,7 +805,7 @@
           <th class="sortable" data-sort-type="temp" data-sort-col="registrado_por">Registrado por <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="modificado_por">Modificado por <span class="sort-icon">↕</span></th>
           <th>Acciones</th>
-        </tr></thead><tbody id="tbody-temp"><tr class="empty-row"><td colspan="13"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
+        </tr></thead><tbody id="tbody-temp"><tr class="empty-row"><td colspan="15"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
       </div>
 
       <!-- PANEL USUARIOS -->
@@ -840,11 +844,23 @@
 
       <!-- PANEL ESTADÍSTICAS -->
       <div id="panel-estadisticas-admin" style="display:none;">
-        <div class="stat-grid" style="margin-bottom:1.5rem;">
+        <div class="stat-grid" style="margin-bottom:1.5rem;grid-template-columns:repeat(5,1fr);">
           <div class="stat-card c-brand"><div class="stat-label">Total</div><div class="stat-value" id="st-total">—</div><div class="stat-sub">en la base</div></div>
           <div class="stat-card c-blue"><div class="stat-label">Definitivas</div><div class="stat-value" id="st-def">—</div><div class="stat-sub">salida definitiva</div></div>
           <div class="stat-card c-green"><div class="stat-label">Temporales</div><div class="stat-value" id="st-temp">—</div><div class="stat-sub">salida temporal</div></div>
           <div class="stat-card c-purple"><div class="stat-label">Hoy</div><div class="stat-value" id="st-hoy">—</div><div class="stat-sub">registros del día</div></div>
+          <div class="stat-card" style="border-top:3px solid var(--amber);">
+            <div class="stat-label" style="color:var(--amber);">Tiempo de Aprobación</div>
+            <div style="display:flex;align-items:baseline;gap:.35rem;margin:.35rem 0 .1rem;">
+              <div class="stat-value" id="st-aprov-avg" style="color:var(--amber);font-size:1.6rem;">—</div>
+              <div style="font-size:.75rem;color:var(--ink-4);">días prom.</div>
+            </div>
+            <div style="display:flex;gap:.75rem;margin-top:.3rem;">
+              <div style="font-size:.68rem;color:var(--ink-4);">Mín <span id="st-aprov-min" style="color:var(--green);font-weight:700;">—</span>d</div>
+              <div style="font-size:.68rem;color:var(--ink-4);">Máx <span id="st-aprov-max" style="color:var(--red);font-weight:700;">—</span>d</div>
+              <div style="font-size:.68rem;color:var(--ink-4);"><span id="st-aprov-n" style="font-weight:700;">0</span> aprobados</div>
+            </div>
+          </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;">
           <div class="data-panel" style="padding:1.25rem;">
@@ -2631,7 +2647,7 @@ function regRenderTable(type) {
   const count = document.getElementById('reg-count-' + type);
   if (count) count.textContent = rows.length + ' registro' + (rows.length !== 1 ? 's' : '');
   if (!rows.length) {
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="13"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>';
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="15"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>';
     return;
   }
   const myName = (function(){
@@ -2655,6 +2671,8 @@ function regRenderTable(type) {
     <td class="td-mono">${r.factura||'—'}</td>
     <td>${r.marca||'—'}</td>
     <td class="td-truncate" data-tip="${(r.falla||'—').replace(/"/g,'&quot;')}">${r.falla||'—'}</td>
+    <td class="td-mono" style="color:var(--brand);font-weight:700;">${r.dev||'—'}</td>
+    <td style="font-size:.75rem;color:var(--ink-3);white-space:nowrap;">${r.fecha_aprobacion ? new Date(r.fecha_aprobacion).toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric'}) : '—'}</td>
     <td style="font-size:.75rem;color:var(--ink-3)">${r.registrado_por||'—'}</td>
     <td style="font-size:.75rem;color:var(--ink-3)">${modInfo}</td>
     <td><div class="td-actions">${canEdit ? `<button class="btn btn-amber btn-sm" onclick="openEdit('${r.id}')">Editar</button>` : ''}</div></td>
@@ -3085,6 +3103,25 @@ function adminUpdateStats(all) {
   document.getElementById('st-def').textContent=rawData.def.length;
   document.getElementById('st-temp').textContent=rawData.temp.length;
   document.getElementById('st-hoy').textContent=all.filter(r=>r.fecha_creacion&&r.fecha_creacion.startsWith(today)).length;
+  // Tiempo de aprobación
+  const aprobados = all.filter(r=>r.fecha_creacion&&r.fecha_aprobacion);
+  const dias = aprobados.map(r=>{
+    const ms = new Date(r.fecha_aprobacion) - new Date(r.fecha_creacion);
+    return Math.round(ms / 86400000);
+  }).filter(d=>d>=0);
+  if(dias.length) {
+    const avg = (dias.reduce((a,b)=>a+b,0)/dias.length).toFixed(1);
+    const min = Math.min(...dias);
+    const max = Math.max(...dias);
+    document.getElementById('st-aprov-avg').textContent = avg;
+    document.getElementById('st-aprov-min').textContent = min;
+    document.getElementById('st-aprov-max').textContent = max;
+  } else {
+    document.getElementById('st-aprov-avg').textContent = '—';
+    document.getElementById('st-aprov-min').textContent = '—';
+    document.getElementById('st-aprov-max').textContent = '—';
+  }
+  document.getElementById('st-aprov-n').textContent = dias.length;
 }
 function adminUpdateBadges() { document.getElementById('nb-def').textContent=rawData.def.length; document.getElementById('nb-temp').textContent=rawData.temp.length; }
 
@@ -3109,7 +3146,7 @@ function adminSwitchSection(sec) {
   if (sec === 'usuarios') {
     adminLoadUsers();
     const btnAgregar = document.getElementById('btnAgregarUsuario');
-    if (btnAgregar) btnAgregar.style.display = isSuperAdmin() ? '' : 'none';
+    if (btnAgregar) btnAgregar.style.display = isAdmin() ? '' : 'none';
   }
   if (sec === 'estadisticas') statsInit();
   if (sec === 'herramientas') { const el=document.getElementById('boletaActualAdmin'); if(el) el.textContent=consecutiveNum; }
@@ -3147,7 +3184,7 @@ function fmtDate(iso){if(!iso)return'—';return new Date(iso).toLocaleDateStrin
 
 function adminRenderTable(type){
   const tbody=document.getElementById('tbody-'+type), rows=records[type];
-  if(!rows.length){tbody.innerHTML=`<tr class="empty-row"><td colspan="13"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;return;}
+  if(!rows.length){tbody.innerHTML=`<tr class="empty-row"><td colspan="15"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;return;}
   tbody.innerHTML=rows.map((r,i)=>{
     const regPor = r.registrado_por || '—';
     const modPor = r.modificado_por ? ` <span style="font-size:.65rem;color:var(--ink-4)" title="Modificado por ${r.modificado_por}">(mod.)</span>` : '';
@@ -3195,6 +3232,7 @@ const EDIT_FIELDS=[
   {key:'nombre',label:'Nombre del Cliente',type:'text'},{key:'factura',label:'Factura N°',type:'text'},{key:'cantidad',label:'Cantidad',type:'number'},{key:'fecha_compra',label:'Fecha de Compra',type:'date'},
   {key:'marca',label:'Marca',type:'text'},{key:'serie',label:'Serie',type:'text'},
   {key:'descripcion',label:'Descripción',type:'textarea',full:true},{key:'falla',label:'Falla',type:'textarea',full:true},
+  {key:'dev',label:'DEV (número de aprobación)',type:'text',full:true,dev:true},
 ];
 
 function openEdit(id){
@@ -3202,10 +3240,32 @@ function openEdit(id){
   const r=pool.find(x=>x.id==id); if(!r)return;
   editingId=id;
   document.getElementById('modalTitleText').textContent='Editar · '+(r.boleta||'Registro');
+  // Determinar si puede editar el campo DEV
+  const myName = (function(){
+    const n = currentPerfil?.nombre || currentUser?.user_metadata?.nombre || '';
+    const a = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
+    return a ? n + ' ' + a : n;
+  })();
+  const canEditDev = isAdmin() || (r.registrado_por && myName && r.registrado_por === myName);
   document.getElementById('modalBody').innerHTML=EDIT_FIELDS.map(f=>{
-    const val=r[f.key]!==null&&r[f.key]!==undefined?r[f.key]:''; let inp;
-    if(f.type==='textarea'){inp=`<textarea id="e_${f.key}" class="field-textarea" rows="2">${val}</textarea>`;}
+    let val=r[f.key]!==null&&r[f.key]!==undefined?r[f.key]:'';
+    // Campo DEV: mostrar solo el número sin prefijo DEV-
+    if(f.dev) val = val ? val.replace(/^DEV-/i,'') : '';
+    let inp;
+    if(f.type==='textarea'){inp=`<textarea id="e_${f.key}" class="field-textarea" rows="2"${f.dev&&!canEditDev?' disabled':''} style="${f.dev&&!canEditDev?'opacity:.5;cursor:not-allowed;':''}">${val}</textarea>`;}
     else if(f.type==='select'){const opts=f.opts.map(([v,l])=>`<option value="${v}"${v===val?' selected':''}>${l}</option>`).join('');inp=`<select id="e_${f.key}" class="field-select"><option value="">Seleccionar</option>${opts}</select>`;}
+    else if(f.dev){
+      inp=`<div style="display:flex;align-items:center;gap:.4rem;">
+        <span style="font-family:var(--mono);font-size:.875rem;font-weight:700;color:var(--ink-3);white-space:nowrap;">DEV-</span>
+        <input id="e_${f.key}" type="text" class="field-input" value="${val}" placeholder="ej. 123456"${!canEditDev?' disabled style="opacity:.5;cursor:not-allowed;"':''}>
+      </div>`;
+      if(r.fecha_aprobacion){
+        inp+=`<div style="font-size:.72rem;color:var(--ink-4);margin-top:.25rem;">Aprobado: ${new Date(r.fecha_aprobacion).toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>`;
+      }
+      if(!canEditDev){
+        inp+=`<div style="font-size:.72rem;color:var(--ink-4);margin-top:.25rem;">Solo el autor o admin puede editar este campo</div>`;
+      }
+    }
     else{inp=`<input id="e_${f.key}" type="${f.type}" class="field-input" value="${val}">`;}
     return`<div class="field${f.full?' field-full':''}"><label class="field-label">${f.label}</label>${inp}</div>`;
   }).join('');
@@ -3215,7 +3275,21 @@ function closeModal(){document.getElementById('editModal').classList.remove('ope
 async function saveEdit(){
   const btn=document.getElementById('modalSaveBtn'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando…';
   const payload={};
-  EDIT_FIELDS.forEach(f=>{const el=document.getElementById('e_'+f.key);if(el)payload[f.key]=el.value||null;});
+  EDIT_FIELDS.forEach(f=>{const el=document.getElementById('e_'+f.key);if(el&&!el.disabled){
+    if(f.dev){
+      // Agregar prefijo DEV- si hay valor
+      const v = el.value.trim();
+      payload[f.key] = v ? 'DEV-' + v.replace(/^DEV-/i,'') : null;
+    } else {
+      payload[f.key]=el.value||null;
+    }
+  }});
+  // Si se ingresó DEV por primera vez, registrar fecha_aprobacion
+  const pool2=[...allRecords,...rawData.def,...rawData.temp];
+  const orig2=pool2.find(x=>x.id==editingId);
+  if(payload.dev && (!orig2?.dev)) {
+    payload.fecha_aprobacion = new Date().toISOString();
+  }
   if(payload.cantidad)payload.cantidad=parseInt(payload.cantidad)||null;
   const nombre_mod   = currentPerfil?.nombre   || currentUser?.user_metadata?.nombre   || currentUser?.email?.split('@')[0] || '?';
   const apellido_mod = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
