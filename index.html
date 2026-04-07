@@ -2001,8 +2001,14 @@ function articuloSearch(q) {
     return; 
   }
   
-  // Buscar SOLO en la columna de artículo, NO en descripción
-  const matches = inventory.filter(r => String(r.articulo||'').toLowerCase().includes(val)).slice(0,10);
+  // Buscar por marca + artículo + descripción
+  const matches = inventory.filter(r => {
+    const marca = String(r.marca||'').toLowerCase();
+    const articulo = String(r.articulo||'').toLowerCase();
+    const descripcion = String(r.descripcion||'').toLowerCase();
+    
+    return marca.includes(val) || articulo.includes(val) || descripcion.includes(val);
+  }).slice(0,10);
   
   if (!matches.length) {
     if (drop) {
