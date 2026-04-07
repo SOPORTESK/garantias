@@ -1717,25 +1717,29 @@ function normalizeHeader(h) {
 }
 
 function detectExcelColumns(headers) {
+  console.log('=== Columnas encontradas en el Excel ===');
+  console.log(headers);
+  console.log('=== Columnas normalizadas ===');
+  console.log(headers.map(h => `${h} -> ${normalizeHeader(h)}`));
+  
   const mapping = {};  // { 'nombre_supabase': 'Nombre Excel Original' }
   
-  // Detectar columna de artículo
+  // Detectar columna de artículo (exacto para tu Excel)
   let articuloExcel = headers.find(h => {
     const norm = normalizeHeader(h);
-    return norm === 'articulo' || 
-           (norm.includes('articulo') && !norm.includes('descripcion'));
+    return norm === 'articulo' || h === 'Artículo' || h === 'Articulo';
   });
   
-  // Detectar descripción
+  // Detectar descripción (exacto para tu Excel)
   let descExcel = headers.find(h => {
     const norm = normalizeHeader(h);
-    return norm.includes('descripcion') || norm === 'descrip' || norm.includes('desc');
+    return norm === 'descripcion' || h === 'Descripción' || h === 'Descripcion';
   });
   
-  // Detectar marca
+  // Detectar marca (exacto para tu Excel)
   let marcaExcel = headers.find(h => {
     const norm = normalizeHeader(h);
-    return norm === 'marca' || norm.includes('marca') || norm.includes('brand');
+    return norm === 'marca' || h === 'Marca';
   });
   
   // Detectar bodega
