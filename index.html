@@ -2044,14 +2044,30 @@ let lastSavedRecord = null;
 
 async function loadRecords() {
   try {
-    const data = await sbFetch('GET', TABLE+'?order=numero_consecutivo.desc&limit=500', null);
-    allRecords = data||[];
+    // Paginación: cargar en lotes de 1000 para evitar el límite de Supabase
+    let all = [];
+    let offset = 0;
+    const limit = 1000;
+    let hasMore = true;
+    
+    while (hasMore) {
+      const batch = await sbFetch('GET', TABLE + '?order=numero_consecutivo.desc&limit=' + limit + '&offset=' + offset, null) || [];
+      all = all.concat(batch);
+      
+      if (batch.length < limit) {
+        hasMore = false;
+      } else {
+        offset += limit;
+      }
+    }
+    
+    allRecords = all;
     if (allRecords.length > 0) {
-      const maxNum = Math.max(...allRecords.map(r => r.numero_consecutivo||0));
+      const maxNum = Math.max(...allRecords.map(r => r.numero_consecutivo || 0));
       if (maxNum >= 29179) consecutiveNum = maxNum;
     }
     renderHeaderBoleta();
-  } catch(e) { console.error(e); }
+  } catch (e) { console.error(e); }
 }
 
 async function handleSubmit(e) {
@@ -3084,17 +3100,46 @@ let sortState={def:{col:'fecha_creacion',dir:-1},temp:{col:'fecha_creacion',dir:
 
 async function adminLoadAll() {
   try {
-    const all=await sbFetch('GET',TABLE+'?order=numero_consecutivo.desc',null)||[];
-    rawData.def=all.filter(r=>r.tipo==='salida_definitiva');
-    rawData.temp=all.filter(r=>r.tipo==='salida_temporal');
-    if (all.length>allRecords.length) {
-      allRecords=[...all];
-      if (allRecords.length>0) { const mx=Math.max(...allRecords.map(r=>r.numero_consecutivo||0)); if(mx>=29179)consecutiveNum=mx; }
+    showToast('Cargando registros…', 'info', 'Esto puede tomar un momento');
+    
+    // Paginación: cargar en lotes de 1000 para evitar el límite de Supabase
+    let all = [];
+    let offset = 0;
+    const limit = 1000;
+    let hasMore = true;
+    
+    while (hasMore) {
+      const batch = await sbFetch('GET', TABLE + '?order=numero_consecutivo.desc&limit=' + limit + '&offset=' + offset, null) || [];
+      all = all.concat(batch);
+      
+      if (batch.length < limit) {
+        hasMore = false;
+      } else {
+        offset += limit;
+      }
+    }
+    
+    rawData.def = all.filter(r => r.tipo === 'salida_definitiva');
+    rawData.temp = all.filter(r => r.tipo === 'salida_temporal');
+    
+    if (all.length > allRecords.length) {
+      allRecords = [...all];
+      if (allRecords.length > 0) {
+        const mx = Math.max(...allRecords.map(r => r.numero_consecutivo || 0));
+        if (mx >= 29179) consecutiveNum = mx;
+      }
       renderHeaderBoleta();
     }
-    adminUpdateStats(all); adminUpdateBadges();
-    adminApplyFilters('def'); adminApplyFilters('temp');
-  } catch(e) { showToast('Error al cargar datos','error',e.message); }
+    
+    adminUpdateStats(all);
+    adminUpdateBadges();
+    adminApplyFilters('def');
+    adminApplyFilters('temp');
+    
+    showToast('Registros cargados', 'success', all.length + ' registros');
+  } catch (e) {
+    showToast('Error al cargar datos', 'error', e.message);
+  }
 }
 
 function adminUpdateStats(all) {
