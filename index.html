@@ -146,16 +146,16 @@
     .field-input:disabled,.field-textarea:disabled{background:var(--bg-3);color:var(--ink-3);cursor:not-allowed;border-color:var(--border);opacity:1;}
     select option{background:#fff;color:#1A1108;}
 
-    /* Serie autocomplete */
-    .serie-wrapper{position:relative;}
-    .serie-status{position:absolute;right:.75rem;top:50%;transform:translateY(-50%);font-size:.65rem;font-weight:700;letter-spacing:.05em;padding:.15rem .4rem;border-radius:var(--radius-xs);pointer-events:none;}
-    .serie-status.found{background:var(--green-dim);color:var(--green);}
-    .serie-status.notfound{background:var(--red-dim);color:var(--red);}
+    /* Artículo autocomplete */
+    .articulo-wrapper{position:relative;}
+    .articulo-status{position:absolute;right:.75rem;top:50%;transform:translateY(-50%);font-size:.65rem;font-weight:700;letter-spacing:.05em;padding:.15rem .4rem;border-radius:var(--radius-xs);pointer-events:none;}
+    .articulo-status.found{background:var(--green-dim);color:var(--green);}
+    .articulo-status.notfound{background:var(--red-dim);color:var(--red);}
     .autocomplete-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:100;background:var(--surface);border:1.5px solid var(--border-2);border-radius:var(--radius-md);box-shadow:var(--shadow-md);max-height:220px;overflow-y:auto;}
     .autocomplete-item{padding:.625rem .875rem;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s;}
     .autocomplete-item:last-child{border-bottom:none;}
     .autocomplete-item:hover,.autocomplete-item.highlighted{background:var(--brand-dim);}
-    .ac-serie{font-family:var(--mono);font-size:.8rem;font-weight:600;color:var(--ink-1);}
+    .ac-articulo{font-family:var(--mono);font-size:.8rem;font-weight:600;color:var(--ink-1);}
     .ac-desc{font-size:.75rem;color:var(--ink-3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .ac-marca{font-size:.7rem;color:var(--brand);font-weight:600;margin-top:1px;}
     .autocomplete-empty{padding:.75rem .875rem;font-size:.8rem;color:var(--ink-4);text-align:center;}
@@ -531,7 +531,7 @@
         <div class="section-head">
           <div class="section-head-left">
             <div class="section-icon section-icon-green"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div>
-            <div><div class="section-name">Información del Producto</div><div class="section-sub">Buscar por serie — marca y descripción se llenan desde el inventario</div></div>
+            <div><div class="section-name">Información del Producto</div><div class="section-sub">Buscar por artículo — marca y descripción se llenan desde el inventario</div></div>
           </div>
           <span class="section-req">Requerido</span>
         </div>
@@ -545,15 +545,21 @@
             </div>
           </div>
           <div class="form-grid" style="margin-top:.75rem">
-            <div class="field col-full">
-              <label class="field-label" for="serie">Número de Serie <span id="serieInventoryHint" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-4);margin-left:.5rem;display:none">— buscando…</span></label>
-              <div class="serie-wrapper">
-                <input id="serie" name="serie" type="text" class="field-input" autocomplete="off" required>
-                <span class="serie-status" id="serieStatus" style="display:none"></span>
-                <div class="autocomplete-dropdown" id="serieDropdown" style="display:none"></div>
+            <div class="field">
+              <label class="field-label" for="articulo">Número de Artículo <span id="articuloInventoryHint" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-4);margin-left:.5rem;display:none">— buscando…</span></label>
+              <div class="articulo-wrapper">
+                <input id="articulo" name="articulo" type="text" class="field-input" autocomplete="off" required>
+                <span class="articulo-status" id="articuloStatus" style="display:none"></span>
+                <div class="autocomplete-dropdown" id="articuloDropdown" style="display:none"></div>
               </div>
-              <div id="serieAddContainer" style="display:none"></div>
+              <div id="articuloAddContainer" style="display:none"></div>
             </div>
+            <div class="field">
+              <label class="field-label" for="numeroSerie">Número de Serie</label>
+              <input id="numeroSerie" name="numeroSerie" type="text" class="field-input" placeholder="Serie del producto (opcional)">
+            </div>
+          </div>
+          <div class="form-grid" style="margin-top:.75rem">
             <div class="field col-full">
               <label class="field-label" for="descripcion">Descripción del Artículo <span id="descLock" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--green);margin-left:.4rem;display:none">· inventario</span></label>
               <textarea id="descripcion" name="descripcion" class="field-textarea" rows="2" required></textarea>
@@ -604,7 +610,7 @@
       <div class="inv-toolbar-right">
         <div class="search-box" id="invSearchBox" style="display:none">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
-          <input id="invSearch" type="text" placeholder="Buscar artículo, serie, marca…">
+          <input id="invSearch" type="text" placeholder="Buscar artículo, marca, descripción…">
         </div>
         <button class="btn btn-primary" id="invUploadBtn" onclick="document.getElementById('invFileInput').click()">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
@@ -669,13 +675,15 @@
         <th>Sede</th>
         <th>Factura</th>
         <th>Marca</th>
+        <th>Artículo</th>
+        <th>Serie</th>
         <th>Falla</th>
         <th>DEV</th>
         <th>Aprobación</th>
         <th>Registrado por</th>
         <th>Modificado por</th>
         <th>Acciones</th>
-      </tr></thead><tbody id="reg-tbody-def"><tr class="empty-row"><td colspan="15"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
+      </tr></thead><tbody id="reg-tbody-def"><tr class="empty-row"><td colspan="16"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
     </div>
 
     <!-- Salidas Temporales -->
@@ -707,13 +715,15 @@
         <th>Sede</th>
         <th>Factura</th>
         <th>Marca</th>
+        <th>Artículo</th>
+        <th>Serie</th>
         <th>Falla</th>
         <th>DEV</th>
         <th>Aprobación</th>
         <th>Registrado por</th>
         <th>Modificado por</th>
         <th>Acciones</th>
-      </tr></thead><tbody id="reg-tbody-temp"><tr class="empty-row"><td colspan="15"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
+      </tr></thead><tbody id="reg-tbody-temp"><tr class="empty-row"><td colspan="16"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
     </div>
 
   </div>
@@ -775,11 +785,13 @@
           <th class="sortable" data-sort-type="def" data-sort-col="sede">Sede <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="factura">Factura <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="marca">Marca <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="def" data-sort-col="serie">Artículo <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="def" data-sort-col="numero_serie">Serie <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="falla">Falla <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="registrado_por">Registrado por <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="modificado_por">Modificado por <span class="sort-icon">↕</span></th>
           <th>Acciones</th>
-        </tr></thead><tbody id="tbody-def"><tr class="empty-row"><td colspan="15"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
+        </tr></thead><tbody id="tbody-def"><tr class="empty-row"><td colspan="16"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
       </div>
       <!-- Panel temp -->
       <div class="data-panel" id="panel-salidas-temporales" style="display:none">
@@ -801,11 +813,13 @@
           <th class="sortable" data-sort-type="temp" data-sort-col="sede">Sede <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="factura">Factura <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="marca">Marca <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="temp" data-sort-col="serie">Artículo <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="temp" data-sort-col="numero_serie">Serie <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="falla">Falla <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="registrado_por">Registrado por <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="modificado_por">Modificado por <span class="sort-icon">↕</span></th>
           <th>Acciones</th>
-        </tr></thead><tbody id="tbody-temp"><tr class="empty-row"><td colspan="15"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
+        </tr></thead><tbody id="tbody-temp"><tr class="empty-row"><td colspan="16"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
       </div>
 
       <!-- PANEL USUARIOS -->
@@ -1688,7 +1702,7 @@ function updateProgress() {
 ═══════════════════════════════════════ */
 let inventory = [];
 let invSortCol = '', invSortDir = 1;
-let serieMatchedItem = null;
+let articuloMatchedItem = null;
 
 // Configuración de columnas (se detecta del Excel)
 let COL_ARTICULO = 'articulo';   // Nombre en Supabase
@@ -1705,12 +1719,11 @@ function normalizeHeader(h) {
 function detectExcelColumns(headers) {
   const mapping = {};  // { 'nombre_supabase': 'Nombre Excel Original' }
   
-  // Detectar columna de artículo/serie
+  // Detectar columna de artículo
   let articuloExcel = headers.find(h => {
     const norm = normalizeHeader(h);
-    return norm === 'articulo' || norm === 'serie' || 
-           (norm.includes('articulo') && !norm.includes('descripcion')) ||
-           norm.includes('serie');
+    return norm === 'articulo' || 
+           (norm.includes('articulo') && !norm.includes('descripcion'));
   });
   
   // Detectar descripción
@@ -1939,12 +1952,12 @@ async function invHandleFile(file) {
   }
 }
 
-function serieSelect(idx) {
-  const matches = document.getElementById('serieDropdown')._matches||[];
+function articuloSelect(idx) {
+  const matches = document.getElementById('articuloDropdown')._matches||[];
   const item = matches[idx]; if(!item) return;
-  serieMatchedItem = item;
-  document.getElementById('serie').value = item.articulo || '';
-  document.getElementById('serieDropdown').style.display='none';
+  articuloMatchedItem = item;
+  document.getElementById('articulo').value = item.articulo || '';
+  document.getElementById('articuloDropdown').style.display='none';
   const marcaEl = document.getElementById('marca');
   marcaEl.value = item.marca || ''; 
   marcaEl.disabled=true; marcaEl.classList.add('filled');
@@ -1953,33 +1966,33 @@ function serieSelect(idx) {
   descEl.value = item.descripcion || ''; 
   descEl.disabled=true; descEl.classList.add('filled');
   document.getElementById('descLock').style.display='';
-  const status=document.getElementById('serieStatus');
-  status.textContent='✓ Encontrado'; status.className='serie-status found'; status.style.display='';
-  showToast('Serie encontrada','success', item.marca + ' · ' + (item.descripcion||'').slice(0,40));
+  const status=document.getElementById('articuloStatus');
+  status.textContent='✓ Encontrado'; status.className='articulo-status found'; status.style.display='';
+  showToast('Artículo encontrado','success', item.marca + ' · ' + (item.descripcion||'').slice(0,40));
   updateProgress();
 }
 
-function serieClear() {
-  serieMatchedItem=null;
+function articuloClear() {
+  articuloMatchedItem=null;
   const m=document.getElementById('marca'); m.value=''; m.disabled=false; m.classList.remove('filled');
   document.getElementById('marcaLock').style.display='none';
   const d=document.getElementById('descripcion'); d.value=''; d.disabled=false; d.classList.remove('filled');
   document.getElementById('descLock').style.display='none';
-  document.getElementById('serieStatus').style.display='none';
-  document.getElementById('serieDropdown').style.display='none';
+  document.getElementById('articuloStatus').style.display='none';
+  document.getElementById('articuloDropdown').style.display='none';
 }
 
-function serieOpenAdd(prefill) {
-  document.getElementById('serieDropdown').style.display='none';
-  const c=document.getElementById('serieAddContainer'); c.style.display='';
-  c.innerHTML=`<div style="background:var(--amber-dim);border:1.5px solid rgba(217,119,6,.25);border-radius:var(--radius-md);padding:1rem;margin-top:.5rem;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;"><div style="display:flex;align-items:center;gap:.5rem;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;color:var(--amber)"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg><span style="font-size:.8rem;font-weight:700;color:var(--amber)">Agregar al inventario</span></div><button type="button" onclick="serieCloseAdd()" style="background:none;border:none;cursor:pointer;color:var(--ink-4);font-size:1.1rem;line-height:1;">✕</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.6rem;"><div class="field"><label class="field-label">Serie / Artículo *</label><input id="addSerie" type="text" class="field-input" value="${prefill}" placeholder="Código de serie"></div><div class="field"><label class="field-label">Marca *</label><input id="addMarca" type="text" class="field-input" placeholder="Ej: Samsung, LG…"></div></div><div class="field" style="margin-bottom:.6rem;"><label class="field-label">Descripción *</label><input id="addDesc" type="text" class="field-input" placeholder="Ej: Televisor 55 pulgadas OLED"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.75rem;"><div class="field"><label class="field-label">Bodega</label><input id="addBodega" type="text" class="field-input" placeholder="Opcional"></div><div class="field"><label class="field-label">Disponible</label><input id="addDisponible" type="text" class="field-input" placeholder="Opcional"></div></div><button type="button" id="addSerieBtn" class="btn btn-amber" style="width:100%;justify-content:center;" onclick="serieConfirmAdd()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Guardar en inventario y usar</button></div>`;
+function articuloOpenAdd(prefill) {
+  document.getElementById('articuloDropdown').style.display='none';
+  const c=document.getElementById('articuloAddContainer'); c.style.display='';
+  c.innerHTML=`<div style="background:var(--amber-dim);border:1.5px solid rgba(217,119,6,.25);border-radius:var(--radius-md);padding:1rem;margin-top:.5rem;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;"><div style="display:flex;align-items:center;gap:.5rem;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;color:var(--amber)"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg><span style="font-size:.8rem;font-weight:700;color:var(--amber)">Agregar al inventario</span></div><button type="button" onclick="articuloCloseAdd()" style="background:none;border:none;cursor:pointer;color:var(--ink-4);font-size:1.1rem;line-height:1;">✕</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.6rem;"><div class="field"><label class="field-label">Artículo *</label><input id="addArticulo" type="text" class="field-input" value="${prefill}" placeholder="Código de artículo"></div><div class="field"><label class="field-label">Marca *</label><input id="addMarca" type="text" class="field-input" placeholder="Ej: Samsung, LG…"></div></div><div class="field" style="margin-bottom:.6rem;"><label class="field-label">Descripción *</label><input id="addDesc" type="text" class="field-input" placeholder="Ej: Televisor 55 pulgadas OLED"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.75rem;"><div class="field"><label class="field-label">Bodega</label><input id="addBodega" type="text" class="field-input" placeholder="Opcional"></div><div class="field"><label class="field-label">Disponible</label><input id="addDisponible" type="text" class="field-input" placeholder="Opcional"></div></div><button type="button" id="addArticuloBtn" class="btn btn-amber" style="width:100%;justify-content:center;" onclick="articuloConfirmAdd()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Guardar en inventario y usar</button></div>`;
 }
 
-function serieCloseAdd() { const c=document.getElementById('serieAddContainer'); c.style.display='none'; c.innerHTML=''; }
+function articuloCloseAdd() { const c=document.getElementById('articuloAddContainer'); c.style.display='none'; c.innerHTML=''; }
 
-function serieSearch(q) {
-  const drop = document.getElementById('serieDropdown');
-  const status = document.getElementById('serieStatus');
+function articuloSearch(q) {
+  const drop = document.getElementById('articuloDropdown');
+  const status = document.getElementById('articuloStatus');
   const val = q.trim().toLowerCase();
   
   if (!val || !inventory.length) { 
@@ -1988,17 +2001,17 @@ function serieSearch(q) {
     return; 
   }
   
-  // Buscar SOLO en la columna de artículo (código/serie), NO en descripción
+  // Buscar SOLO en la columna de artículo, NO en descripción
   const matches = inventory.filter(r => String(r.articulo||'').toLowerCase().includes(val)).slice(0,10);
   
   if (!matches.length) {
     if (drop) {
-      drop.innerHTML = `<div class="autocomplete-empty" style="padding:.6rem .875rem;text-align:left;"><div style="font-size:.8rem;color:var(--ink-3);margin-bottom:.5rem;">Serie no encontrada en inventario</div><button class="btn btn-amber btn-sm" style="width:100%;justify-content:center;font-size:.78rem;" onmousedown="serieOpenAdd('${q.trim().replace(/'/g,"\\'")}')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>Agregar al inventario</button></div>`;
+      drop.innerHTML = `<div class="autocomplete-empty" style="padding:.6rem .875rem;text-align:left;"><div style="font-size:.8rem;color:var(--ink-3);margin-bottom:.5rem;">Artículo no encontrado en inventario</div><button class="btn btn-amber btn-sm" style="width:100%;justify-content:center;font-size:.78rem;" onmousedown="articuloOpenAdd('${q.trim().replace(/'/g,"\\'")}')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>Agregar al inventario</button></div>`;
       drop.style.display=''; 
     }
     if (status) {
       status.textContent='No encontrado'; 
-      status.className='serie-status notfound'; 
+      status.className='articulo-status notfound'; 
       status.style.display=''; 
     }
     return;
@@ -2009,7 +2022,7 @@ function serieSearch(q) {
       const artVal = r.articulo || '—';
       const descVal = r.descripcion || '—';
       const marcaVal = r.marca || '—';
-      return `<div class="autocomplete-item" onmousedown="serieSelect(${i})"><div class="ac-serie">${artVal}</div><div class="ac-desc">${descVal}</div><div class="ac-marca">${marcaVal}</div></div>`;
+      return `<div class="autocomplete-item" onmousedown="articuloSelect(${i})"><div class="ac-articulo">${artVal}</div><div class="ac-desc">${descVal}</div><div class="ac-marca">${marcaVal}</div></div>`;
     }).join('');
     drop.style.display=''; 
     drop._matches=matches; 
@@ -2017,20 +2030,20 @@ function serieSearch(q) {
   if (status) status.style.display='none';
 }
 
-async function serieConfirmAdd() {
-  const av=document.getElementById('addSerie')?.value.trim(), mv=document.getElementById('addMarca')?.value.trim(), dv=document.getElementById('addDesc')?.value.trim();
+async function articuloConfirmAdd() {
+  const av=document.getElementById('addArticulo')?.value.trim(), mv=document.getElementById('addMarca')?.value.trim(), dv=document.getElementById('addDesc')?.value.trim();
   const bv=document.getElementById('addBodega')?.value.trim()||'', dsp=document.getElementById('addDisponible')?.value.trim()||'';
-  if (!av||!mv||!dv) { showToast('Serie, marca y descripción son requeridos','error'); return; }
-  const btn=document.getElementById('addSerieBtn'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando…';
+  if (!av||!mv||!dv) { showToast('Artículo, marca y descripción son requeridos','error'); return; }
+  const btn=document.getElementById('addArticuloBtn'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando…';
   try {
     await fetch(SB_URL+'/rest/v1/'+INV_TABLE+'?on_conflict=articulo', { method:'POST', headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'}, body:JSON.stringify({articulo:av,marca:mv,descripcion:dv,bodega:bv,disponible:dsp,unidad:'',updated_at:new Date().toISOString()}) });
     const invItem={'Artículo':av,'Marca':mv,'Descripción del Artículo':dv,'Bodega':bv,'Disponible Almacén':dsp,'Unidad de Medida Almacén':''};
-    inventory.push(invItem); serieMatchedItem=invItem;
-    document.getElementById('serie').value=av;
+    inventory.push(invItem); articuloMatchedItem=invItem;
+    document.getElementById('articulo').value=av;
     const me=document.getElementById('marca'); me.value=mv; me.disabled=true; me.classList.add('filled'); document.getElementById('marcaLock').style.display='';
     const de=document.getElementById('descripcion'); de.value=dv; de.disabled=true; de.classList.add('filled'); document.getElementById('descLock').style.display='';
-    const st=document.getElementById('serieStatus'); st.textContent='✓ Agregado'; st.className='serie-status found'; st.style.display='';
-    serieCloseAdd(); showToast('Artículo agregado al inventario','success',mv+' · '+dv.slice(0,40)); updateProgress();
+    const st=document.getElementById('articuloStatus'); st.textContent='✓ Agregado'; st.className='articulo-status found'; st.style.display='';
+    articuloCloseAdd(); showToast('Artículo agregado al inventario','success',mv+' · '+dv.slice(0,40)); updateProgress();
   } catch(err) { showToast('Error al guardar en inventario','error',err.message); btn.disabled=false; btn.innerHTML='<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Guardar en inventario y usar'; }
 }
 
@@ -2082,7 +2095,7 @@ async function handleSubmit(e) {
   required.forEach(el => { const empty=!el.value.trim(); el.classList.toggle('error',empty); if(empty)valid=false; });
 
   // Re-deshabilitar si venían del inventario
-  if (serieMatchedItem) {
+  if (articuloMatchedItem) {
     document.getElementById('marca').disabled = true;
     document.getElementById('descripcion').disabled = true;
   }
@@ -2097,7 +2110,7 @@ async function handleSubmit(e) {
   ].join('\n');
   if (!confirm('¿Guardar este registro?\n\n' + confirmMsg)) {
     // Re-deshabilitar campos del inventario si corresponde
-    if (serieMatchedItem) {
+    if (articuloMatchedItem) {
       document.getElementById('marca').disabled = true;
       document.getElementById('descripcion').disabled = true;
     }
@@ -2119,7 +2132,8 @@ async function handleSubmit(e) {
     ticket:fd.get('ticket'), sede:fd.get('sede'), nombre:fd.get('nombre'), factura:fd.get('factura'),
     cantidad:parseInt(fd.get('cantidad'))||1, fecha_compra:fd.get('fechaCompra')||null,
     marca:document.getElementById('marca').value,
-    serie:document.getElementById('serie').value||null,
+    serie:document.getElementById('articulo').value||null,
+    numero_serie:document.getElementById('numeroSerie').value||null,
     descripcion:document.getElementById('descripcion').value,
     falla:fd.get('falla'),
     fecha_creacion:new Date().toISOString(),
@@ -2144,7 +2158,7 @@ async function handleSubmit(e) {
     // Ya no abrimos el modal aqui - las opciones de exportar estan en el boton Enviar
     // Limpiar el formulario para nuevo registro
     document.getElementById('warrantyForm').reset();
-    serieClear();
+    articuloClear();
     renderHeaderBoleta(); updateProgress();
   } catch(err) {
     console.error('Error completo:', err);
@@ -2663,7 +2677,7 @@ function regRenderTable(type) {
   const count = document.getElementById('reg-count-' + type);
   if (count) count.textContent = rows.length + ' registro' + (rows.length !== 1 ? 's' : '');
   if (!rows.length) {
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="15"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>';
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="16"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>';
     return;
   }
   const myName = (function(){
@@ -2686,6 +2700,8 @@ function regRenderTable(type) {
     <td style="color:var(--ink-3)">${r.sede||'—'}</td>
     <td class="td-mono">${r.factura||'—'}</td>
     <td>${r.marca||'—'}</td>
+    <td class="td-mono">${r.serie||'—'}</td>
+    <td class="td-mono">${r.numero_serie||'—'}</td>
     <td class="td-truncate" data-tip="${(r.falla||'—').replace(/"/g,'&quot;')}">${r.falla||'—'}</td>
     <td class="td-mono" style="color:var(--brand);font-weight:700;">${r.dev||'—'}</td>
     <td style="font-size:.75rem;color:var(--ink-3);white-space:nowrap;">${r.fecha_aprobacion ? new Date(r.fecha_aprobacion).toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric'}) : '—'}</td>
@@ -3229,7 +3245,7 @@ function fmtDate(iso){if(!iso)return'—';return new Date(iso).toLocaleDateStrin
 
 function adminRenderTable(type){
   const tbody=document.getElementById('tbody-'+type), rows=records[type];
-  if(!rows.length){tbody.innerHTML=`<tr class="empty-row"><td colspan="15"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;return;}
+  if(!rows.length){tbody.innerHTML=`<tr class="empty-row"><td colspan="16"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;return;}
   tbody.innerHTML=rows.map((r,i)=>{
     const regPor = r.registrado_por || '—';
     const modPor = r.modificado_por ? ` <span style="font-size:.65rem;color:var(--ink-4)" title="Modificado por ${r.modificado_por}">(mod.)</span>` : '';
@@ -3243,6 +3259,8 @@ function adminRenderTable(type){
     <td style="color:var(--ink-3)">${r.sede||'—'}</td>
     <td class="td-mono">${r.factura||'—'}</td>
     <td>${r.marca||'—'}</td>
+    <td class="td-mono">${r.serie||'—'}</td>
+    <td class="td-mono">${r.numero_serie||'—'}</td>
     <td class="td-truncate" data-tip="${(r.falla||'—').replace(/"/g,'&quot;')}">${r.falla||'—'}</td>
     <td style="font-size:.75rem;color:var(--ink-3)">${regPor}</td>
     <td style="font-size:.75rem;color:var(--ink-3)">${r.modificado_por||'—'}</td>
@@ -3487,17 +3505,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (warrantyFormEl) warrantyFormEl.addEventListener('submit', handleSubmit);
     if (revertBtn) revertBtn.addEventListener('click', revertBoletaPersonalizado);
     if (deleteBtn) deleteBtn.addEventListener('click', deleteTestRecords);
-    document.querySelectorAll('.field-input:not(#serie),.field-select,.field-textarea').forEach(el=>{
+    document.querySelectorAll('.field-input:not(#articulo),.field-select,.field-textarea').forEach(el=>{
       el.addEventListener('input',()=>{el.classList.toggle('filled',!!el.value);el.classList.remove('error');});
       el.addEventListener('change',()=>{el.classList.toggle('filled',!!el.value);el.classList.remove('error');updateProgress();});
     });
 
     // Serie
-    const serieInput=document.getElementById('serie');
-    if (serieInput) {
-      serieInput.addEventListener('input',()=>{if(serieMatchedItem)serieClear();serieCloseAdd();serieSearch(serieInput.value);});
-      serieInput.addEventListener('blur',()=>{setTimeout(()=>{const drop = document.getElementById('serieDropdown'); if(drop) drop.style.display='none';},200);});
-      serieInput.addEventListener('keydown',e=>{if(e.key==='Escape'){const drop = document.getElementById('serieDropdown'); if(drop) drop.style.display='none';serieCloseAdd();}});
+    const articuloInput=document.getElementById('articulo');
+    if (articuloInput) {
+      articuloInput.addEventListener('input',()=>{if(articuloMatchedItem)articuloClear();articuloCloseAdd();articuloSearch(articuloInput.value);});
+      articuloInput.addEventListener('blur',()=>{setTimeout(()=>{const drop = document.getElementById('articuloDropdown'); if(drop) drop.style.display='none';},200);});
+      articuloInput.addEventListener('keydown',e=>{if(e.key==='Escape'){const drop = document.getElementById('articuloDropdown'); if(drop) drop.style.display='none';articuloCloseAdd();}});
     }
 
     // Inventory
@@ -3551,6 +3569,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     await invLoad();
     console.log('Cargando registros...');
     await loadRecords();
+    console.log('Cargando todos los registros para admin...');
+    adminLoaded = true; // Marcar como cargado para evitar duplicados
+    await adminLoadAll();
     console.log('Renderizando boleta...');
     renderHeaderBoleta();
     updateProgress();
