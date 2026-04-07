@@ -3143,8 +3143,6 @@ let sortState={def:{col:'fecha_creacion',dir:-1},temp:{col:'fecha_creacion',dir:
 
 async function adminLoadAll() {
   try {
-    showToast('Cargando registros…', 'info', 'Esto puede tomar un momento');
-    
     // Paginación: cargar en lotes de 1000 para evitar el límite de Supabase
     let all = [];
     let offset = 0;
@@ -3179,7 +3177,10 @@ async function adminLoadAll() {
     adminApplyFilters('def');
     adminApplyFilters('temp');
     
-    showToast('Registros cargados', 'success', all.length + ' registros');
+    // Mensaje opcional solo si hay muchos registros
+    if (all.length > 100) {
+      showToast('Registros cargados', 'success', all.length + ' registros');
+    }
   } catch (e) {
     showToast('Error al cargar datos', 'error', e.message);
   }
