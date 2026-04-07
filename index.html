@@ -3084,7 +3084,7 @@ let sortState={def:{col:'fecha_creacion',dir:-1},temp:{col:'fecha_creacion',dir:
 
 async function adminLoadAll() {
   try {
-    const all=await sbFetch('GET',TABLE+'?order=numero_consecutivo.desc&limit=1000',null)||[];
+    const all=await sbFetch('GET',TABLE+'?order=numero_consecutivo.desc',null)||[];
     rawData.def=all.filter(r=>r.tipo==='salida_definitiva');
     rawData.temp=all.filter(r=>r.tipo==='salida_temporal');
     if (all.length>allRecords.length) {
