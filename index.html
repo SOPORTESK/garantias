@@ -1850,13 +1850,30 @@ function invSortBy(col) {
 
 async function invLoad() {
   try {
-    const data = await sbFetch('GET', INV_TABLE+'?order=articulo.asc&limit=100000', null);
-    if (data && data.length > 0) {
-      inventory = data.map(r => ({
+    console.log('Cargando inventario con paginación...');
+    let all = [];
+    let offset = 0;
+    const limit = 1000;
+    let hasMore = true;
+    
+    while (hasMore) {
+      const batch = await sbFetch('GET', INV_TABLE + '?order=articulo.asc&limit=' + limit + '&offset=' + offset, null) || [];
+      all = all.concat(batch);
+      if (batch.length < limit) {
+        hasMore = false;
+      } else {
+        offset += limit;
+      }
+      console.log(`Cargados ${all.length} artículos...`);
+    }
+    
+    if (all && all.length > 0) {
+      inventory = all.map(r => ({
         articulo: String(r.articulo || ''),
         descripcion: String(r.descripcion || ''),
         marca: String(r.marca || '')
       }));
+      console.log(`Inventario completo: ${inventory.length} artículos cargados`);
     } else {
       inventory = [];
     }
