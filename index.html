@@ -131,7 +131,7 @@
     .section-sub{font-size:.75rem;color:var(--ink-3);}
     .section-req{font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brand);padding:.2rem .6rem;border:1px solid var(--brand-dim);border-radius:var(--radius-xs);background:var(--brand-dim);}
     .section-body{padding:1.25rem;}
-    .form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;}
+    .form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;}
     .form-grid+.form-grid{margin-top:.75rem;}
     .col-full{grid-column:1/-1;}
     .col-2{grid-column:span 2;}
@@ -546,7 +546,7 @@
             </div>
           </div>
           <div class="form-grid" style="margin-top:.75rem">
-            <div class="field">
+            <div class="field col-2">
               <label class="field-label" for="articulo">Número de Artículo <span id="articuloInventoryHint" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-4);margin-left:.5rem;display:none">— buscando…</span></label>
               <div class="articulo-wrapper">
                 <input id="articulo" name="articulo" type="text" class="field-input" autocomplete="off" required>
