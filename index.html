@@ -935,19 +935,6 @@
               </button>
             </div>
           </div>
-          <div id="superAdminBoletaSection" style="background:var(--purple-dim);border:1.5px solid rgba(124,58,237,.2);border-radius:var(--radius-lg);padding:1.25rem;display:none;">
-            <div style="font-size:.875rem;font-weight:700;color:var(--purple);margin-bottom:.25rem;">Editar número de boleta específico</div>
-            <div style="font-size:.8125rem;color:var(--ink-3);margin-bottom:.875rem;">Edita el número de boleta de un registro existente</div>
-            <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
-              <input type="number" id="superAdminBoletaInput" class="field-input" placeholder="Número de boleta existente" style="width:180px;" min="1">
-              <input type="number" id="superAdminNewBoletaInput" class="field-input" placeholder="Nuevo número" style="width:180px;" min="1">
-              <button class="btn btn-purple" onclick="superAdminEditBoleta()">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                Editar boleta
-              </button>
-            </div>
-            <div id="superAdminBoletaStatus" style="font-size:.75rem;color:var(--ink-4);margin-top:.5rem;display:none;"></div>
-          </div>
           <div style="background:var(--red-dim);border:1.5px solid rgba(220,38,38,.2);border-radius:var(--radius-lg);padding:1.25rem;">
             <div style="font-size:.875rem;font-weight:700;color:var(--red);margin-bottom:.25rem;">Borrar todos los registros</div>
             <div style="font-size:.8125rem;color:var(--ink-3);margin-bottom:.875rem;">Elimina permanentemente <strong>todos</strong> los registros de garantías. Esta acción no se puede deshacer.</div>
@@ -955,21 +942,6 @@
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
               Borrar todos los registros
             </button>
-          </div>
-          <div style="background:var(--green-dim);border:1.5px solid rgba(5,150,105,.2);border-radius:var(--radius-lg);padding:1.25rem;">
-            <div style="font-size:.875rem;font-weight:700;color:var(--green);margin-bottom:.25rem;">Importar registros desde Excel</div>
-            <div style="font-size:.8125rem;color:var(--ink-3);margin-bottom:.875rem;">Importa registros existentes para rellenar el formulario automáticamente</div>
-            <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
-              <input type="file" id="importExcelInput" accept=".xlsx,.xls" style="display:none;" onchange="handleImportExcel(event)">
-              <button class="btn btn-green" onclick="document.getElementById('importExcelInput').click()">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l3 3m-3-3v12"/></svg>
-                Seleccionar Excel
-              </button>
-              <button class="btn btn-ghost" onclick="document.getElementById('importExcelInput').value='';" style="display:none;" id="clearImportBtn">
-                Limpiar
-              </button>
-            </div>
-            <div id="importStatus" style="font-size:.75rem;color:var(--ink-4);margin-top:.5rem;display:none;"></div>
           </div>
           
 
@@ -1651,36 +1623,23 @@ function switchTab(tab) {
   // Mostrar el botón admin en nav solo si se activa por logo
   const adminBtn = document.getElementById('adminNavBtn');
   if (tab === 'admin' && adminBtn) adminBtn.style.display = '';
-
-  // Ocultar todos los paneles
-  document.querySelectorAll('.data-panel').forEach(p => p.style.display = 'none');
-  document.querySelectorAll('.rail-item').forEach(r => r.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-
-  // Mostrar panel correspondiente
-  const panel = document.getElementById('panel-' + tab);
-  if (panel) panel.style.display = '';
-
-  // Activar item del rail
-  const railItem = document.getElementById('rail' + tab.charAt(0).toUpperCase() + tab.slice(1));
-  if (railItem) railItem.classList.add('active');
-
-  // Activar tab en nav
-  const navTab = document.querySelector('[data-tab="' + tab + '"]');
-  if (navTab) navTab.classList.add('active');
-
-  // Mostrar/ocultar secciones de admin
+  document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
+  document.getElementById('boletaChip').style.display = tab === 'formulario' ? '' : 'none';
+  if (tab === 'admin' && !adminLoaded) { adminLoaded = true; adminLoadAll(); }
+  if (tab === 'registros') {
+    if (!adminLoaded) { adminLoaded = true; adminLoadAll().then(() => regLoadAll()); }
+    else { regLoadAll(); }
+  }
+  if (tab === 'estadisticas') {
+    if (!adminLoaded) { adminLoaded = true; adminLoadAll().then(() => statsInit()); }
+    else { statsInit(); }
+  }
   if (tab === 'admin') {
     const ru = document.getElementById('railUsuarios');
     if (ru && isAdmin()) ru.style.display = '';
     const rh = document.getElementById('railHerramientas');
     if (rh && isAdmin()) rh.style.display = '';
-    
-    // Mostrar sección de edición de boleta solo a super admin
-    const superAdminSection = document.getElementById('superAdminBoletaSection');
-    if (superAdminSection) {
-      superAdminSection.style.display = isSuperAdmin() ? '' : 'none';
-    }
   }
 }
 
@@ -2045,50 +2004,6 @@ function articuloClear() {
   document.getElementById('articuloDropdown').style.display='none';
 }
 
-function articuloSelectManual() {
-  const manualMarcaInput = document.getElementById('manualMarcaInput');
-  const marcaIngresada = manualMarcaInput?.value?.trim();
-  
-  if (!marcaIngresada) {
-    showToast('Ingresá una marca válida', 'error');
-    return;
-  }
-  
-  // Crear item manual para el artículo
-  const articuloValue = document.getElementById('articulo').value?.trim();
-  articuloMatchedItem = {
-    articulo: articuloValue || '',
-    marca: marcaIngresada,
-    descripcion: 'Ingresado manualmente',
-    manual: true // Marcar como ingreso manual
-  };
-  
-  // Asignar valores al formulario
-  document.getElementById('articulo').value = articuloValue || '';
-  document.getElementById('articuloDropdown').style.display='none';
-  
-  const marcaEl = document.getElementById('marca');
-  marcaEl.value = marcaIngresada; 
-  marcaEl.disabled=false; // Permitir edición manual
-  marcaEl.classList.add('filled');
-  document.getElementById('marcaLock').style.display='none'; // Ocultar candado
-  
-  // Limpiar descripción y permitir edición manual
-  const descEl = document.getElementById('descripcion');
-  descEl.value = ''; 
-  descEl.disabled=false; 
-  descEl.classList.remove('filled');
-  document.getElementById('descLock').style.display='none';
-  
-  const status = document.getElementById('articuloStatus');
-  status.textContent='✓ Marca ingresada manualmente'; 
-  status.className='articulo-status found'; 
-  status.style.display='';
-  
-  showToast('Marca ingresada manualmente', 'success', marcaIngresada);
-  updateProgress();
-}
-
 function articuloOpenAdd(prefill) {
   document.getElementById('articuloDropdown').style.display='none';
   const c=document.getElementById('articuloAddContainer'); c.style.display='';
@@ -2119,17 +2034,7 @@ function articuloSearch(q) {
   
   if (!matches.length) {
     if (drop) {
-      drop.innerHTML = `<div class="autocomplete-empty" style="padding:.6rem .875rem;text-align:left;">
-        <div style="font-size:.8rem;color:var(--ink-3);margin-bottom:.5rem;">Artículo no encontrado en inventario</div>
-        <div style="font-size:.75rem;color:var(--ink-4);margin-bottom:.75rem;">Podés ingresar la marca manualmente:</div>
-        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
-          <input type="text" id="manualMarcaInput" class="field-input" placeholder="Ingresar marca" style="flex:1;min-width:150px;font-size:.8rem;" onkeypress="if(event.key==='Enter'){articuloSelectManual();}">
-          <button class="btn btn-amber btn-sm" style="font-size:.78rem;" onmousedown="articuloSelectManual()">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-            Usar marca manual
-          </button>
-        </div>
-      </div>`;
+      drop.innerHTML = `<div class="autocomplete-empty" style="padding:.6rem .875rem;text-align:left;"><div style="font-size:.8rem;color:var(--ink-3);margin-bottom:.5rem;">Artículo no encontrado en inventario</div><button class="btn btn-amber btn-sm" style="width:100%;justify-content:center;font-size:.78rem;" onmousedown="articuloOpenAdd('${q.trim().replace(/'/g,"\\'")}')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>Agregar al inventario</button></div>`;
       drop.style.display=''; 
     }
     if (status) {
@@ -2277,30 +2182,6 @@ async function handleSubmit(e) {
     showToast('Registro guardado','success','Boleta '+boleta);
     lastSavedRecord = rec || payload;
     populatePrintForm(payload);
-    
-    // Guardar marca manual en inventario si aplica
-    if (articuloMatchedItem && articuloMatchedItem.manual) {
-      try {
-        const inventoryPayload = {
-          marca: articuloMatchedItem.marca,
-          articulo: articuloMatchedItem.articulo,
-          descripcion: articuloMatchedItem.descripcion,
-          fecha_agregado: new Date().toISOString(),
-          agregado_por: registrado_por
-        };
-        
-        await sbFetch('POST', 'inventario', inventoryPayload);
-        showToast('Marca agregada al inventario', 'success', articuloMatchedItem.marca);
-        
-        // Actualizar inventario local
-        inventory.push(inventoryPayload);
-        
-      } catch (invError) {
-        console.error('Error al agregar al inventario:', invError);
-        showToast('No se pudo agregar al inventario', 'error', invError.message);
-      }
-    }
-    
     // Ya no abrimos el modal aqui - las opciones de exportar estan en el boton Enviar
     // Limpiar el formulario para nuevo registro
     document.getElementById('warrantyForm').reset();
@@ -3199,98 +3080,13 @@ function adminAjustarBoleta() {
   const input = document.getElementById('adminBoletaInput');
   const num = parseInt(input?.value);
   if (!num || num < 1) { showToast('Ingresá un número válido', 'error'); return; }
-  consecutiveNum = num - 1;
+  if (!confirm('¿Ajustar el número de boleta a ' + num + '?\nEl próximo registro usará ' + (num+1) + '.')) return;
+  consecutiveNum = num;
+  renderHeaderBoleta();
+  const el = document.getElementById('boletaActualAdmin');
+  if (el) el.textContent = consecutiveNum;
   if (input) input.value = '';
   showToast('Boleta ajustada a ' + num, 'success', 'Próximo: ' + (num+1));
-}
-
-// Función para editar número de boleta específico (solo super admin)
-async function superAdminEditBoleta() {
-  if (!isSuperAdmin()) { 
-    showToast('Acceso denegado', 'error', 'Solo el super administrador puede editar boletas específicas'); 
-    return; 
-  }
-  
-  const boletaInput = document.getElementById('superAdminBoletaInput');
-  const newBoletaInput = document.getElementById('superAdminNewBoletaInput');
-  const status = document.getElementById('superAdminBoletaStatus');
-  
-  const boletaActual = parseInt(boletaInput?.value);
-  const nuevaBoleta = parseInt(newBoletaInput?.value);
-  
-  if (!boletaActual || boletaActual < 1) { 
-    showToast('Ingresá un número de boleta válido', 'error'); 
-    return; 
-  }
-  
-  if (!nuevaBoleta || nuevaBoleta < 1) { 
-    showToast('Ingresá un nuevo número válido', 'error'); 
-    return; 
-  }
-  
-  status.style.display = 'block';
-  status.textContent = 'Buscando registro...';
-  status.style.color = 'var(--ink-4)';
-  
-  try {
-    // Buscar el registro con la boleta actual
-    const response = await fetch(SB_URL + '/rest/v1/garantias?boleta=eq.' + boletaActual, {
-      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + authToken }
-    });
-    
-    if (!response.ok) {
-      throw new Error('No se encontró el registro con boleta ' + boletaActual);
-    }
-    
-    const records = await response.json();
-    if (records.length === 0) {
-      throw new Error('No se encontró el registro con boleta ' + boletaActual);
-    }
-    
-    const record = records[0];
-    
-    // Actualizar el número de boleta
-    const updateResponse = await fetch(SB_URL + '/rest/v1/garantias?id=eq.' + record.id, {
-      method: 'PATCH',
-      headers: { 
-        'apikey': SB_KEY, 
-        'Authorization': 'Bearer ' + authToken, 
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal' 
-      },
-      body: JSON.stringify({ 
-        boleta: nuevaBoleta,
-        modificado_por: currentUser?.email,
-        fecha_modificacion: new Date().toISOString()
-      })
-    });
-    
-    if (!updateResponse.ok) {
-      throw new Error('Error al actualizar el registro');
-    }
-    
-    status.textContent = `Boleta ${boletaActual} actualizada a ${nuevaBoleta} correctamente`;
-    status.style.color = 'var(--green)';
-    
-    // Limpiar campos
-    boletaInput.value = '';
-    newBoletaInput.value = '';
-    
-    // Recargar registros si estamos en la vista de administración
-    if (document.querySelector('[data-section="definitivas"]').classList.contains('active') || 
-        document.querySelector('[data-section="temporales"]').classList.contains('active')) {
-      setTimeout(() => {
-        adminLoadAll();
-      }, 1500);
-    }
-    
-    showToast('Boleta actualizada', 'success', `${boletaActual} → ${nuevaBoleta}`);
-    
-  } catch (error) {
-    status.textContent = 'Error: ' + error.message;
-    status.style.color = 'var(--red)';
-    showToast('Error al actualizar boleta', 'error', error.message);
-  }
 }
 
 async function adminBorrarTodos() {
@@ -3837,203 +3633,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('mouseout', function(e){
     if (e.target.closest('[data-tip]')) tip.style.display='none';
   });
-});
-
-// Función para importar registros desde Excel
-function handleImportExcel(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  
-  const status = document.getElementById('importStatus');
-  const clearBtn = document.getElementById('clearImportBtn');
-  
-  status.style.display = 'block';
-  status.textContent = 'Procesando archivo...';
-  clearBtn.style.display = 'inline-flex';
-  
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, {type: 'array'});
-      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-      
-      if (jsonData.length === 0) {
-        status.textContent = 'El archivo está vacío';
-        status.style.color = 'var(--red)';
-        return;
-      }
-      
-      // Mostrar lista de registros para seleccionar
-      showImportSelection(jsonData);
-      
-    } catch (error) {
-      status.textContent = 'Error al procesar el archivo: ' + error.message;
-      status.style.color = 'var(--red)';
-    }
-  };
-  
-  reader.onerror = function() {
-    status.textContent = 'Error al leer el archivo';
-    status.style.color = 'var(--red)';
-  };
-  
-  reader.readAsArrayBuffer(file);
-}
-
-// Función para mostrar selección de registros importados
-function showImportSelection(data) {
-  const status = document.getElementById('importStatus');
-  
-  // Crear modal de selección
-  const modal = document.createElement('div');
-  modal.id = 'importSelectionModal';
-  modal.style.cssText = `
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.6); backdrop-filter: blur(6px);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 999999; padding: 1rem;
-  `;
-  
-  const content = document.createElement('div');
-  content.style.cssText = `
-    background: white; border-radius: 18px; padding: 1.75rem;
-    max-width: 600px; width: 90%; max-height: 70vh; overflow-y: auto;
-    font-family: system-ui, sans-serif;
-  `;
-  
-  content.innerHTML = `
-    <h3 style="margin: 0 0 1rem 0; font-size: 1.1rem; font-weight: 700; color: #1A1108;">
-      Seleccionar registro para importar
-    </h3>
-    <p style="margin: 0 0 1rem 0; font-size: 0.85rem; color: #7A6E62;">
-      Se encontraron ${data.length} registros. Selecciona uno para rellenar el formulario.
-    </p>
-    <div style="display: grid; gap: 0.5rem; margin-bottom: 1rem;">
-      ${data.map((row, index) => `
-        <div onclick="selectImportRow(${index})" style="
-          padding: 0.75rem; border: 1px solid #E8E5E0; border-radius: 8px;
-          cursor: pointer; transition: all 0.2s;
-          display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;
-          font-size: 0.8rem;
-        " onmouseover="this.style.background='#F5F4F2'; this.style.borderColor='#D1411E';" 
-           onmouseout="this.style.background='white'; this.style.borderColor='#E8E5E0';">
-          <div style="font-weight: 600; color: #1A1108;">${row.boleta || row['Boleta'] || 'Registro ' + (index + 1)}</div>
-          <div style="color: #7A6E62;">${row.nombre || row['Nombre'] || row['Cliente'] || 'Sin nombre'}</div>
-        </div>
-      `).join('')}
-    </div>
-    <button onclick="closeImportModal()" style="
-      width: 100%; padding: 0.75rem; border: none; 
-      background: #F5F4F2; color: #7A6E62; border-radius: 8px;
-      cursor: pointer; font-size: 0.85rem; font-weight: 600;
-    ">Cancelar</button>
-  `;
-  
-  modal.appendChild(content);
-  document.body.appendChild(modal);
-  
-  // Guardar datos para uso posterior
-  window.importData = data;
-  
-  status.textContent = `Se encontraron ${data.length} registros. Selecciona uno para importar.`;
-  status.style.color = 'var(--green)';
-}
-
-// Función para seleccionar una fila del import
-function selectImportRow(index) {
-  const row = window.importData[index];
-  fillFormFromExcel(row);
-  closeImportModal();
-}
-
-// Función para rellenar formulario con datos del Excel
-function fillFormFromExcel(row) {
-  // Mapeo de columnas del Excel a campos del formulario
-  const fieldMapping = {
-    // Campos básicos
-    'tipo': 'tipo',
-    'categoria': 'categoria', 
-    'motivo': 'motivo',
-    'ticket': 'ticket',
-    'sede': 'sede',
-    'nombre': 'nombre',
-    'factura': 'factura',
-    
-    // Campos del producto
-    'marca': 'marca',
-    'articulo': 'articulo',
-    'serie': 'articulo', // Para compatibilidad
-    'articulo': 'articulo',
-    'numero_articulo': 'articulo',
-    'numero de articulo': 'articulo',
-    'numero_serie': 'numeroSerie',
-    'numero de serie': 'numeroSerie',
-    'serie_real': 'numeroSerie',
-    'cantidad': 'cantidad',
-    'fecha_compra': 'fechaCompra',
-    'fecha de compra': 'fechaCompra',
-    
-    // Campos de descripción
-    'descripcion': 'descripcion',
-    'descripción': 'descripcion',
-    'falla': 'falla'
-  };
-  
-  // Identificar tipo de salida
-  let tipoSalida = null;
-  const tipoValue = (row.tipo || row['tipo'] || row['Tipo'] || '').toString().toLowerCase();
-  
-  if (tipoValue.includes('definitiva') || tipoValue.includes('salida definitiva') || 
-      tipoValue.includes('definitivo') || tipoValue === 'definitiva' ||
-      tipoValue === 'salida definitiva' || tipoValue === 'definitivo') {
-    tipoSalida = 'salida_definitiva';
-  } else if (tipoValue.includes('temporal') || tipoValue.includes('salida temporal') || 
-             tipoValue.includes('temporal') || tipoValue === 'temporal' ||
-             tipoValue === 'salida temporal' || tipoValue === 'temporal') {
-    tipoSalida = 'salida_temporal';
-  }
-  
-  // Si se identificó el tipo, asignarlo
-  if (tipoSalida) {
-    const tipoElement = document.getElementById('tipo');
-    if (tipoElement) {
-      tipoElement.value = tipoSalida;
-      tipoElement.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-  }
-  
-  // Recorrer todas las columnas del Excel y llenar el formulario
-  Object.keys(row).forEach(excelCol => {
-    const formField = fieldMapping[excelCol.toLowerCase()];
-    if (formField) {
-      const element = document.getElementById(formField);
-      if (element) {
-        element.value = row[excelCol] || '';
-        element.dispatchEvent(new Event('input', { bubbles: true }));
-        element.dispatchEvent(new Event('change', { bubbles: true }));
-      }
-    }
-  });
-  
-  // Mostrar mensaje de éxito
-  const status = document.getElementById('importStatus');
-  status.textContent = 'Registro importado correctamente. Revisa los datos antes de guardar.';
-  status.style.color = 'var(--green)';
-  
-  // Cambiar a la pestaña de formulario
-  setTimeout(() => {
-    document.querySelector('[data-tab="form"]').click();
-  }, 500);
-}
-
-// Función para cerrar modal de importación
-function closeImportModal() {
-  const modal = document.getElementById('importSelectionModal');
-  if (modal) modal.remove();
-}
-
+})();
 </script>
 </body>
 </html>
