@@ -1651,23 +1651,36 @@ function switchTab(tab) {
   // Mostrar el botón admin en nav solo si se activa por logo
   const adminBtn = document.getElementById('adminNavBtn');
   if (tab === 'admin' && adminBtn) adminBtn.style.display = '';
-  document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
-  document.getElementById('boletaChip').style.display = tab === 'formulario' ? '' : 'none';
-  if (tab === 'admin' && !adminLoaded) { adminLoaded = true; adminLoadAll(); }
-  if (tab === 'registros') {
-    if (!adminLoaded) { adminLoaded = true; adminLoadAll().then(() => regLoadAll()); }
-    else { regLoadAll(); }
-  }
-  if (tab === 'estadisticas') {
-    if (!adminLoaded) { adminLoaded = true; adminLoadAll().then(() => statsInit()); }
-    else { statsInit(); }
-  }
+
+  // Ocultar todos los paneles
+  document.querySelectorAll('.data-panel').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('.rail-item').forEach(r => r.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+  // Mostrar panel correspondiente
+  const panel = document.getElementById('panel-' + tab);
+  if (panel) panel.style.display = '';
+
+  // Activar item del rail
+  const railItem = document.getElementById('rail' + tab.charAt(0).toUpperCase() + tab.slice(1));
+  if (railItem) railItem.classList.add('active');
+
+  // Activar tab en nav
+  const navTab = document.querySelector('[data-tab="' + tab + '"]');
+  if (navTab) navTab.classList.add('active');
+
+  // Mostrar/ocultar secciones de admin
   if (tab === 'admin') {
     const ru = document.getElementById('railUsuarios');
     if (ru && isAdmin()) ru.style.display = '';
     const rh = document.getElementById('railHerramientas');
     if (rh && isAdmin()) rh.style.display = '';
+    
+    // Mostrar sección de edición de boleta solo a super admin
+    const superAdminSection = document.getElementById('superAdminBoletaSection');
+    if (superAdminSection) {
+      superAdminSection.style.display = isSuperAdmin() ? '' : 'none';
+    }
   }
 }
 
@@ -2032,6 +2045,50 @@ function articuloClear() {
   document.getElementById('articuloDropdown').style.display='none';
 }
 
+function articuloSelectManual() {
+  const manualMarcaInput = document.getElementById('manualMarcaInput');
+  const marcaIngresada = manualMarcaInput?.value?.trim();
+  
+  if (!marcaIngresada) {
+    showToast('Ingresá una marca válida', 'error');
+    return;
+  }
+  
+  // Crear item manual para el artículo
+  const articuloValue = document.getElementById('articulo').value?.trim();
+  articuloMatchedItem = {
+    articulo: articuloValue || '',
+    marca: marcaIngresada,
+    descripcion: 'Ingresado manualmente',
+    manual: true // Marcar como ingreso manual
+  };
+  
+  // Asignar valores al formulario
+  document.getElementById('articulo').value = articuloValue || '';
+  document.getElementById('articuloDropdown').style.display='none';
+  
+  const marcaEl = document.getElementById('marca');
+  marcaEl.value = marcaIngresada; 
+  marcaEl.disabled=false; // Permitir edición manual
+  marcaEl.classList.add('filled');
+  document.getElementById('marcaLock').style.display='none'; // Ocultar candado
+  
+  // Limpiar descripción y permitir edición manual
+  const descEl = document.getElementById('descripcion');
+  descEl.value = ''; 
+  descEl.disabled=false; 
+  descEl.classList.remove('filled');
+  document.getElementById('descLock').style.display='none';
+  
+  const status = document.getElementById('articuloStatus');
+  status.textContent='✓ Marca ingresada manualmente'; 
+  status.className='articulo-status found'; 
+  status.style.display='';
+  
+  showToast('Marca ingresada manualmente', 'success', marcaIngresada);
+  updateProgress();
+}
+
 function articuloOpenAdd(prefill) {
   document.getElementById('articuloDropdown').style.display='none';
   const c=document.getElementById('articuloAddContainer'); c.style.display='';
@@ -2062,7 +2119,17 @@ function articuloSearch(q) {
   
   if (!matches.length) {
     if (drop) {
-      drop.innerHTML = `<div class="autocomplete-empty" style="padding:.6rem .875rem;text-align:left;"><div style="font-size:.8rem;color:var(--ink-3);margin-bottom:.5rem;">Artículo no encontrado en inventario</div><button class="btn btn-amber btn-sm" style="width:100%;justify-content:center;font-size:.78rem;" onmousedown="articuloOpenAdd('${q.trim().replace(/'/g,"\\'")}')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>Agregar al inventario</button></div>`;
+      drop.innerHTML = `<div class="autocomplete-empty" style="padding:.6rem .875rem;text-align:left;">
+        <div style="font-size:.8rem;color:var(--ink-3);margin-bottom:.5rem;">Artículo no encontrado en inventario</div>
+        <div style="font-size:.75rem;color:var(--ink-4);margin-bottom:.75rem;">Podés ingresar la marca manualmente:</div>
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+          <input type="text" id="manualMarcaInput" class="field-input" placeholder="Ingresar marca" style="flex:1;min-width:150px;font-size:.8rem;" onkeypress="if(event.key==='Enter'){articuloSelectManual();}">
+          <button class="btn btn-amber btn-sm" style="font-size:.78rem;" onmousedown="articuloSelectManual()">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            Usar marca manual
+          </button>
+        </div>
+      </div>`;
       drop.style.display=''; 
     }
     if (status) {
@@ -2210,6 +2277,30 @@ async function handleSubmit(e) {
     showToast('Registro guardado','success','Boleta '+boleta);
     lastSavedRecord = rec || payload;
     populatePrintForm(payload);
+    
+    // Guardar marca manual en inventario si aplica
+    if (articuloMatchedItem && articuloMatchedItem.manual) {
+      try {
+        const inventoryPayload = {
+          marca: articuloMatchedItem.marca,
+          articulo: articuloMatchedItem.articulo,
+          descripcion: articuloMatchedItem.descripcion,
+          fecha_agregado: new Date().toISOString(),
+          agregado_por: registrado_por
+        };
+        
+        await sbFetch('POST', 'inventario', inventoryPayload);
+        showToast('Marca agregada al inventario', 'success', articuloMatchedItem.marca);
+        
+        // Actualizar inventario local
+        inventory.push(inventoryPayload);
+        
+      } catch (invError) {
+        console.error('Error al agregar al inventario:', invError);
+        showToast('No se pudo agregar al inventario', 'error', invError.message);
+      }
+    }
+    
     // Ya no abrimos el modal aqui - las opciones de exportar estan en el boton Enviar
     // Limpiar el formulario para nuevo registro
     document.getElementById('warrantyForm').reset();
@@ -3111,6 +3202,95 @@ function adminAjustarBoleta() {
   consecutiveNum = num - 1;
   if (input) input.value = '';
   showToast('Boleta ajustada a ' + num, 'success', 'Próximo: ' + (num+1));
+}
+
+// Función para editar número de boleta específico (solo super admin)
+async function superAdminEditBoleta() {
+  if (!isSuperAdmin()) { 
+    showToast('Acceso denegado', 'error', 'Solo el super administrador puede editar boletas específicas'); 
+    return; 
+  }
+  
+  const boletaInput = document.getElementById('superAdminBoletaInput');
+  const newBoletaInput = document.getElementById('superAdminNewBoletaInput');
+  const status = document.getElementById('superAdminBoletaStatus');
+  
+  const boletaActual = parseInt(boletaInput?.value);
+  const nuevaBoleta = parseInt(newBoletaInput?.value);
+  
+  if (!boletaActual || boletaActual < 1) { 
+    showToast('Ingresá un número de boleta válido', 'error'); 
+    return; 
+  }
+  
+  if (!nuevaBoleta || nuevaBoleta < 1) { 
+    showToast('Ingresá un nuevo número válido', 'error'); 
+    return; 
+  }
+  
+  status.style.display = 'block';
+  status.textContent = 'Buscando registro...';
+  status.style.color = 'var(--ink-4)';
+  
+  try {
+    // Buscar el registro con la boleta actual
+    const response = await fetch(SB_URL + '/rest/v1/garantias?boleta=eq.' + boletaActual, {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + authToken }
+    });
+    
+    if (!response.ok) {
+      throw new Error('No se encontró el registro con boleta ' + boletaActual);
+    }
+    
+    const records = await response.json();
+    if (records.length === 0) {
+      throw new Error('No se encontró el registro con boleta ' + boletaActual);
+    }
+    
+    const record = records[0];
+    
+    // Actualizar el número de boleta
+    const updateResponse = await fetch(SB_URL + '/rest/v1/garantias?id=eq.' + record.id, {
+      method: 'PATCH',
+      headers: { 
+        'apikey': SB_KEY, 
+        'Authorization': 'Bearer ' + authToken, 
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal' 
+      },
+      body: JSON.stringify({ 
+        boleta: nuevaBoleta,
+        modificado_por: currentUser?.email,
+        fecha_modificacion: new Date().toISOString()
+      })
+    });
+    
+    if (!updateResponse.ok) {
+      throw new Error('Error al actualizar el registro');
+    }
+    
+    status.textContent = `Boleta ${boletaActual} actualizada a ${nuevaBoleta} correctamente`;
+    status.style.color = 'var(--green)';
+    
+    // Limpiar campos
+    boletaInput.value = '';
+    newBoletaInput.value = '';
+    
+    // Recargar registros si estamos en la vista de administración
+    if (document.querySelector('[data-section="definitivas"]').classList.contains('active') || 
+        document.querySelector('[data-section="temporales"]').classList.contains('active')) {
+      setTimeout(() => {
+        adminLoadAll();
+      }, 1500);
+    }
+    
+    showToast('Boleta actualizada', 'success', `${boletaActual} → ${nuevaBoleta}`);
+    
+  } catch (error) {
+    status.textContent = 'Error: ' + error.message;
+    status.style.color = 'var(--red)';
+    showToast('Error al actualizar boleta', 'error', error.message);
+  }
 }
 
 async function adminBorrarTodos() {
