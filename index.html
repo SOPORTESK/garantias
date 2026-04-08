@@ -943,6 +943,21 @@
               Borrar todos los registros
             </button>
           </div>
+          <div style="background:var(--green-dim);border:1.5px solid rgba(5,150,105,.2);border-radius:var(--radius-lg);padding:1.25rem;">
+            <div style="font-size:.875rem;font-weight:700;color:var(--green);margin-bottom:.25rem;">Importar registros desde Excel</div>
+            <div style="font-size:.8125rem;color:var(--ink-3);margin-bottom:.875rem;">Importa registros existentes para rellenar el formulario automáticamente</div>
+            <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+              <input type="file" id="importExcelInput" accept=".xlsx,.xls" style="display:none;" onchange="handleImportExcel(event)">
+              <button class="btn btn-green" onclick="document.getElementById('importExcelInput').click()">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l3 3m-3-3v12"/></svg>
+                Seleccionar Excel
+              </button>
+              <button class="btn btn-ghost" onclick="document.getElementById('importExcelInput').value='';" style="display:none;" id="clearImportBtn">
+                Limpiar
+              </button>
+            </div>
+            <div id="importStatus" style="font-size:.75rem;color:var(--ink-4);margin-top:.5rem;display:none;"></div>
+          </div>
           
 
         </div>
@@ -3633,7 +3648,203 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('mouseout', function(e){
     if (e.target.closest('[data-tip]')) tip.style.display='none';
   });
-})();
+});
+
+// Función para importar registros desde Excel
+function handleImportExcel(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const status = document.getElementById('importStatus');
+  const clearBtn = document.getElementById('clearImportBtn');
+  
+  status.style.display = 'block';
+  status.textContent = 'Procesando archivo...';
+  clearBtn.style.display = 'inline-flex';
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, {type: 'array'});
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+      
+      if (jsonData.length === 0) {
+        status.textContent = 'El archivo está vacío';
+        status.style.color = 'var(--red)';
+        return;
+      }
+      
+      // Mostrar lista de registros para seleccionar
+      showImportSelection(jsonData);
+      
+    } catch (error) {
+      status.textContent = 'Error al procesar el archivo: ' + error.message;
+      status.style.color = 'var(--red)';
+    }
+  };
+  
+  reader.onerror = function() {
+    status.textContent = 'Error al leer el archivo';
+    status.style.color = 'var(--red)';
+  };
+  
+  reader.readAsArrayBuffer(file);
+}
+
+// Función para mostrar selección de registros importados
+function showImportSelection(data) {
+  const status = document.getElementById('importStatus');
+  
+  // Crear modal de selección
+  const modal = document.createElement('div');
+  modal.id = 'importSelectionModal';
+  modal.style.cssText = `
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 999999; padding: 1rem;
+  `;
+  
+  const content = document.createElement('div');
+  content.style.cssText = `
+    background: white; border-radius: 18px; padding: 1.75rem;
+    max-width: 600px; width: 90%; max-height: 70vh; overflow-y: auto;
+    font-family: system-ui, sans-serif;
+  `;
+  
+  content.innerHTML = `
+    <h3 style="margin: 0 0 1rem 0; font-size: 1.1rem; font-weight: 700; color: #1A1108;">
+      Seleccionar registro para importar
+    </h3>
+    <p style="margin: 0 0 1rem 0; font-size: 0.85rem; color: #7A6E62;">
+      Se encontraron ${data.length} registros. Selecciona uno para rellenar el formulario.
+    </p>
+    <div style="display: grid; gap: 0.5rem; margin-bottom: 1rem;">
+      ${data.map((row, index) => `
+        <div onclick="selectImportRow(${index})" style="
+          padding: 0.75rem; border: 1px solid #E8E5E0; border-radius: 8px;
+          cursor: pointer; transition: all 0.2s;
+          display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;
+          font-size: 0.8rem;
+        " onmouseover="this.style.background='#F5F4F2'; this.style.borderColor='#D1411E';" 
+           onmouseout="this.style.background='white'; this.style.borderColor='#E8E5E0';">
+          <div style="font-weight: 600; color: #1A1108;">${row.boleta || row['Boleta'] || 'Registro ' + (index + 1)}</div>
+          <div style="color: #7A6E62;">${row.nombre || row['Nombre'] || row['Cliente'] || 'Sin nombre'}</div>
+        </div>
+      `).join('')}
+    </div>
+    <button onclick="closeImportModal()" style="
+      width: 100%; padding: 0.75rem; border: none; 
+      background: #F5F4F2; color: #7A6E62; border-radius: 8px;
+      cursor: pointer; font-size: 0.85rem; font-weight: 600;
+    ">Cancelar</button>
+  `;
+  
+  modal.appendChild(content);
+  document.body.appendChild(modal);
+  
+  // Guardar datos para uso posterior
+  window.importData = data;
+  
+  status.textContent = `Se encontraron ${data.length} registros. Selecciona uno para importar.`;
+  status.style.color = 'var(--green)';
+}
+
+// Función para seleccionar una fila del import
+function selectImportRow(index) {
+  const row = window.importData[index];
+  fillFormFromExcel(row);
+  closeImportModal();
+}
+
+// Función para rellenar formulario con datos del Excel
+function fillFormFromExcel(row) {
+  // Mapeo de columnas del Excel a campos del formulario
+  const fieldMapping = {
+    // Campos básicos
+    'tipo': 'tipo',
+    'categoria': 'categoria', 
+    'motivo': 'motivo',
+    'ticket': 'ticket',
+    'sede': 'sede',
+    'nombre': 'nombre',
+    'factura': 'factura',
+    
+    // Campos del producto
+    'marca': 'marca',
+    'articulo': 'articulo',
+    'serie': 'articulo', // Para compatibilidad
+    'articulo': 'articulo',
+    'numero_articulo': 'articulo',
+    'numero de articulo': 'articulo',
+    'numero_serie': 'numeroSerie',
+    'numero de serie': 'numeroSerie',
+    'serie_real': 'numeroSerie',
+    'cantidad': 'cantidad',
+    'fecha_compra': 'fechaCompra',
+    'fecha de compra': 'fechaCompra',
+    
+    // Campos de descripción
+    'descripcion': 'descripcion',
+    'descripción': 'descripcion',
+    'falla': 'falla'
+  };
+  
+  // Identificar tipo de salida
+  let tipoSalida = null;
+  const tipoValue = (row.tipo || row['tipo'] || row['Tipo'] || '').toString().toLowerCase();
+  
+  if (tipoValue.includes('definitiva') || tipoValue.includes('salida definitiva') || 
+      tipoValue.includes('definitivo') || tipoValue === 'definitiva' ||
+      tipoValue === 'salida definitiva' || tipoValue === 'definitivo') {
+    tipoSalida = 'salida_definitiva';
+  } else if (tipoValue.includes('temporal') || tipoValue.includes('salida temporal') || 
+             tipoValue.includes('temporal') || tipoValue === 'temporal' ||
+             tipoValue === 'salida temporal' || tipoValue === 'temporal') {
+    tipoSalida = 'salida_temporal';
+  }
+  
+  // Si se identificó el tipo, asignarlo
+  if (tipoSalida) {
+    const tipoElement = document.getElementById('tipo');
+    if (tipoElement) {
+      tipoElement.value = tipoSalida;
+      tipoElement.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+  
+  // Recorrer todas las columnas del Excel y llenar el formulario
+  Object.keys(row).forEach(excelCol => {
+    const formField = fieldMapping[excelCol.toLowerCase()];
+    if (formField) {
+      const element = document.getElementById(formField);
+      if (element) {
+        element.value = row[excelCol] || '';
+        element.dispatchEvent(new Event('input', { bubbles: true }));
+        element.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+  });
+  
+  // Mostrar mensaje de éxito
+  const status = document.getElementById('importStatus');
+  status.textContent = 'Registro importado correctamente. Revisa los datos antes de guardar.';
+  status.style.color = 'var(--green)';
+  
+  // Cambiar a la pestaña de formulario
+  setTimeout(() => {
+    document.querySelector('[data-tab="form"]').click();
+  }, 500);
+}
+
+// Función para cerrar modal de importación
+function closeImportModal() {
+  const modal = document.getElementById('importSelectionModal');
+  if (modal) modal.remove();
+}
+
 </script>
 </body>
 </html>
