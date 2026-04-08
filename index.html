@@ -1577,7 +1577,7 @@ function limpiarFormulario() {
   serieClear();
   form.querySelectorAll('.error,.filled').forEach(el => el.classList.remove('error','filled'));
   document.getElementById('marca').disabled = false;
-  document.getElementById('descripcion').disabled = false;
+  document.getElementById('marca').placeholder = '';
   renderHeaderBoleta();
   updateProgress();
 }
@@ -1981,25 +1981,32 @@ function articuloSelect(idx) {
   document.getElementById('articulo').value = item.articulo || '';
   document.getElementById('articuloDropdown').style.display='none';
   const marcaEl = document.getElementById('marca');
-  marcaEl.value = item.marca || ''; 
-  marcaEl.disabled=true; marcaEl.classList.add('filled');
-  document.getElementById('marcaLock').style.display='';
+  if (item.marca) {
+    marcaEl.value = item.marca;
+    marcaEl.disabled = true; marcaEl.classList.add('filled');
+    document.getElementById('marcaLock').style.display = '';
+  } else {
+    marcaEl.value = '';
+    marcaEl.disabled = false; marcaEl.classList.remove('filled');
+    marcaEl.placeholder = 'Ingresá la marca (se guardará en inventario)';
+    document.getElementById('marcaLock').style.display = 'none';
+  }
   const descEl = document.getElementById('descripcion');
   descEl.value = item.descripcion || ''; 
   descEl.disabled=true; descEl.classList.add('filled');
   document.getElementById('descLock').style.display='';
   const status=document.getElementById('articuloStatus');
-  status.textContent='✓ Encontrado'; status.className='articulo-status found'; status.style.display='';
-  showToast('Artículo encontrado','success', item.marca + ' · ' + (item.descripcion||'').slice(0,40));
+  const sinMarca = !item.marca;
+  status.textContent = sinMarca ? '✓ Encontrado · ingresá la marca' : '✓ Encontrado';
+  status.className='articulo-status found'; status.style.display='';
+  showToast('Artículo encontrado','success', (item.marca || 'Sin marca') + ' · ' + (item.descripcion||'').slice(0,40));
   updateProgress();
 }
 
 function articuloClear() {
   articuloMatchedItem=null;
-  const m=document.getElementById('marca'); m.value=''; m.disabled=false; m.classList.remove('filled');
+  const m=document.getElementById('marca'); m.value=''; m.disabled=false; m.classList.remove('filled'); m.placeholder='';
   document.getElementById('marcaLock').style.display='none';
-  const d=document.getElementById('descripcion'); d.value=''; d.disabled=false; d.classList.remove('filled');
-  document.getElementById('descLock').style.display='none';
   document.getElementById('articuloStatus').style.display='none';
   document.getElementById('articuloDropdown').style.display='none';
 }
@@ -2033,12 +2040,22 @@ function articuloSearch(q) {
   }).slice(0,10);
   
   if (!matches.length) {
+    // Habilitar ingreso manual solo en marca
+    const marcaEl = document.getElementById('marca');
+    marcaEl.value = ''; 
+    marcaEl.disabled = false; 
+    marcaEl.classList.remove('filled');
+    marcaEl.placeholder = 'Ingresá la marca manualmente…';
+    document.getElementById('marcaLock').style.display='none';
+    
+    articuloMatchedItem = null;
+    
     if (drop) {
-      drop.innerHTML = `<div class="autocomplete-empty" style="padding:.6rem .875rem;text-align:left;"><div style="font-size:.8rem;color:var(--ink-3);margin-bottom:.5rem;">Artículo no encontrado en inventario</div><button class="btn btn-amber btn-sm" style="width:100%;justify-content:center;font-size:.78rem;" onmousedown="articuloOpenAdd('${q.trim().replace(/'/g,"\\'")}')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>Agregar al inventario</button></div>`;
+      drop.innerHTML = `<div class="autocomplete-empty" style="padding:.6rem .875rem;text-align:left;"><div style="font-size:.8rem;color:var(--ink-3);margin-bottom:.5rem;">Artículo no encontrado en inventario</div><div style="font-size:.75rem;color:var(--amber);margin-bottom:.5rem;">Podés ingresar la marca manualmente, o:</div><button class="btn btn-amber btn-sm" style="width:100%;justify-content:center;font-size:.78rem;" onmousedown="articuloOpenAdd('${q.trim().replace(/'/g,"\\'")}')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>Agregar al inventario</button></div>`;
       drop.style.display=''; 
     }
     if (status) {
-      status.textContent='No encontrado'; 
+      status.textContent='Ingreso manual'; 
       status.className='articulo-status notfound'; 
       status.style.display=''; 
     }
@@ -2122,9 +2139,9 @@ async function handleSubmit(e) {
   let valid = true;
   required.forEach(el => { const empty=!el.value.trim(); el.classList.toggle('error',empty); if(empty)valid=false; });
 
-  // Re-deshabilitar si venían del inventario
+  // Re-deshabilitar si venían del inventario (solo desc siempre; marca solo si tenía valor)
   if (articuloMatchedItem) {
-    document.getElementById('marca').disabled = true;
+    if (articuloMatchedItem.marca) document.getElementById('marca').disabled = true;
     document.getElementById('descripcion').disabled = true;
   }
   if (!valid) { showToast('Campos incompletos','error','Completá todos los campos marcados en rojo'); return; }
@@ -2139,7 +2156,7 @@ async function handleSubmit(e) {
   if (!confirm('¿Guardar este registro?\n\n' + confirmMsg)) {
     // Re-deshabilitar campos del inventario si corresponde
     if (articuloMatchedItem) {
-      document.getElementById('marca').disabled = true;
+      if (articuloMatchedItem.marca) document.getElementById('marca').disabled = true;
       document.getElementById('descripcion').disabled = true;
     }
     return;
@@ -2181,6 +2198,29 @@ async function handleSubmit(e) {
     }
     showToast('Registro guardado','success','Boleta '+boleta);
     lastSavedRecord = rec || payload;
+
+    // Si el artículo fue encontrado sin marca y el usuario ingresó una, guardarla en inventario
+    if (articuloMatchedItem && !articuloMatchedItem.marca && payload.marca) {
+      try {
+        const artCode = document.getElementById('articulo').value || articuloMatchedItem.articulo;
+        await fetch(SB_URL + '/rest/v1/' + INV_TABLE + '?articulo=eq.' + encodeURIComponent(artCode), {
+          method: 'PATCH',
+          headers: {
+            'apikey': SB_KEY,
+            'Authorization': 'Bearer ' + (authToken || SB_KEY),
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({ marca: payload.marca })
+        });
+        // Actualizar también en memoria local
+        const invIdx = inventory.findIndex(r => r.articulo === artCode);
+        if (invIdx >= 0) inventory[invIdx].marca = payload.marca;
+        showToast('Marca guardada en inventario', 'success', payload.marca + ' · ' + artCode);
+      } catch(invErr) {
+        console.warn('No se pudo actualizar la marca en inventario:', invErr.message);
+      }
+    }
     populatePrintForm(payload);
     // Ya no abrimos el modal aqui - las opciones de exportar estan en el boton Enviar
     // Limpiar el formulario para nuevo registro
