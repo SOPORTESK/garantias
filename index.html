@@ -3715,23 +3715,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     dateInterval = setInterval(renderHeaderDate, 60000);
 
     // Tabs
-    try {
-      document.querySelectorAll('.pill-btn').forEach(btn => {
-        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-      });
-      console.log('Eventos de pestañas inicializados correctamente');
-    } catch (error) {
-      console.error('Error al inicializar eventos de pestañas:', error);
-    }
-    
-    try {
-      document.querySelectorAll('.rail-item[data-section]').forEach(btn => {
-        btn.addEventListener('click', () => adminSwitchSection(btn.dataset.section));
-      });
-      console.log('Eventos de rail-items inicializados correctamente');
-    } catch (error) {
-      console.error('Error al inicializar eventos de rail-items:', error);
-    }
+    document.querySelectorAll('.pill-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+    document.querySelectorAll('.rail-item[data-section]').forEach(btn => {
+      btn.addEventListener('click', () => adminSwitchSection(btn.dataset.section));
+    });
 
     // FIX: sort con parámetro th explícito (data-sort-type y data-sort-col en HTML)
     document.querySelectorAll('thead th[data-sort-type]').forEach(th => {
@@ -3976,6 +3965,7 @@ function fillFormFromExcel(row) {
     'marca': 'marca',
     'articulo': 'articulo',
     'serie': 'articulo', // Para compatibilidad
+    'articulo': 'articulo',
     'numero_articulo': 'articulo',
     'numero de articulo': 'articulo',
     'numero_serie': 'numeroSerie',
@@ -4034,7 +4024,7 @@ function fillFormFromExcel(row) {
   
   // Cambiar a la pestaña de formulario
   setTimeout(() => {
-    document.querySelector('[data-tab="formulario"]').click();
+    document.querySelector('[data-tab="form"]').click();
   }, 500);
 }
 
@@ -4047,4 +4037,3 @@ function closeImportModal() {
 </script>
 </body>
 </html>
-|
