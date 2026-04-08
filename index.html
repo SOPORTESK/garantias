@@ -1096,7 +1096,7 @@
   </div>
   <div class="pf-section"><div class="pf-section-title">Clasificación</div><div class="pf-grid"><div class="pf-field"><div class="pf-label">Tipo de Salida</div><div class="pf-value" id="pf-tipo"></div></div><div class="pf-field"><div class="pf-label">Categoría</div><div class="pf-value" id="pf-categoria"></div></div><div class="pf-field"><div class="pf-label">Motivo</div><div class="pf-value" id="pf-motivo"></div></div></div></div>
   <div class="pf-section"><div class="pf-section-title">Información del Cliente</div><div class="pf-grid"><div class="pf-field"><div class="pf-label">Ticket N°</div><div class="pf-value" id="pf-ticket"></div></div><div class="pf-field"><div class="pf-label">Sede</div><div class="pf-value" id="pf-sede"></div></div><div class="pf-field"><div class="pf-label">Factura N°</div><div class="pf-value" id="pf-factura"></div></div></div><div class="pf-field pf-full" style="margin-top:6px;"><div class="pf-label">Nombre del Cliente</div><div class="pf-value" id="pf-nombre"></div></div></div>
-  <div class="pf-section"><div class="pf-section-title">Información del Producto</div><div class="pf-grid"><div class="pf-field"><div class="pf-label">Marca</div><div class="pf-value" id="pf-marca"></div></div><div class="pf-field"><div class="pf-label">Serie</div><div class="pf-value" id="pf-serie"></div></div><div class="pf-field"><div class="pf-label">Cantidad</div><div class="pf-value" id="pf-cantidad"></div></div><div class="pf-field"><div class="pf-label">Fecha de Compra</div><div class="pf-value" id="pf-fecha-compra"></div></div></div></div>
+  <div class="pf-section"><div class="pf-section-title">Información del Producto</div><div class="pf-grid"><div class="pf-field"><div class="pf-label">Marca</div><div class="pf-value" id="pf-marca"></div></div><div class="pf-field"><div class="pf-label">Número de Artículo</div><div class="pf-value" id="pf-serie"></div></div><div class="pf-field"><div class="pf-label">Número de Serie</div><div class="pf-value" id="pf-numero-serie"></div></div><div class="pf-field"><div class="pf-label">Cantidad</div><div class="pf-value" id="pf-cantidad"></div></div><div class="pf-field"><div class="pf-label">Fecha de Compra</div><div class="pf-value" id="pf-fecha-compra"></div></div></div></div>
   <div class="pf-section"><div class="pf-section-title">Descripción y Falla</div><div class="pf-grid-2"><div class="pf-field pf-full"><div class="pf-label">Descripción del Artículo</div><div class="pf-value pf-text-area" id="pf-descripcion"></div></div><div class="pf-field pf-full"><div class="pf-label">Descripción de la Falla</div><div class="pf-value pf-text-area" id="pf-falla"></div></div></div></div>
 </div>
 
@@ -2161,7 +2161,6 @@ async function handleSubmit(e) {
     cantidad:parseInt(fd.get('cantidad'))||1, fecha_compra:fd.get('fechaCompra')||null,
     marca:document.getElementById('marca').value,
     serie:document.getElementById('articulo').value||null,
-    numero_serie:document.getElementById('numeroSerie').value||null,
     descripcion:document.getElementById('descripcion').value,
     falla:fd.get('falla'),
     fecha_creacion:new Date().toISOString(),
@@ -2212,6 +2211,7 @@ function populatePrintForm(r) {
   document.getElementById('pf-factura').textContent=r.factura||'—';
   document.getElementById('pf-marca').textContent=r.marca||'—';
   document.getElementById('pf-serie').textContent=r.serie||'—';
+  document.getElementById('pf-numero-serie').textContent=r.numero_serie||'—';
   document.getElementById('pf-cantidad').textContent=r.cantidad||'—';
   document.getElementById('pf-fecha-compra').textContent=r.fecha_compra?new Date(r.fecha_compra+'T12:00:00').toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric'}):'—';
   document.getElementById('pf-descripcion').textContent=r.descripcion||'—';
@@ -2288,7 +2288,7 @@ function buildPrintHTML(r) {
 <div class="pf-header"><img class="pf-logo" src="${LOGO_SRC}" alt="Sekunet"><div class="pf-title-area"><div class="pf-main-title">Garantías · Sekunet</div><div class="pf-boleta">Boleta ${boleta}</div><div class="pf-date">${fecha}</div></div></div>
 <div class="pf-section"><div class="pf-section-title">Clasificación</div><div class="pf-grid"><div class="pf-field"><div class="pf-label">Tipo de Salida</div><div class="pf-value">${TIPO_LABELS[r.tipo]||r.tipo||'—'}</div></div><div class="pf-field"><div class="pf-label">Categoría</div><div class="pf-value">${CAT_LABELS[r.categoria]||r.categoria||'—'}</div></div><div class="pf-field"><div class="pf-label">Motivo</div><div class="pf-value">${MOT_LABELS[r.motivo]||r.motivo||'—'}</div></div></div></div>
 <div class="pf-section"><div class="pf-section-title">Información del Cliente</div><div class="pf-grid"><div class="pf-field"><div class="pf-label">Ticket N°</div><div class="pf-value">${r.ticket||'—'}</div></div><div class="pf-field"><div class="pf-label">Sede</div><div class="pf-value">${r.sede||'—'}</div></div><div class="pf-field"><div class="pf-label">Factura N°</div><div class="pf-value">${r.factura||'—'}</div></div></div><div class="pf-field pf-full" style="margin-top:6px;"><div class="pf-label">Nombre del Cliente</div><div class="pf-value">${r.nombre||'—'}</div></div></div>
-<div class="pf-section"><div class="pf-section-title">Información del Producto</div><div class="pf-grid"><div class="pf-field"><div class="pf-label">Marca</div><div class="pf-value">${r.marca||'—'}</div></div><div class="pf-field"><div class="pf-label">Serie</div><div class="pf-value">${r.serie||'—'}</div></div><div class="pf-field"><div class="pf-label">Cantidad</div><div class="pf-value">${r.cantidad||'—'}</div></div><div class="pf-field"><div class="pf-label">Fecha de Compra</div><div class="pf-value">${fechaCompra}</div></div></div></div>
+<div class="pf-section"><div class="pf-section-title">Información del Producto</div><div class="pf-grid"><div class="pf-field"><div class="pf-label">Marca</div><div class="pf-value">${r.marca||'—'}</div></div><div class="pf-field"><div class="pf-label">Número de Artículo</div><div class="pf-value">${r.serie||'—'}</div></div><div class="pf-field"><div class="pf-label">Número de Serie</div><div class="pf-value">${r.numero_serie||'—'}</div></div><div class="pf-field"><div class="pf-label">Cantidad</div><div class="pf-value">${r.cantidad||'—'}</div></div><div class="pf-field"><div class="pf-label">Fecha de Compra</div><div class="pf-value">${fechaCompra}</div></div></div></div>
 <div class="pf-section"><div class="pf-section-title">Descripción y Falla</div><div class="pf-grid-2"><div class="pf-field pf-full"><div class="pf-label">Descripción del Artículo</div><div class="pf-value pf-text-area">${r.descripcion||'—'}</div></div><div class="pf-field pf-full"><div class="pf-label">Descripción de la Falla</div><div class="pf-value pf-text-area">${r.falla||'—'}</div></div></div></div>
 </body></html>`;
 }
@@ -2663,10 +2663,11 @@ function buildOutlookHTML(r) {
   // Información del Producto
   +secHead('Informaci&#243;n del Producto')
   +'<tr>'
-    +field('Marca', r.marca, '25%')
-    +field('Serie', r.serie, '25%')
-    +field('Cantidad', String(r.cantidad||'&mdash;'), '25%')
-    +field('Fecha de Compra', fechaComp, '25%')
+    +field('Marca', r.marca, '20%')
+    +field('N&#250;mero de Art&#237;culo', r.serie, '20%')
+    +field('N&#250;mero de Serie', r.numero_serie, '20%')
+    +field('Cantidad', String(r.cantidad||'&mdash;'), '20%')
+    +field('Fecha de Compra', fechaComp, '20%')
   +'</tr>'
 
   // Descripción y Falla
