@@ -547,7 +547,7 @@
           </div>
           <div class="form-grid" style="margin-top:.75rem">
             <div class="field col-2">
-              <label class="field-label" for="articulo">Número de Artículo <span id="articuloInventoryHint" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-4);margin-left:.5rem;display:none">— buscando…</span></label>
+              <label class="field-label" for="articulo">Artículo <span id="articuloInventoryHint" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-4);margin-left:.5rem;display:none">— buscando…</span></label>
               <div class="articulo-wrapper">
                 <input id="articulo" name="articulo" type="text" class="field-input" autocomplete="off" required>
                 <span class="articulo-status" id="articuloStatus" style="display:none"></span>
@@ -556,7 +556,7 @@
               <div id="articuloAddContainer" style="display:none"></div>
             </div>
             <div class="field col-2">
-              <label class="field-label" for="numeroSerie">Número de Serie</label>
+              <label class="field-label" for="numeroSerie">Serie</label>
               <input id="numeroSerie" name="numeroSerie" type="text" class="field-input">
             </div>
           </div>
@@ -667,11 +667,11 @@
         </div>
       </div>
       <div class="table-wrap"><table style="table-layout:auto;width:auto;min-width:100%;"><thead><tr>
-        <th>Consecutivo</th>
+        <th>Número de Boleta</th>
         <th>Fecha</th>
+        <th>Ticket</th>
         <th>Categoría</th>
         <th>Motivo</th>
-        <th>Ticket</th>
         <th>Cliente</th>
         <th>Sede</th>
         <th>Factura</th>
@@ -707,11 +707,11 @@
         </div>
       </div>
       <div class="table-wrap"><table style="table-layout:auto;width:auto;min-width:100%;"><thead><tr>
-        <th>Consecutivo</th>
+        <th>Número de Boleta</th>
         <th>Fecha</th>
+        <th>Ticket</th>
         <th>Categoría</th>
         <th>Motivo</th>
-        <th>Ticket</th>
         <th>Cliente</th>
         <th>Sede</th>
         <th>Factura</th>
@@ -780,11 +780,11 @@
           </div>
         </div>
         <div class="table-wrap"><table style="table-layout:auto;width:auto;min-width:100%;"><thead><tr>
-          <th class="sortable" data-sort-type="def" data-sort-col="boleta">Consecutivo <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="def" data-sort-col="boleta">Número de Boleta <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="fecha_creacion">Fecha <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="def" data-sort-col="ticket">Ticket <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="categoria">Categoría <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="motivo">Motivo <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="def" data-sort-col="ticket">Ticket <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="nombre">Cliente <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="sede">Sede <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="factura">Factura <span class="sort-icon">↕</span></th>
@@ -808,11 +808,11 @@
           </div>
         </div>
         <div class="table-wrap"><table style="table-layout:auto;width:auto;min-width:100%;"><thead><tr>
-          <th class="sortable" data-sort-type="temp" data-sort-col="boleta">Consecutivo <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="temp" data-sort-col="boleta">Número de Boleta <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="fecha_creacion">Fecha <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="temp" data-sort-col="ticket">Ticket <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="categoria">Categoría <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="motivo">Motivo <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="temp" data-sort-col="ticket">Ticket <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="nombre">Cliente <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="sede">Sede <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="factura">Factura <span class="sort-icon">↕</span></th>
@@ -971,6 +971,16 @@
                 <button class="btn btn-ghost btn-sm" onclick="importGarantiasCancelar()">Cancelar</button>
               </div>
             </div>
+          </div>
+
+          <div style="background:var(--blue-dim);border:1.5px solid rgba(59,130,246,.2);border-radius:var(--radius-lg);padding:1.25rem;">
+            <div style="font-size:.875rem;font-weight:700;color:var(--blue);margin-bottom:.25rem;">Migrar números de serie</div>
+            <div style="font-size:.8125rem;color:var(--ink-3);margin-bottom:.875rem;">Copia los valores del campo <strong>Serie Equipo Nuevo</strong> al campo <strong>Serie</strong> para todos los registros donde el campo Serie esté vacío.</div>
+            <button class="btn btn-primary" onclick="adminMigrarSeries()">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              Ejecutar migración
+            </button>
+            <span id="migrarSeriesStatus" style="font-size:.78rem;color:var(--ink-4);margin-left:.75rem;"></span>
           </div>
 
           <div style="background:var(--red-dim);border:1.5px solid rgba(220,38,38,.2);border-radius:var(--radius-lg);padding:1.25rem;">
@@ -1709,6 +1719,11 @@ function formatBoleta(num, prefix) {
   const p = prefix !== undefined ? prefix : buildPrefix();
   return p ? p + num : String(num);
 }
+function calcBoleta(registro, num) {
+  // Calcula la boleta correcta para un registro basado en su tipo/categoría
+  const p = buildPrefixFrom(registro.tipo, registro.categoria);
+  return p ? p + num : String(num);
+}
 function renderHeaderBoleta() {
   document.getElementById('headerBoleta').textContent = formatBoleta(consecutiveNum + 1);
 }
@@ -2215,6 +2230,7 @@ async function handleSubmit(e) {
     cantidad:parseInt(fd.get('cantidad'))||1, fecha_compra:fd.get('fechaCompra')||null,
     marca:document.getElementById('marca').value,
     serie:document.getElementById('articulo').value||null,
+    numero_serie:document.getElementById('numeroSerie').value||null,
     descripcion:document.getElementById('descripcion').value,
     falla:fd.get('falla'),
     fecha_creacion:new Date().toISOString(),
@@ -2799,9 +2815,9 @@ function regRenderTable(type) {
     return `<tr style="animation-delay:${i*0.02}s">
     <td class="td-mono">${boletaBadge(r.boleta)}</td>
     <td>${fmtDate(r.fecha_creacion)}</td>
+    <td class="td-mono">${r.ticket||'—'}</td>
     <td>${catBadge(r.categoria)}</td>
     <td style="color:var(--ink-3);font-size:.75rem">${MOT_LABELS[r.motivo]||r.motivo||'—'}</td>
-    <td class="td-mono">${r.ticket||'—'}</td>
     <td><strong>${r.nombre||'—'}</strong></td>
     <td style="color:var(--ink-3)">${r.sede||'—'}</td>
     <td class="td-mono">${r.factura||'—'}</td>
@@ -3498,6 +3514,75 @@ async function adminBorrarTodos() {
   }
 }
 
+async function adminMigrarSeries() {
+  if (!isAdmin()) { showToast('Solo administradores', 'error'); return; }
+  
+  const status = document.getElementById('migrarSeriesStatus');
+  const btn = document.querySelector('#panel-herramientas button[onclick="adminMigrarSeries()"]');
+  
+  // Filtrar registros que tienen serie_fabrica pero no numero_serie
+  const registrosParaMigrar = allRecords.filter(r => 
+    r.serie_fabrica && r.serie_fabrica.trim() !== '' && 
+    (!r.numero_serie || r.numero_serie.trim() === '')
+  );
+  
+  if (registrosParaMigrar.length === 0) {
+    showToast('No hay registros para migrar', 'info');
+    if (status) status.textContent = 'No hay registros pendientes';
+    return;
+  }
+  
+  if (!confirm(`¿Migrar ${registrosParaMigrar.length} registros?\n\nSe copiará el valor de "Serie Equipo Nuevo" al campo "Serie".`)) return;
+  
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Migrando…'; }
+  if (status) status.textContent = `Migrando ${registrosParaMigrar.length} registros…`;
+  
+  let exitosos = 0;
+  let errores = 0;
+  
+  try {
+    for (const r of registrosParaMigrar) {
+      try {
+        await sbFetch('PATCH', TABLE + '?id=eq.' + r.id, { 
+          numero_serie: r.serie_fabrica,
+          modificado_por: 'Sistema (migración)',
+          fecha_modificacion: new Date().toISOString()
+        });
+        exitosos++;
+        // Actualizar en memoria
+        const idx = allRecords.findIndex(x => x.id === r.id);
+        if (idx !== -1) allRecords[idx].numero_serie = r.serie_fabrica;
+        const idxDef = rawData.def.findIndex(x => x.id === r.id);
+        if (idxDef !== -1) rawData.def[idxDef].numero_serie = r.serie_fabrica;
+        const idxTemp = rawData.temp.findIndex(x => x.id === r.id);
+        if (idxTemp !== -1) rawData.temp[idxTemp].numero_serie = r.serie_fabrica;
+      } catch (e) {
+        errores++;
+        console.error('Error migrando registro', r.id, e);
+      }
+    }
+    
+    adminApplyFilters('def');
+    adminApplyFilters('temp');
+    
+    if (errores === 0) {
+      showToast(`${exitosos} registros migrados exitosamente`, 'success');
+      if (status) status.textContent = `${exitosos} registros actualizados`;
+    } else {
+      showToast(`${exitosos} migrados, ${errores} con error`, 'warning');
+      if (status) status.textContent = `${exitosos} exitosos, ${errores} errores`;
+    }
+  } catch (err) {
+    showToast('Error en la migración', 'error', err.message);
+    if (status) status.textContent = 'Error en la migración';
+  } finally {
+    if (btn) { 
+      btn.disabled = false; 
+      btn.innerHTML = '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Ejecutar migración'; 
+    }
+  }
+}
+
 async function askDeleteUser(userId, correo) {
   if (correo === SUPER_ADMIN_EMAIL) { showToast('No se puede eliminar al super administrador', 'error'); return; }
   if (!confirm('¿Eliminar el usuario ' + correo + '?\n\nEsta acción no se puede deshacer.')) return;
@@ -3674,9 +3759,9 @@ function adminRenderTable(type){
     return `<tr style="animation-delay:${i*0.02}s">
     <td class="td-mono">${boletaBadge(r.boleta)}</td>
     <td>${fmtDate(r.fecha_creacion)}</td>
+    <td class="td-mono">${r.ticket||'—'}</td>
     <td>${catBadge(r.categoria)}</td>
     <td style="color:var(--ink-3);font-size:.75rem">${MOT_LABELS[r.motivo]||r.motivo||'—'}</td>
-    <td class="td-mono">${r.ticket||'—'}</td>
     <td class="td-wrap"><strong>${r.nombre||'—'}</strong></td>
     <td style="color:var(--ink-3)">${r.sede||'—'}</td>
     <td class="td-mono">${r.factura||'—'}</td>
@@ -3710,17 +3795,18 @@ function exportExcel(type){
 /* EDIT MODAL */
 let editingId=null;
 const EDIT_FIELDS=[
+  {key:'boleta',label:'Número de Boleta',type:'text'},
   {key:'tipo',label:'Tipo de Salida',type:'select',opts:[['salida_definitiva','Salida Definitiva'],['salida_temporal','Salida Temporal']]},
   {key:'categoria',label:'Categoría',type:'select',opts:[['nota_credito','Nota De Crédito'],['garantia_1','Garantía 1%'],['rma','RMA'],['reparacion','Reparación'],['rma_nota_credito','RMA - NC'],['garantia_1_nota_credito','Garantía 1% + NC']]},
   {key:'motivo',label:'Motivo',type:'select',opts:[['sin_existencias','Sin Existencias'],['solicitud_cliente','Solicitud del Cliente'],['reemplazo','Reemplazo']]},
   {key:'ticket',label:'Ticket N°',type:'text'},{key:'sede',label:'Sede',type:'select',opts:[['San José','San José'],['Liberia','Liberia'],['Pérez Zeledón','Pérez Zeledón']]},
   {key:'nombre',label:'Nombre del Cliente',type:'text'},{key:'factura',label:'Factura N°',type:'text'},{key:'cantidad',label:'Cantidad',type:'number'},{key:'fecha_compra',label:'Fecha de Compra',type:'date'},
-  {key:'marca',label:'Marca',type:'text'},{key:'serie',label:'Serie',type:'text'},
+  {key:'marca',label:'Marca',type:'text'},{key:'serie',label:'Artículo',type:'text'},{key:'numero_serie',label:'Serie',type:'text'},
   {key:'descripcion',label:'Descripción',type:'textarea',full:true},{key:'falla',label:'Falla',type:'textarea',full:true},
   {key:'factura_salida',label:'Factura de Salida',type:'text'},
   {key:'dev',label:'Nota de Crédito',type:'text',dev:true},
   {key:'estatus',label:'Estatus',type:'text'},
-  {key:'serie_fabrica',label:'Serie de Fábrica',type:'text'},
+  {key:'serie_fabrica',label:'Serie Equipo Nuevo',type:'text'},
 ];
 
 function openEdit(id){
@@ -3776,7 +3862,11 @@ async function saveEdit(){
       const v = el.value.trim();
       payload[f.key] = v ? 'DEV-' + v.replace(/^DEV-/i,'') : null;
     } else {
-      payload[f.key]=el.value||null;
+      const val = el.value?.trim() || '';
+      // Solo incluir el campo si tiene valor, para evitar enviar nulls
+      if (val !== '') {
+        payload[f.key] = val;
+      }
     }
   }});
   // Si se ingresó DEV por primera vez, registrar fecha_aprobacion
@@ -3792,16 +3882,106 @@ async function saveEdit(){
   payload.fecha_modificacion = new Date().toISOString();
   const pool=[...allRecords,...rawData.def,...rawData.temp];
   const orig=pool.find(x=>x.id==editingId);
-  if(orig){const p=buildPrefixFrom(payload.tipo||'',payload.categoria||'');payload.boleta=p?p+orig.numero_consecutivo:String(orig.numero_consecutivo);}
+  let actualizarOtros = false;
+  let registrosParaActualizar = [];
+  if(orig){
+    // Si se editó la boleta, extraer el nuevo número consecutivo
+    if(payload.boleta && payload.boleta !== orig.boleta){
+      const match = payload.boleta.match(/(\d+)$/);
+      if(match){
+        const nuevoNum = parseInt(match[1]);
+        const numOriginal = orig.numero_consecutivo;
+        if(nuevoNum !== numOriginal){
+          // Se cambió el número consecutivo - necesitamos renumerar los demás registros
+          actualizarOtros = true;
+          payload.numero_consecutivo = nuevoNum;
+          // Recalcular boleta con prefijo correcto
+          const p=buildPrefixFrom(payload.tipo||orig.tipo||'',payload.categoria||orig.categoria||'');
+          payload.boleta = p ? p + nuevoNum : String(nuevoNum);
+          // Preparar actualización de otros registros
+          if(nuevoNum > numOriginal){
+            // Si el nuevo número es mayor, desplazar los registros intermedios hacia abajo
+            const afectados = allRecords.filter(r => 
+              r.id !== editingId && 
+              r.numero_consecutivo > numOriginal && 
+              r.numero_consecutivo <= nuevoNum
+            );
+            registrosParaActualizar = afectados.map(r => ({
+              id: r.id,
+              numero_consecutivo: r.numero_consecutivo - 1,
+              boleta: calcBoleta(r, r.numero_consecutivo - 1)
+            }));
+          } else {
+            // Si el nuevo número es menor, desplazar los registros intermedios hacia arriba
+            const afectados = allRecords.filter(r => 
+              r.id !== editingId && 
+              r.numero_consecutivo >= nuevoNum && 
+              r.numero_consecutivo < numOriginal
+            );
+            registrosParaActualizar = afectados.map(r => ({
+              id: r.id,
+              numero_consecutivo: r.numero_consecutivo + 1,
+              boleta: calcBoleta(r, r.numero_consecutivo + 1)
+            }));
+          }
+          // Actualizar consecutivo global
+          const maxNum = Math.max(nuevoNum, ...allRecords.map(r => r.numero_consecutivo || 0));
+          if(maxNum > consecutiveNum){
+            consecutiveNum = maxNum;
+            renderHeaderBoleta();
+          }
+        }
+      }
+    } else {
+      // Mantener el número consecutivo original y recalcular boleta si cambió tipo/categoría
+      payload.numero_consecutivo = orig.numero_consecutivo;
+      const p=buildPrefixFrom(payload.tipo||'',payload.categoria||'');
+      if(p && payload.boleta !== p + orig.numero_consecutivo){
+        payload.boleta = p + orig.numero_consecutivo;
+      }
+    }
+  }
   try{
+    // Guardar el registro editado primero
     await sbFetch('PATCH',TABLE+'?id=eq.'+editingId,payload);
+    // Luego actualizar los demás registros afectados
+    if(actualizarOtros && registrosParaActualizar.length > 0){
+      for(const reg of registrosParaActualizar){
+        await sbFetch('PATCH',TABLE+'?id=eq.'+reg.id,{
+          numero_consecutivo: reg.numero_consecutivo,
+          boleta: reg.boleta,
+          modificado_por: 'Sistema (renumeración)',
+          fecha_modificacion: new Date().toISOString()
+        });
+      }
+    }
+    // Actualizar memoria
     const patch=x=>x.id==editingId?Object.assign({},x,payload):x;
     allRecords=allRecords.map(patch);
-    const allM=[...rawData.def,...rawData.temp].map(patch);
+    // Aplicar cambios a los otros registros en memoria
+    registrosParaActualizar.forEach(u => {
+      const idx = allRecords.findIndex(r => r.id === u.id);
+      if(idx !== -1){
+        allRecords[idx].numero_consecutivo = u.numero_consecutivo;
+        allRecords[idx].boleta = u.boleta;
+      }
+    });
+    const allM=[...rawData.def,...rawData.temp].map(x => {
+      const actualizado = patch(x);
+      const renumerado = registrosParaActualizar.find(u => u.id === x.id);
+      if(renumerado){
+        actualizado.numero_consecutivo = renumerado.numero_consecutivo;
+        actualizado.boleta = renumerado.boleta;
+      }
+      return actualizado;
+    });
     rawData.def=allM.filter(r=>r.tipo==='salida_definitiva'); rawData.temp=allM.filter(r=>r.tipo==='salida_temporal');
     adminUpdateBadges(); adminApplyFilters('def'); adminApplyFilters('temp'); closeModal();
     if (regLoaded) regLoadAll();
-    showToast('Registro actualizado','success');
+    const msg = actualizarOtros 
+      ? `Registro actualizado. ${registrosParaActualizar.length} registros renumerados.` 
+      : 'Registro actualizado';
+    showToast(msg,'success');
   }catch(err){showToast('Error al actualizar','error',err.message);}
   finally{btn.disabled=false;btn.innerHTML='<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Guardar Cambios';}
 }
