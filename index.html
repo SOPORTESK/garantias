@@ -57,7 +57,7 @@
     .login-error.show{display:block;}
 
     /* ── AUTOGUARDADO ── */
-    #draftBanner{display:none;position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border-2);border-radius:var(--radius-lg);padding:.5rem 1rem;box-shadow:var(--shadow-md);z-index:100;display:none;align-items:center;gap:.75rem;font-size:.78rem;color:var(--ink-3);}
+    #draftBanner{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border-2);border-radius:var(--radius-lg);padding:.5rem 1rem;box-shadow:var(--shadow-md);z-index:100;display:none;align-items:center;gap:.75rem;font-size:.78rem;color:var(--ink-3);}
     #draftBanner.show{display:flex;}
     .draft-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;}
     .draft-restore{font-weight:700;color:var(--brand);cursor:pointer;background:none;border:none;font-family:var(--font);font-size:.78rem;padding:0;}
@@ -749,6 +749,9 @@
       <button class="rail-item" data-section="estadisticas" id="railEstadisticas">
         <div class="rail-item-left"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Estadísticas</div>
       </button>
+      <button class="rail-item" data-section="tramites-marca" id="railTramitesMarca">
+        <div class="rail-item-left"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>Trámites con Marca</div>
+      </button>
       <div style="margin-top:auto;padding-top:1rem;border-top:1px solid var(--border);">
         <button class="rail-item" data-section="herramientas" id="railHerramientas" onclick="if(!isAdmin()){showToast('Acceso denegado','error');return false;}">
           <div class="rail-item-left"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Herramientas</div>
@@ -857,6 +860,14 @@
         </div>
       </div>
 
+      <!-- PANEL TRÁMITES CON MARCA -->
+      <div id="panel-tramites-marca" style="display:none !important;">
+        <div class="data-panel" style="padding:2rem;">
+          <div style="font-size:1rem;font-weight:700;color:var(--ink-1);margin-bottom:1rem;">Trámites con Marca</div>
+          <div style="font-size:.875rem;color:var(--ink-3);">Panel en construcción...</div>
+        </div>
+      </div>
+
       <!-- PANEL ESTADÍSTICAS -->
       <div id="panel-estadisticas-admin" style="display:none;">
         <div class="stat-grid" style="margin-bottom:1.5rem;grid-template-columns:repeat(5,1fr);">
@@ -935,6 +946,33 @@
               </button>
             </div>
           </div>
+          <div style="background:var(--green-dim);border:1.5px solid rgba(5,150,105,.2);border-radius:var(--radius-lg);padding:1.25rem;">
+            <div style="font-size:.875rem;font-weight:700;color:var(--green);margin-bottom:.25rem;">Importar registros históricos</div>
+            <div style="font-size:.8125rem;color:var(--ink-3);margin-bottom:.875rem;">Subí un Excel con registros antiguos. El sistema los clasificará automáticamente en <strong>Salidas Definitivas</strong> o <strong>Temporales</strong> según el tipo.</div>
+            <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin-bottom:.75rem;">
+              <input type="file" id="importGarantiasFile" accept=".xlsx,.xls,.csv" style="display:none;" onchange="importGarantiasHandleFile(this.files[0])">
+              <button class="btn btn-success" onclick="document.getElementById('importGarantiasFile').click()">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                Seleccionar Excel
+              </button>
+              <span id="importGarantiasStatus" style="font-size:.78rem;color:var(--ink-4);"></span>
+            </div>
+            <div style="font-size:.7rem;color:var(--ink-4);background:var(--bg-2);border-radius:var(--radius-sm);padding:.5rem .75rem;">
+              <strong>Columnas requeridas:</strong> tipo, categoria, motivo, ticket, sede, nombre, factura, cantidad, fecha_compra, marca, serie, descripcion, falla, (opcional: numero_serie, registrado_por, fecha_creacion)
+            </div>
+            <div id="importGarantiasPreview" style="display:none;margin-top:1rem;">
+              <div style="font-size:.78rem;font-weight:600;color:var(--ink-2);margin-bottom:.5rem;">Vista previa:</div>
+              <div style="max-height:200px;overflow:auto;background:var(--bg-2);border-radius:var(--radius-sm);padding:.5rem;font-size:.7rem;" id="importGarantiasPreviewContent"></div>
+              <div style="display:flex;gap:.5rem;margin-top:.75rem;">
+                <button class="btn btn-primary btn-sm" onclick="importGarantiasConfirmar()">
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                  Importar <span id="importGarantiasCount"></span> registros
+                </button>
+                <button class="btn btn-ghost btn-sm" onclick="importGarantiasCancelar()">Cancelar</button>
+              </div>
+            </div>
+          </div>
+
           <div style="background:var(--red-dim);border:1.5px solid rgba(220,38,38,.2);border-radius:var(--radius-lg);padding:1.25rem;">
             <div style="font-size:.875rem;font-weight:700;color:var(--red);margin-bottom:.25rem;">Borrar todos los registros</div>
             <div style="font-size:.8125rem;color:var(--ink-3);margin-bottom:.875rem;">Elimina permanentemente <strong>todos</strong> los registros de garantías. Esta acción no se puede deshacer.</div>
@@ -943,7 +981,6 @@
               Borrar todos los registros
             </button>
           </div>
-          
 
         </div>
       </div>
@@ -1574,7 +1611,7 @@ function draftSchedule() {
 function limpiarFormulario() {
   const form = document.getElementById('warrantyForm');
   form.reset();
-  serieClear();
+  articuloClear();
   form.querySelectorAll('.error,.filled').forEach(el => el.classList.remove('error','filled'));
   document.getElementById('marca').disabled = false;
   document.getElementById('marca').placeholder = '';
@@ -2915,7 +2952,8 @@ async function deleteTestRecords() {
   const input = document.getElementById('revertBoletaInput');
   const baseNum = parseInt(input?.value) || 29178;
   
-  const toDelete = allRecords.filter(r => r.numero_consecutivo > baseNum);
+  const pool = [...(allRecords||[]), ...(rawData?.def||[]), ...(rawData?.temp||[])];
+  const toDelete = pool.filter(r => r.numero_consecutivo > baseNum);
   if (!toDelete.length) {
     showToast('No hay registros de prueba (>' + baseNum + ')', 'info');
     return;
@@ -2938,6 +2976,317 @@ async function deleteTestRecords() {
   adminApplyFilters('def');
   adminApplyFilters('temp');
   showToast(deleted + ' registro(s) eliminados', 'success');
+}
+
+
+/* ══════════════════════════════════════════════════
+   IMPORTACIÓN DE REGISTROS HISTÓRICOS
+══════════════════════════════════════════════════ */
+let importGarantiasData = []; // Almacena los datos parseados del Excel
+
+async function importGarantiasHandleFile(file) {
+  if (!file) return;
+  const status = document.getElementById('importGarantiasStatus');
+  const preview = document.getElementById('importGarantiasPreview');
+  const previewContent = document.getElementById('importGarantiasPreviewContent');
+  const countSpan = document.getElementById('importGarantiasCount');
+  
+  status.textContent = 'Leyendo archivo...';
+  preview.style.display = 'none';
+  importGarantiasData = [];
+  
+  try {
+    const rows = await invParseExcel(file); // Reusamos la función existente
+    if (!rows.length) {
+      status.textContent = 'Archivo vacío';
+      showToast('Archivo vacío o sin datos válidos', 'error');
+      return;
+    }
+    
+    // Mapear columnas del Excel
+    const mapped = rows.map(r => mapGarantiaRow(r));
+    const validas = mapped.filter(r => r.tipo && r.categoria && r.nombre);
+    
+    if (!validas.length) {
+      status.textContent = 'No se encontraron registros válidos';
+      showToast('Verificá que el Excel tenga las columnas correctas', 'error');
+      return;
+    }
+    
+    importGarantiasData = validas;
+    
+    // Contar por tipo
+    const definitivas = validas.filter(r => r.tipo === 'salida_definitiva').length;
+    const temporales = validas.filter(r => r.tipo === 'salida_temporal').length;
+    
+    status.textContent = `${validas.length} registros válidos encontrados`;
+    status.style.color = 'var(--green)';
+    
+    // Mostrar preview
+    previewContent.innerHTML = `
+      <div style="margin-bottom:.5rem;"><strong>Resumen:</strong></div>
+      <div style="display:flex;gap:1rem;margin-bottom:.75rem;">
+        <span style="color:var(--brand);">● ${definitivas} Definitivas</span>
+        <span style="color:var(--green);">● ${temporales} Temporales</span>
+      </div>
+      <table style="width:100%;font-size:.65rem;border-collapse:collapse;">
+        <thead><tr style="background:var(--surface);text-align:left;">
+          <th style="padding:.3rem;border-bottom:1px solid var(--border);">#</th>
+          <th style="padding:.3rem;border-bottom:1px solid var(--border);">Tipo</th>
+          <th style="padding:.3rem;border-bottom:1px solid var(--border);">Cliente</th>
+          <th style="padding:.3rem;border-bottom:1px solid var(--border);">Serie</th>
+          <th style="padding:.3rem;border-bottom:1px solid var(--border);">Marca</th>
+        </tr></thead>
+        <tbody>
+          ${validas.slice(0, 10).map((r, i) => `
+            <tr>
+              <td style="padding:.2rem .3rem;">${i + 1}</td>
+              <td style="padding:.2rem .3rem;color:${r.tipo === 'salida_definitiva' ? 'var(--brand)' : 'var(--green)'};">
+                ${r.tipo === 'salida_definitiva' ? 'Def' : 'Temp'}
+              </td>
+              <td style="padding:.2rem .3rem;">${(r.nombre || '').slice(0, 20)}</td>
+              <td style="padding:.2rem .3rem;font-family:var(--mono);">${(r.serie || '').slice(0, 15)}</td>
+              <td style="padding:.2rem .3rem;">${r.marca || '—'}</td>
+            </tr>
+          `).join('')}
+          ${validas.length > 10 ? `<tr><td colspan="5" style="padding:.3rem;text-align:center;color:var(--ink-4);">... y ${validas.length - 10} más</td></tr>` : ''}
+        </tbody>
+      </table>
+    `;
+    
+    countSpan.textContent = validas.length;
+    preview.style.display = 'block';
+    
+    showToast(`${validas.length} registros listos para importar`, 'success', `${definitivas} Definitivas · ${temporales} Temporales`);
+    
+  } catch(err) {
+    console.error('Error leyendo Excel:', err);
+    status.textContent = 'Error al leer archivo';
+    status.style.color = 'var(--red)';
+    showToast('Error al procesar Excel', 'error', err.message);
+  }
+}
+
+function mapGarantiaRow(row) {
+  // Normalizar nombres de columnas
+  const keys = Object.keys(row);
+  const findKey = (variants) => {
+    return keys.find(k => {
+      const norm = k.toLowerCase().trim().replace(/[^a-z0-9]/g, '');
+      return variants.some(v => norm === v || k.toLowerCase().includes(v));
+    });
+  };
+  
+  const getVal = (variants) => {
+    const key = findKey(variants);
+    return key ? row[key] : '';
+  };
+  
+  // Detectar tipo de salida
+  const tipoRaw = getVal(['tipo', 'tiposalida', 'tipodesalida', 'salida']);
+  let tipo = '';
+  if (tipoRaw) {
+    const t = String(tipoRaw).toLowerCase();
+    if (t.includes('definitiva') || t.includes('def')) tipo = 'salida_definitiva';
+    else if (t.includes('temporal') || t.includes('temp')) tipo = 'salida_temporal';
+  }
+  
+  // Mapear todos los campos
+  return {
+    tipo: tipo,
+    categoria: normalizeCategoria(getVal(['categoria', 'cat', 'categ'])),
+    motivo: normalizeMotivo(getVal(['motivo', 'motivos'])),
+    ticket: String(getVal(['ticket', 'tickets', 'numticket']) || ''),
+    sede: String(getVal(['sede', 'sedes', 'ubicacion']) || ''),
+    nombre: String(getVal(['nombre', 'cliente', 'nombrecliente', 'nomcliente']) || ''),
+    factura: String(getVal(['factura', 'facturas', 'numfactura']) || ''),
+    cantidad: parseInt(getVal(['cantidad', 'cant', 'qty'])) || 1,
+    fecha_compra: formatFecha(getVal(['fechacompra', 'fechadecompra', 'compra'])),
+    marca: String(getVal(['marca', 'marcas', 'brand']) || ''),
+    serie: String(getVal(['articulo', 'serie', 'numarticulo', 'codigo']) || ''),
+    numero_serie: String(getVal(['numeroserie', 'seriedispositivo', 's/n']) || ''),
+    descripcion: String(getVal(['descripcion', 'desc', 'descripcionarticulo', 'descripciondelarticulo']) || ''),
+    falla: String(getVal(['falla', 'fallas', 'descripcionfalla', 'descripciondelaflalla', 'problema']) || ''),
+    registrado_por: String(getVal(['registradopor', 'usuario', 'creadopor', 'autor']) || ''),
+    fecha_creacion: formatFecha(getVal(['fecha', 'fechacreacion', 'creado', 'fechaingreso']))
+  };
+}
+
+function normalizeCategoria(val) {
+  if (!val) return '';
+  const v = String(val).toLowerCase();
+  if (v.includes('credito') || v.includes('nc') || v.includes('nota')) {
+    if (v.includes('rma')) return 'rma_nota_credito';
+    if (v.includes('1%') || v.includes('garantia1')) return 'garantia_1_nota_credito';
+    return 'nota_credito';
+  }
+  if (v.includes('rma')) return 'rma';
+  if (v.includes('1%') || v.includes('garantia1')) return 'garantia_1';
+  if (v.includes('reparacion')) return 'reparacion';
+  return 'nota_credito'; // default
+}
+
+function normalizeMotivo(val) {
+  if (!val) return '';
+  const v = String(val).toLowerCase();
+  if (v.includes('existencia') || v.includes('stock')) return 'sin_existencias';
+  if (v.includes('cliente') || v.includes('solicitud')) return 'solicitud_cliente';
+  if (v.includes('reemplazo') || v.includes('cambio')) return 'reemplazo';
+  return 'solicitud_cliente'; // default
+}
+
+function formatFecha(val) {
+  if (!val) return null;
+  // Intentar parsear varios formatos
+  const str = String(val).trim();
+  
+  // Si es número de Excel (serial date)
+  if (!isNaN(str) && str.includes('.')) {
+    const excelDate = parseFloat(str);
+    const date = new Date((excelDate - 25569) * 86400 * 1000);
+    if (!isNaN(date.getTime())) return date.toISOString().split('T')[0];
+  }
+  
+  // Formatos comunes
+  const formats = [
+    /^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})$/,     // DD/MM/YYYY o DD-MM-YYYY
+    /^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$/,       // YYYY/MM/DD
+  ];
+  
+  for (const regex of formats) {
+    const match = str.match(regex);
+    if (match) {
+      let y, m, d;
+      if (match[3].length === 4) {
+        [d, m, y] = [match[1], match[2], match[3]];
+      } else if (match[1].length === 4) {
+        [y, m, d] = [match[1], match[2], match[3]];
+      } else {
+        [d, m, y] = [match[1], match[2], '20' + match[3]];
+      }
+      const date = new Date(`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`);
+      if (!isNaN(date.getTime())) return date.toISOString().split('T')[0];
+    }
+  }
+  
+  // Intentar Date directo
+  const date = new Date(str);
+  if (!isNaN(date.getTime())) return date.toISOString().split('T')[0];
+  
+  return null;
+}
+
+function importGarantiasCancelar() {
+  document.getElementById('importGarantiasPreview').style.display = 'none';
+  document.getElementById('importGarantiasStatus').textContent = '';
+  document.getElementById('importGarantiasFile').value = '';
+  importGarantiasData = [];
+}
+
+async function importGarantiasConfirmar() {
+  if (!importGarantiasData.length) {
+    showToast('No hay datos para importar', 'error');
+    return;
+  }
+  
+  const btn = document.querySelector('#importGarantiasPreview button.btn-primary');
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Importando...';
+  
+  try {
+    // Obtener el último número consecutivo
+    const maxNum = Math.max(0, ...allRecords.map(r => r.numero_consecutivo || 0));
+    let nextNum = maxNum + 1;
+    
+    const importados = { def: 0, temp: 0 };
+    const errores = [];
+    
+    // Preparar registros con boletas
+    const registrosParaInsertar = importGarantiasData.map((r, idx) => {
+      const prefix = buildPrefixFrom(r.tipo, r.categoria);
+      const boleta = prefix + nextNum;
+      const numero_consecutivo = nextNum++;
+      
+      return {
+        ...r,
+        boleta,
+        numero_consecutivo,
+        dev: null, // Sin DEV inicialmente
+        fecha_aprobacion: null,
+        modificado_por: null,
+        fecha_modificacion: null
+      };
+    });
+    
+    // Insertar en lotes de 100
+    const BATCH = 100;
+    for (let i = 0; i < registrosParaInsertar.length; i += BATCH) {
+      const batch = registrosParaInsertar.slice(i, i + BATCH);
+      
+      try {
+        const response = await fetch(SB_URL + '/rest/v1/' + TABLE, {
+          method: 'POST',
+          headers: {
+            'apikey': SB_KEY,
+            'Authorization': 'Bearer ' + (authToken || SB_KEY),
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify(batch)
+        });
+        
+        if (!response.ok) {
+          const err = await response.text();
+          throw new Error(`Error en lote ${Math.floor(i/BATCH) + 1}: ${err}`);
+        }
+        
+        const insertados = await response.json();
+        
+        // Contar por tipo
+        insertados.forEach(r => {
+          if (r.tipo === 'salida_definitiva') importados.def++;
+          else importados.temp++;
+        });
+        
+        // Agregar a las listas locales
+        allRecords.push(...insertados);
+        insertados.forEach(r => {
+          if (r.tipo === 'salida_definitiva') rawData.def.push(r);
+          else rawData.temp.push(r);
+        });
+        
+      } catch(e) {
+        console.error('Error en batch:', e);
+        errores.push(e.message);
+      }
+      
+      // Actualizar progreso
+      showToast(`Importando... ${Math.min(i + BATCH, registrosParaInsertar.length)}/${registrosParaInsertar.length}`, 'info');
+    }
+    
+    // Recargar datos
+    adminUpdateBadges();
+    adminApplyFilters('def');
+    adminApplyFilters('temp');
+    
+    // Limpiar UI
+    importGarantiasCancelar();
+    
+    // Mensaje final
+    if (errores.length) {
+      showToast(`Importados ${importados.def + importados.temp} de ${importGarantiasData.length}`, 'error', `${errores.length} errores`);
+    } else {
+      showToast('Importación completada', 'success', `${importados.def} Definitivas · ${importados.temp} Temporales`);
+    }
+    
+  } catch(err) {
+    console.error('Error en importación:', err);
+    showToast('Error en importación', 'error', err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+  }
 }
 
 
@@ -3262,6 +3611,8 @@ function adminSwitchSection(sec) {
   document.getElementById('panel-salidas-temporales').style.display  = sec==='salidas-temporales'  ? '' : 'none';
   document.getElementById('panel-usuarios').style.display            = sec==='usuarios'            ? '' : 'none';
   document.getElementById('panel-estadisticas-admin').style.display  = sec==='estadisticas'        ? '' : 'none';
+  const ptm = document.getElementById('panel-tramites-marca');
+  if (ptm) ptm.style.display = sec==='tramites-marca' ? '' : 'none';
   const ph = document.getElementById('panel-herramientas');
   if (ph) ph.style.display = sec==='herramientas' ? 'block' : 'none';
   const titles = {
@@ -3269,6 +3620,7 @@ function adminSwitchSection(sec) {
     'salidas-temporales':  ['Salidas Temporales', 'Registros con salida temporal'],
     'usuarios':            ['Usuarios',           'Gestión de usuarios y roles'],
     'estadisticas':        ['Estadísticas',       'Gráficas y resumen de registros'],
+    'tramites-marca':      ['Trámites con Marca', 'Gestión de trámites con marca'],
     'herramientas':        ['Herramientas',       'Ajustes y acciones de administrador']
   };
   const [t, s] = titles[sec] || titles['salidas-definitivas'];
@@ -3358,14 +3710,17 @@ function exportExcel(type){
 /* EDIT MODAL */
 let editingId=null;
 const EDIT_FIELDS=[
-  {key:'tipo',label:'Tipo',type:'select',opts:[['salida_definitiva','Salida Definitiva'],['salida_temporal','Salida Temporal']]},
+  {key:'tipo',label:'Tipo de Salida',type:'select',opts:[['salida_definitiva','Salida Definitiva'],['salida_temporal','Salida Temporal']]},
   {key:'categoria',label:'Categoría',type:'select',opts:[['nota_credito','Nota De Crédito'],['garantia_1','Garantía 1%'],['rma','RMA'],['reparacion','Reparación'],['rma_nota_credito','RMA - NC'],['garantia_1_nota_credito','Garantía 1% + NC']]},
   {key:'motivo',label:'Motivo',type:'select',opts:[['sin_existencias','Sin Existencias'],['solicitud_cliente','Solicitud del Cliente'],['reemplazo','Reemplazo']]},
   {key:'ticket',label:'Ticket N°',type:'text'},{key:'sede',label:'Sede',type:'select',opts:[['San José','San José'],['Liberia','Liberia'],['Pérez Zeledón','Pérez Zeledón']]},
   {key:'nombre',label:'Nombre del Cliente',type:'text'},{key:'factura',label:'Factura N°',type:'text'},{key:'cantidad',label:'Cantidad',type:'number'},{key:'fecha_compra',label:'Fecha de Compra',type:'date'},
   {key:'marca',label:'Marca',type:'text'},{key:'serie',label:'Serie',type:'text'},
   {key:'descripcion',label:'Descripción',type:'textarea',full:true},{key:'falla',label:'Falla',type:'textarea',full:true},
-  {key:'dev',label:'DEV (número de aprobación)',type:'text',full:true,dev:true},
+  {key:'factura_salida',label:'Factura de Salida',type:'text'},
+  {key:'dev',label:'Nota de Crédito',type:'text',dev:true},
+  {key:'estatus',label:'Estatus',type:'text'},
+  {key:'serie_fabrica',label:'Serie de Fábrica',type:'text'},
 ];
 
 function openEdit(id){
@@ -3380,9 +3735,15 @@ function openEdit(id){
     return a ? n + ' ' + a : n;
   })();
   const canEditDev = isAdmin() || (r.registrado_por && myName && r.registrado_por === myName);
-  document.getElementById('modalBody').innerHTML=EDIT_FIELDS.map(f=>{
+  let html='';
+  let rmaStarted=false;
+  EDIT_FIELDS.forEach(f=>{
+    // Agregar titulo RMA antes del primer campo de la seccion
+    if(!rmaStarted && (f.key==='estatus' || f.key==='serie_fabrica')){
+      html+=`<div class="field field-full" style="grid-column:1/-1;margin-top:.5rem;"><div style="font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding:.5rem 0;border-top:1px solid var(--border);">RMA</div></div>`;
+      rmaStarted=true;
+    }
     let val=r[f.key]!==null&&r[f.key]!==undefined?r[f.key]:'';
-    // Campo DEV: mostrar solo el número sin prefijo DEV-
     if(f.dev) val = val ? val.replace(/^DEV-/i,'') : '';
     let inp;
     if(f.type==='textarea'){inp=`<textarea id="e_${f.key}" class="field-textarea" rows="2"${f.dev&&!canEditDev?' disabled':''} style="${f.dev&&!canEditDev?'opacity:.5;cursor:not-allowed;':''}">${val}</textarea>`;}
@@ -3400,8 +3761,9 @@ function openEdit(id){
       }
     }
     else{inp=`<input id="e_${f.key}" type="${f.type}" class="field-input" value="${val}">`;}
-    return`<div class="field${f.full?' field-full':''}"><label class="field-label">${f.label}</label>${inp}</div>`;
-  }).join('');
+    html+=`<div class="field${f.full?' field-full':''}"><label class="field-label">${f.label}</label>${inp}</div>`;
+  });
+  document.getElementById('modalBody').innerHTML=html;
   document.getElementById('editModal').classList.add('open');
 }
 function closeModal(){document.getElementById('editModal').classList.remove('open');editingId=null;}
@@ -3555,7 +3917,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       btn.addEventListener('click', () => switchTab(btn.dataset.tab));
     });
     document.querySelectorAll('.rail-item[data-section]').forEach(btn => {
-      btn.addEventListener('click', () => adminSwitchSection(btn.dataset.section));
+      btn.addEventListener('click', () => {
+        const section = btn.dataset.section;
+        adminSwitchSection(section);
+      });
     });
 
     // FIX: sort con parámetro th explícito (data-sort-type y data-sort-col en HTML)
@@ -3575,6 +3940,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (warrantyFormEl) warrantyFormEl.addEventListener('submit', handleSubmit);
     if (revertBtn) revertBtn.addEventListener('click', revertBoletaPersonalizado);
     if (deleteBtn) deleteBtn.addEventListener('click', deleteTestRecords);
+    
+    // Inicializar consecutiveNum si no existe
+    if (typeof consecutiveNum === 'undefined') window.consecutiveNum = 29178;
     document.querySelectorAll('.field-input:not(#articulo),.field-select,.field-textarea').forEach(el=>{
       el.addEventListener('input',()=>{el.classList.toggle('filled',!!el.value);el.classList.remove('error');});
       el.addEventListener('change',()=>{el.classList.toggle('filled',!!el.value);el.classList.remove('error');updateProgress();});
