@@ -1832,10 +1832,94 @@ function invParseExcel(file) {
     const reader = new FileReader();
     reader.onload = e => {
       try {
-        const wb = XLSX.read(e.target.result, { type:'array' });
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        resolve(XLSX.utils.sheet_to_json(ws, { defval:'' }));
-      } catch(err) { reject(err); }
+        const wb = XLSX.read(e.target.result, { type:'array', cellFormula: false, cellHTML: false });
+        
+        // Revisar TODAS las hojas y quedarse con la que tenga más datos
+        let bestData = [];
+        let bestHoja = '';
+        let bestCount = 0;
+        
+        console.log('=== Hojas encontradas en el Excel ===');
+        
+        for (const sheetName of wb.SheetNames) {
+          const ws = wb.Sheets[sheetName];
+          if (!ws) continue;
+          
+          // Obtener rango reportado por Excel
+          const reportedRange = ws['!ref'] || 'A1:A1';
+          const range = XLSX.utils.decode_range(reportedRange);
+          console.log(`Hoja "${sheetName}": rango reportado ${reportedRange}`);
+          
+          // Buscar la primera fila con datos (saltar encabezados vacíos)
+          let startRow = range.s.r;
+          for (let r = range.s.r; r <= Math.min(range.e.r, range.s.r + 20); r++) {
+            const cell = ws[XLSX.utils.encode_cell({r, c: 0})];
+            if (cell && cell.v) {
+              startRow = r;
+              break;
+            }
+          }
+          
+          // FORZAR rango extendido hasta fila 1000 para evitar problemas con rango incompleto
+          const forcedRange = { 
+            s: { r: startRow, c: range.s.c }, 
+            e: { r: Math.max(range.e.r, 1000), c: range.e.c } 
+          };
+          
+          // Convertir a JSON con rango forzado
+          const jsonData = XLSX.utils.sheet_to_json(ws, { 
+            defval: '',
+            range: forcedRange
+          });
+          
+          // Filtrar filas vacías (donde todas las columnas importantes están vacías)
+          const nonEmptyData = jsonData.filter(row => {
+            const values = Object.values(row);
+            return values.some(v => v !== '' && v !== null && v !== undefined);
+          });
+          
+          console.log(`  -> ${nonEmptyData.length} filas con datos (rango forzado ${startRow+1}:1000)`);
+          
+          if (nonEmptyData.length > bestCount) {
+            bestCount = nonEmptyData.length;
+            bestData = nonEmptyData;
+            bestHoja = sheetName;
+          }
+        }
+        
+        console.log(`=== Hoja seleccionada: "${bestHoja}" con ${bestCount} filas ===`);
+        console.log('Columnas originales:', bestData.length > 0 ? Object.keys(bestData[0]) : 'N/A');
+        console.log('Primeras 3 filas:', bestData.slice(0, 3));
+        
+        // Detectar si las columnas están vacías (nombres como __EMPTY, __EMPTY_1, etc.)
+        // y en ese caso, usar la segunda fila como encabezados
+        if (bestData.length > 0) {
+          const firstKeys = Object.keys(bestData[0]);
+          const hasEmptyHeaders = firstKeys.some(k => k.startsWith('__EMPTY'));
+          
+          if (hasEmptyHeaders && bestData.length > 1) {
+            // Usar la primera fila de datos como nombres de columnas
+            const headerRow = bestData[0];
+            const newData = bestData.slice(1).map(row => {
+              const newRow = {};
+              firstKeys.forEach((key, idx) => {
+                // Usar el valor de la primera fila como nombre de columna, o un índice
+                const headerValue = headerRow[key];
+                const newKey = headerValue && String(headerValue).trim() ? String(headerValue).trim() : `Col_${idx}`;
+                newRow[newKey] = row[key];
+              });
+              return newRow;
+            });
+            bestData = newData;
+            console.log('Columnas corregidas (usando primera fila):', bestData.length > 0 ? Object.keys(bestData[0]) : 'N/A');
+          }
+        }
+        
+        resolve({ data: bestData, sheetName: bestHoja, rowCount: bestCount });
+      } catch(err) { 
+        console.error('Error parseando Excel:', err);
+        reject(err); 
+      }
     };
     reader.onerror = reject;
     reader.readAsArrayBuffer(file);
@@ -1940,7 +2024,8 @@ async function invLoad() {
 async function invHandleFile(file) {
   if (!file) return;
   try {
-    const rows = await invParseExcel(file);
+    const result = await invParseExcel(file);
+    const rows = result.data || [];
     if (!rows.length) { showToast('Archivo vacío o sin datos válidos', 'error'); return; }
 
     // ── Detectar columnas del Excel ─────────────────────────────────────
@@ -3012,34 +3097,113 @@ async function importGarantiasHandleFile(file) {
   importGarantiasData = [];
   
   try {
-    const rows = await invParseExcel(file); // Reusamos la función existente
+    const result = await invParseExcel(file); // Reusamos la función existente
+    const rows = result.data || [];
+    const sheetName = result.sheetName || 'desconocida';
+    const rowCount = result.rowCount || 0;
+    
     if (!rows.length) {
       status.textContent = 'Archivo vacío';
       showToast('Archivo vacío o sin datos válidos', 'error');
       return;
     }
     
-    // Mapear columnas del Excel
-    const mapped = rows.map(r => mapGarantiaRow(r));
-    const validas = mapped.filter(r => r.tipo && r.categoria && r.nombre);
+    // Mapear TODAS las filas del Excel
+    const mapped = rows.map((r, idx) => {
+      const mappedRow = mapGarantiaRow(r);
+      return { ...mappedRow, _fila: idx + 1, _completo: !!(mappedRow.tipo && mappedRow.categoria && mappedRow.nombre) };
+    });
     
-    if (!validas.length) {
-      status.textContent = 'No se encontraron registros válidos';
-      showToast('Verificá que el Excel tenga las columnas correctas', 'error');
-      return;
-    }
+    // Separar completos e incompletos para mostrar
+    const completos = mapped.filter(r => r._completo);
+    const incompletos = mapped.filter(r => !r._completo);
     
-    importGarantiasData = validas;
+    // USAR TODOS - no filtrar
+    importGarantiasData = mapped.map(r => {
+      // Aplicar valores por defecto para campos vacíos
+      if (!r.tipo) r.tipo = 'salida_definitiva';
+      if (!r.categoria) r.categoria = 'nota_credito';
+      if (!r.nombre) r.nombre = 'Sin nombre';
+      if (!r.motivo) r.motivo = 'solicitud_cliente';
+      if (!r.cantidad) r.cantidad = 1;
+      return r;
+    });
     
     // Contar por tipo
-    const definitivas = validas.filter(r => r.tipo === 'salida_definitiva').length;
-    const temporales = validas.filter(r => r.tipo === 'salida_temporal').length;
+    const definitivas = importGarantiasData.filter(r => r.tipo === 'salida_definitiva').length;
+    const temporales = importGarantiasData.filter(r => r.tipo === 'salida_temporal').length;
     
-    status.textContent = `${validas.length} registros válidos encontrados`;
-    status.style.color = 'var(--green)';
+    status.innerHTML = `<span style="color:var(--green);">${importGarantiasData.length} registros listos</span>${incompletos.length > 0 ? ` <span style="color:var(--amber);font-size:.75rem;">(${incompletos.length} con datos por defecto)</span>` : ''} <span style="font-size:.65rem;color:var(--ink-4);">(hoja "${sheetName}": ${rowCount} filas)</span>`;
+    
+    // Mostrar columnas detectadas
+    const primerasColumnas = rows.length > 0 ? Object.keys(rows[0]) : [];
+    console.log('=== COLUMNAS EXACTAS EN EL EXCEL ===');
+    console.log(primerasColumnas);
+    console.log('Total columnas:', primerasColumnas.length);
+    
+    const { findKey } = rows.length > 0 ? createColumnFinder(rows[0]) : { findKey: () => null };
+    
+    // Mapeo completo de campos requeridos y opcionales
+    const camposMapeo = [
+      { nombre: 'Tipo', requerido: true, variantes: ['tipo', 'tiposalida', 'tipodesalida', 'salida', 'salidas', 'tipos', 'tipogarantia'] },
+      { nombre: 'Categoría', requerido: true, variantes: ['categoria', 'categoría', 'cat', 'categ', 'categorias', 'tipocategoria', 'tipodecategoria', 'categoriasalida', 'garantiacategoria'] },
+      { nombre: 'Nombre', requerido: true, variantes: ['nombre', 'cliente', 'nombrecliente', 'nomcliente', 'clientes', 'nombres', 'titular', 'nombrecompleto', 'nombredecl', 'nombreclientes', 'solicitado por', 'solicitadopor'] },
+      { nombre: 'Artículo', requerido: false, variantes: ['articulo', 'serie', 'numarticulo', 'codigo', 'codigoproducto', 'sku', 'art', 'producto'] },
+      { nombre: 'Marca', requerido: false, variantes: ['marca', 'marcas', 'brand', 'fabricante', 'manufacturer'] },
+      { nombre: 'Ticket', requerido: false, variantes: ['ticket', 'tickets', 'numticket', 'noticket', 'ticket nº', 'ticketnº'] },
+      { nombre: 'Motivo', requerido: false, variantes: ['motivo', 'motivos', 'razon', 'motiv'] },
+      { nombre: 'Sede', requerido: false, variantes: ['sede', 'sedes', 'ubicacion', 'lugar', 'sucursal'] },
+      { nombre: 'Factura', requerido: false, variantes: ['factura', 'facturas', 'numfactura', 'nofactura', 'fact'] },
+      { nombre: 'Boleta', requerido: false, variantes: ['boleta', 'consecutivo', 'numero', 'número', 'nro', 'consecutivoboleta'] },
+      { nombre: 'Fecha', requerido: false, variantes: ['fecha', 'fechacreacion', 'creado', 'fechaingreso', 'fecharegistro', 'fecha creacion', 'fechacreación', 'fecha de registro', 'date'] },
+      { nombre: 'Registrado Por', requerido: false, variantes: ['registradopor', 'registrado por', 'usuario', 'creadopor', 'autor', 'tecnico', 'vendedor', 'registrado'] },
+      { nombre: 'Fecha Compra', requerido: false, variantes: ['fechacompra', 'fechadecompra', 'compra', 'fechadocompra', 'fechafactura', 'fecha de compra'] },
+      { nombre: 'Serie Dispositivo', requerido: false, variantes: ['numeroserie', 'seriedispositivo', 'sn', 'noserie', 'serieproducto'] },
+    ];
+    
+    const columnasMapeadas = camposMapeo.map(campo => {
+      const colDetectada = findKey(campo.variantes);
+      return { 
+        nombre: campo.nombre, 
+        columna: colDetectada || 'NO DETECTADO', 
+        requerido: campo.requerido,
+        ok: !!colDetectada
+      };
+    });
+    
+    const requeridosFaltantes = columnasMapeadas.filter(c => c.requerido && !c.ok);
     
     // Mostrar preview
     previewContent.innerHTML = `
+      <div style="margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem;">
+        <strong>Columnas detectadas:</strong>
+        <span style="font-size:.65rem;color:var(--ink-4);">(${primerasColumnas.length} en archivo)</span>
+        <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="font-size:.65rem;padding:.2rem .4rem;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;">Ver todas</button>
+        <div style="display:none;position:absolute;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.5rem;z-index:10;font-size:.65rem;max-width:300px;box-shadow:0 4px 12px rgba(0,0,0,.15);">
+          <strong>Columnas en Excel:</strong><br>${primerasColumnas.join(', ')}
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:.25rem;margin-bottom:.75rem;font-size:.65rem;background:var(--bg-2);padding:.5rem;border-radius:var(--radius-sm);">
+        ${columnasMapeadas.map(c => `
+          <div style="${c.ok ? 'color:var(--green);' : c.requerido ? 'color:var(--red);font-weight:bold;' : 'color:var(--ink-4);'}">
+            ${c.ok ? '✓' : c.requerido ? '✗' : '○'} <strong>${c.nombre}:</strong> ${c.columna}
+            ${c.requerido ? '<span style="font-size:.6rem;">(req)</span>' : ''}
+          </div>
+        `).join('')}
+      </div>
+      ${requeridosFaltantes.length > 0 ? `
+        <div style="background:var(--red-dim);border:1.5px solid rgba(239,68,68,.2);border-radius:var(--radius-sm);padding:.5rem;margin-bottom:.75rem;font-size:.7rem;color:var(--red);">
+          <strong>Faltan campos requeridos:</strong> ${requeridosFaltantes.map(c => c.nombre).join(', ')}<br>
+          <span style="font-size:.65rem;">Verificá que el Excel tenga columnas con nombres como: Tipo, Categoría, Nombre/Cliente</span>
+        </div>
+      ` : ''}
+      <!-- Mostrar boletas detectadas para verificar -->
+      <div style="background:var(--blue-dim);border:1.5px solid rgba(59,130,246,.2);border-radius:var(--radius-sm);padding:.5rem;margin-bottom:.75rem;font-size:.7rem;">
+        <strong>Boletas detectadas (primeras 5):</strong> 
+        ${rows.slice(0, 5).map((r, i) => `<span style="color:var(--brand);">${r.boleta || 'SIN BOLETA'}</span>`).join(', ')}
+        ${rows.length > 5 ? `<span style="color:var(--ink-4);">... y ${rows.length - 5} más</span>` : ''}
+        <br><span style="font-size:.6rem;color:var(--ink-4);">Si estas boletas ya existen en el sistema, se actualizarán; si no, se crearán nuevas.</span>
+      </div>
       <div style="margin-bottom:.5rem;"><strong>Resumen:</strong></div>
       <div style="display:flex;gap:1rem;margin-bottom:.75rem;">
         <span style="color:var(--brand);">● ${definitivas} Definitivas</span>
@@ -3049,31 +3213,39 @@ async function importGarantiasHandleFile(file) {
         <thead><tr style="background:var(--surface);text-align:left;">
           <th style="padding:.3rem;border-bottom:1px solid var(--border);">#</th>
           <th style="padding:.3rem;border-bottom:1px solid var(--border);">Tipo</th>
+          <th style="padding:.3rem;border-bottom:1px solid var(--border);">Boleta</th>
           <th style="padding:.3rem;border-bottom:1px solid var(--border);">Cliente</th>
-          <th style="padding:.3rem;border-bottom:1px solid var(--border);">Serie</th>
-          <th style="padding:.3rem;border-bottom:1px solid var(--border);">Marca</th>
+          <th style="padding:.3rem;border-bottom:1px solid var(--border);">Artículo</th>
+          <th style="padding:.3rem;border-bottom:1px solid var(--border);">Registrado Por</th>
         </tr></thead>
         <tbody>
-          ${validas.slice(0, 10).map((r, i) => `
-            <tr>
+          ${importGarantiasData.slice(0, 15).map((r, i) => `
+            <tr style="${!r._completo ? 'background:rgba(245,158,11,.1);' : ''}">
               <td style="padding:.2rem .3rem;">${i + 1}</td>
-              <td style="padding:.2rem .3rem;color:${r.tipo === 'salida_definitiva' ? 'var(--brand)' : 'var(--green)'};">
+              <td style="padding:.2rem .3rem;color:${r.tipo === 'salida_definitiva' ? 'var(--brand)' : 'var(--green)'}">
                 ${r.tipo === 'salida_definitiva' ? 'Def' : 'Temp'}
+                ${!r._completo ? '<span title="Datos por defecto aplicados" style="color:var(--amber);margin-left:.25rem;">⚠</span>' : ''}
               </td>
-              <td style="padding:.2rem .3rem;">${(r.nombre || '').slice(0, 20)}</td>
-              <td style="padding:.2rem .3rem;font-family:var(--mono);">${(r.serie || '').slice(0, 15)}</td>
-              <td style="padding:.2rem .3rem;">${r.marca || '—'}</td>
+              <td style="padding:.2rem .3rem;font-family:var(--mono);">${r.boleta || '—'}</td>
+              <td style="padding:.2rem .3rem;">${(r.nombre || '').slice(0, 18)}</td>
+              <td style="padding:.2rem .3rem;font-family:var(--mono);">${(r.serie || '').slice(0, 12)}</td>
+              <td style="padding:.2rem .3rem;">${(r.registrado_por || '').slice(0, 15) || '—'}</td>
             </tr>
           `).join('')}
-          ${validas.length > 10 ? `<tr><td colspan="5" style="padding:.3rem;text-align:center;color:var(--ink-4);">... y ${validas.length - 10} más</td></tr>` : ''}
+          ${importGarantiasData.length > 15 ? `<tr><td colspan="6" style="padding:.3rem;text-align:center;color:var(--ink-4);">... y ${importGarantiasData.length - 15} más</td></tr>` : ''}
         </tbody>
       </table>
+      ${incompletos.length > 0 ? `
+        <div style="margin-top:.5rem;font-size:.65rem;color:var(--amber);">
+          ⚠ ${incompletos.length} registro(s) tienen datos por defecto (Tipo: Definitiva, Categoría: Nota de Crédito, Nombre: Sin nombre)
+        </div>
+      ` : ''}
     `;
     
-    countSpan.textContent = validas.length;
+    countSpan.textContent = importGarantiasData.length;
     preview.style.display = 'block';
     
-    showToast(`${validas.length} registros listos para importar`, 'success', `${definitivas} Definitivas · ${temporales} Temporales`);
+    showToast(`${importGarantiasData.length} registros listos para importar`, 'success', `${definitivas} Definitivas · ${temporales} Temporales`);
     
   } catch(err) {
     console.error('Error leyendo Excel:', err);
@@ -3083,63 +3255,103 @@ async function importGarantiasHandleFile(file) {
   }
 }
 
-function mapGarantiaRow(row) {
-  // Normalizar nombres de columnas
+// Helpers para mapeo de columnas
+function normalizeHeader(k) {
+  return k.toLowerCase().trim()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remover acentos
+    .replace(/[^a-z0-9]/g, ''); // solo alfanumérico
+}
+
+function createColumnFinder(row) {
   const keys = Object.keys(row);
-  const findKey = (variants) => {
-    return keys.find(k => {
-      const norm = k.toLowerCase().trim().replace(/[^a-z0-9]/g, '');
-      return variants.some(v => norm === v || k.toLowerCase().includes(v));
-    });
+  const normalizedKeys = keys.map(normalizeHeader);
+  const keyMap = {};
+  keys.forEach((k, i) => keyMap[normalizedKeys[i]] = k);
+  
+  return {
+    findKey: (variants) => {
+      for (const v of variants) {
+        // Normalizar la variante para buscar coincidencia exacta
+        const normV = normalizeHeader(v);
+        if (keyMap[normV]) return keyMap[normV];
+        // Si no hay coincidencia exacta, buscar con includes
+        const match = keys.find(k => normalizeHeader(k).includes(normV));
+        if (match) return match;
+        // Último intento: buscar si la variante está contenida en la columna (sin normalizar tanto)
+        const looseMatch = keys.find(k => {
+          const kLower = k.toLowerCase().trim();
+          const vLower = v.toLowerCase().trim();
+          return kLower.includes(vLower) || vLower.includes(kLower);
+        });
+        if (looseMatch) return looseMatch;
+      }
+      return null;
+    },
+    keys: keys
   };
+}
+
+function mapGarantiaRow(row) {
+  const { findKey } = createColumnFinder(row);
   
   const getVal = (variants) => {
     const key = findKey(variants);
     return key ? row[key] : '';
   };
   
-  // Detectar tipo de salida
-  const tipoRaw = getVal(['tipo', 'tiposalida', 'tipodesalida', 'salida']);
+  // Detectar tipo de salida - más variantes
+  const tipoRaw = getVal(['tipo', 'tiposalida', 'tipodesalida', 'salida', 'salidas', 'tipos']);
   let tipo = '';
   if (tipoRaw) {
     const t = String(tipoRaw).toLowerCase();
-    if (t.includes('definitiva') || t.includes('def')) tipo = 'salida_definitiva';
-    else if (t.includes('temporal') || t.includes('temp')) tipo = 'salida_temporal';
+    if (t.includes('definitiva') || t.includes('def') || t.includes('garantia') || t === 'g') tipo = 'salida_definitiva';
+    else if (t.includes('temporal') || t.includes('temp') || t.includes('temporales') || t === 't') tipo = 'salida_temporal';
   }
   
-  // Mapear todos los campos
+  // Mapear todos los campos con más variantes (incluyendo nombres exactos del Excel)
   return {
     tipo: tipo,
-    categoria: normalizeCategoria(getVal(['categoria', 'cat', 'categ'])),
-    motivo: normalizeMotivo(getVal(['motivo', 'motivos'])),
-    ticket: String(getVal(['ticket', 'tickets', 'numticket']) || ''),
-    sede: String(getVal(['sede', 'sedes', 'ubicacion']) || ''),
-    nombre: String(getVal(['nombre', 'cliente', 'nombrecliente', 'nomcliente']) || ''),
-    factura: String(getVal(['factura', 'facturas', 'numfactura']) || ''),
-    cantidad: parseInt(getVal(['cantidad', 'cant', 'qty'])) || 1,
-    fecha_compra: formatFecha(getVal(['fechacompra', 'fechadecompra', 'compra'])),
-    marca: String(getVal(['marca', 'marcas', 'brand']) || ''),
-    serie: String(getVal(['articulo', 'serie', 'numarticulo', 'codigo']) || ''),
-    numero_serie: String(getVal(['numeroserie', 'seriedispositivo', 's/n']) || ''),
-    descripcion: String(getVal(['descripcion', 'desc', 'descripcionarticulo', 'descripciondelarticulo']) || ''),
-    falla: String(getVal(['falla', 'fallas', 'descripcionfalla', 'descripciondelaflalla', 'problema']) || ''),
-    registrado_por: String(getVal(['registradopor', 'usuario', 'creadopor', 'autor']) || ''),
-    fecha_creacion: formatFecha(getVal(['fecha', 'fechacreacion', 'creado', 'fechaingreso']))
+    categoria: normalizeCategoria(getVal(['categoria', 'categoría', 'cat', 'categ', 'categorias', 'tipocategoria', 'tipodecategoria', 'categoriasalida', 'garantiacategoria'])),
+    motivo: normalizeMotivo(getVal(['motivo', 'motivos', 'razon', 'motiv'])),
+    ticket: String(getVal(['ticket', 'tickets', 'numticket', 'noticket', 'ticket nº', 'ticketnº']) || ''),
+    sede: String(getVal(['sede', 'sedes', 'ubicacion', 'lugar', 'sucursal']) || ''),
+    nombre: String(getVal(['nombre', 'cliente', 'nombrecliente', 'nomcliente', 'clientes', 'nombres', 'titular', 'nombrecompleto', 'nombredecl', 'nombreclientes', 'solicitado por', 'solicitadopor']) || ''),
+    factura: String(getVal(['factura', 'facturas', 'numfactura', 'nofactura', 'fact']) || ''),
+    cantidad: parseInt(getVal(['cantidad', 'cant', 'qty', 'cantidades', 'unidades'])) || 1,
+    fecha_compra: formatFecha(getVal(['fechacompra', 'fechadecompra', 'compra', 'fechadocompra', 'fechafactura', 'fecha de compra'])),
+    marca: String(getVal(['marca', 'marcas', 'brand', 'fabricante', 'manufacturer']) || ''),
+    serie: String(getVal(['articulo', 'serie', 'numarticulo', 'codigo', 'codigoproducto', 'sku', 'art', 'producto']) || ''),
+    numero_serie: String(getVal(['numeroserie', 'seriedispositivo', 'sn', 'noserie', 's/n', 'serieproducto']) || ''),
+    descripcion: String(getVal(['descripcion', 'desc', 'descripcionarticulo', 'descripciondelarticulo', 'detalle', 'producto']) || ''),
+    falla: String(getVal(['falla', 'fallas', 'descripcionfalla', 'descripciondelaflalla', 'problema', 'defecto', 'averia', 'diagnostico']) || ''),
+    dev: String(getVal(['dev', 'notadecredito', 'nc', 'credito']) || ''),
+    registrado_por: String(getVal(['registradopor', 'registrado por', 'usuario', 'creadopor', 'autor', 'tecnico', 'vendedor', 'registrado']) || ''),
+    boleta: String(getVal(['boleta', 'consecutivo', 'numero', 'número', 'nro', 'nº', 'consecutivoboleta', 'numboleta', 'no', 'num']) || ''),
+    fecha_creacion: formatFecha(getVal(['fecha', 'fechacreacion', 'creado', 'fechaingreso', 'fecharegistro', 'fecha creacion', 'fechacreación', 'fecha de registro', 'date', 'fechadocumento', 'fecha documento']))
   };
 }
 
 function normalizeCategoria(val) {
   if (!val) return '';
-  const v = String(val).toLowerCase();
-  if (v.includes('credito') || v.includes('nc') || v.includes('nota')) {
-    if (v.includes('rma')) return 'rma_nota_credito';
-    if (v.includes('1%') || v.includes('garantia1')) return 'garantia_1_nota_credito';
-    return 'nota_credito';
+  // Normalizar: minúsculas, sin acentos
+  const v = String(val).toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  
+  // Prioridad: combinaciones primero
+  if (v.includes('rma') && (v.includes('nc') || v.includes('nota') || v.includes('credito'))) {
+    return 'rma_nota_credito';
   }
+  if ((v.includes('1%') || v.includes('garantia 1')) && (v.includes('nc') || v.includes('nota') || v.includes('credito'))) {
+    return 'garantia_1_nota_credito';
+  }
+  // Individuales
   if (v.includes('rma')) return 'rma';
-  if (v.includes('1%') || v.includes('garantia1')) return 'garantia_1';
-  if (v.includes('reparacion')) return 'reparacion';
-  return 'nota_credito'; // default
+  if (v.includes('1%') || v.includes('garantia 1')) return 'garantia_1';
+  if (v.includes('reparacion') || v.includes('reparo')) return 'reparacion';
+  if (v.includes('nc') || v.includes('nota') || v.includes('credito')) return 'nota_credito';
+  
+  // Si no coincide con ninguna, devolver vacío para que falle la validación
+  return '';
 }
 
 function normalizeMotivo(val) {
@@ -3151,16 +3363,34 @@ function normalizeMotivo(val) {
   return 'solicitud_cliente'; // default
 }
 
+function normalizeEstatus(val) {
+  if (!val) return '';
+  const v = String(val).toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, ''); // sin acentos
+  
+  if (v.includes('reemplazo') && v.includes('total')) return 'reemplazo_total';
+  if (v.includes('repuesto') && v.includes('ingresado')) return 'repuesto_ingresado';
+  if (v.includes('nota') && v.includes('credito') && v.includes('marca')) return 'nota_credito_marca';
+  if (v.includes('proceso') || v.includes('en proceso')) return 'en_proceso';
+  if (v.includes('pendiente') || v.includes('tramite') || v.includes('trámite')) return 'pendiente_tramite';
+  if (v.includes('fuera') && v.includes('garantia')) return 'fuera_garantia';
+  if (v.includes('compra') && v.includes('repuesto')) return 'compra_repuesto';
+  
+  return '';
+}
+
 function formatFecha(val) {
   if (!val) return null;
   // Intentar parsear varios formatos
   const str = String(val).trim();
   
-  // Si es número de Excel (serial date)
-  if (!isNaN(str) && str.includes('.')) {
-    const excelDate = parseFloat(str);
-    const date = new Date((excelDate - 25569) * 86400 * 1000);
-    if (!isNaN(date.getTime())) return date.toISOString().split('T')[0];
+  // Si es número de Excel (serial date) - puede ser entero (fecha pura) o decimal (fecha+hora)
+  const numVal = parseFloat(str);
+  if (!isNaN(str) && !isNaN(numVal) && numVal > 0 && numVal < 100000) {
+    const date = new Date((numVal - 25569) * 86400 * 1000);
+    if (!isNaN(date.getTime()) && date.getFullYear() >= 1900 && date.getFullYear() <= 2200) {
+      return date.toISOString().split('T')[0];
+    }
   }
   
   // Formatos comunes
@@ -3218,27 +3448,84 @@ async function importGarantiasConfirmar() {
     const importados = { def: 0, temp: 0 };
     const errores = [];
     
-    // Preparar registros con boletas
-    const registrosParaInsertar = importGarantiasData.map((r, idx) => {
-      const prefix = buildPrefixFrom(r.tipo, r.categoria);
-      const boleta = prefix + nextNum;
-      const numero_consecutivo = nextNum++;
+    // Preparar registros con boletas (limpiar campos internos)
+    // Si el registro ya tiene boleta del Excel, la usamos; si no, generamos una nueva
+    const registrosParaProcesar = importGarantiasData.map((r, idx) => {
+      const { _fila, _completo, ...datosLimpios } = r;
+      
+      // Usar boleta del Excel si existe y es válida, sino generar nueva
+      let boleta = (r.boleta || '').toString().trim();
+      let numero_consecutivo = null;
+      
+      // Si no tiene boleta o está vacía, generar una nueva
+      if (!boleta) {
+        const prefix = buildPrefixFrom(r.tipo, r.categoria);
+        numero_consecutivo = nextNum++;
+        boleta = prefix + numero_consecutivo;
+      } else {
+        // Extraer número consecutivo de la boleta existente (ej: T29178 → 29178)
+        const match = boleta.match(/\d+/);
+        if (match) {
+          numero_consecutivo = parseInt(match[0], 10);
+        } else {
+          // Si no tiene número, generar uno nuevo
+          numero_consecutivo = nextNum++;
+        }
+      }
+      
+      // Usar el nombre del Excel si existe, sino el usuario actual
+      const nombreExcel = r.registrado_por || '';
+      let registrado_por = nombreExcel;
+      
+      if (!registrado_por || registrado_por.trim() === '') {
+        // Si no hay en Excel, usar el usuario actual
+        const nombre_reg = currentPerfil?.nombre || currentUser?.user_metadata?.nombre || currentUser?.email?.split('@')[0] || 'Importación';
+        const apellido_reg = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
+        registrado_por = apellido_reg ? nombre_reg + ' ' + apellido_reg : nombre_reg;
+      }
       
       return {
-        ...r,
+        ...datosLimpios,
         boleta,
         numero_consecutivo,
         dev: null, // Sin DEV inicialmente
         fecha_aprobacion: null,
         modificado_por: null,
-        fecha_modificacion: null
+        fecha_modificacion: null,
+        fecha_creacion: r.fecha_creacion || null, // Mantener fecha original del Excel, o null si no hay
+        registrado_por: registrado_por
       };
     });
     
-    // Insertar en lotes de 100
+    // Separar registros nuevos (sin boleta existente en BD) vs existentes (para actualizar)
+    const boletasExistentes = new Set(allRecords.map(r => r.boleta));
+    const registrosNuevos = [];
+    const registrosActualizar = [];
+    
+    // Verificar qué boletas se detectaron del Excel
+    const boletasDetectadas = registrosParaProcesar.map(r => r.boleta);
+    console.log('Boletas detectadas del Excel:', boletasDetectadas);
+    
+    registrosParaProcesar.forEach(r => {
+      if (boletasExistentes.has(r.boleta)) {
+        registrosActualizar.push(r);
+      } else {
+        registrosNuevos.push(r);
+      }
+    });
+    
+    console.log(`Registros nuevos: ${registrosNuevos.length}, Registros a actualizar: ${registrosActualizar.length}`);
+    
+    // Alerta si no se detectaron boletas del Excel (todas son nuevas)
+    if (registrosActualizar.length === 0 && registrosNuevos.length > 0) {
+      const primerasBoletas = registrosNuevos.slice(0, 3).map(r => r.boleta);
+      console.warn('ATENCIÓN: Todas las boletas parecen ser nuevas. Primeras boletas:', primerasBoletas);
+    }
+    
+    // Procesar registros NUEVOS (INSERT)
     const BATCH = 100;
-    for (let i = 0; i < registrosParaInsertar.length; i += BATCH) {
-      const batch = registrosParaInsertar.slice(i, i + BATCH);
+    for (let i = 0; i < registrosNuevos.length; i += BATCH) {
+      const batch = registrosNuevos.slice(i, i + BATCH);
       
       try {
         const response = await fetch(SB_URL + '/rest/v1/' + TABLE, {
@@ -3254,7 +3541,7 @@ async function importGarantiasConfirmar() {
         
         if (!response.ok) {
           const err = await response.text();
-          throw new Error(`Error en lote ${Math.floor(i/BATCH) + 1}: ${err}`);
+          throw new Error(`Error en lote nuevo ${Math.floor(i/BATCH) + 1}: ${err}`);
         }
         
         const insertados = await response.json();
@@ -3273,12 +3560,76 @@ async function importGarantiasConfirmar() {
         });
         
       } catch(e) {
-        console.error('Error en batch:', e);
+        console.error('Error en batch nuevos:', e);
         errores.push(e.message);
       }
       
-      // Actualizar progreso
-      showToast(`Importando... ${Math.min(i + BATCH, registrosParaInsertar.length)}/${registrosParaInsertar.length}`, 'info');
+      showToast(`Insertando nuevos... ${Math.min(i + BATCH, registrosNuevos.length)}/${registrosNuevos.length}`, 'info');
+    }
+    
+    // Procesar registros EXISTENTES (UPDATE uno por uno para evitar conflictos)
+    console.log(`Intentando actualizar ${registrosActualizar.length} registros existentes...`);
+    console.log('Primeros registros a actualizar:', registrosActualizar.slice(0, 3).map(r => ({boleta: r.boleta, id_buscado: allRecords.find(x => x.boleta === r.boleta)?.id})));
+    
+    for (let i = 0; i < registrosActualizar.length; i++) {
+      const r = registrosActualizar[i];
+      
+      try {
+        // Buscar el ID del registro existente
+        const existente = allRecords.find(x => x.boleta === r.boleta);
+        if (!existente) {
+          console.warn(`No se encontró registro existente para boleta ${r.boleta}, se creará como nuevo`);
+          // Mover a registros nuevos si no se encontró
+          registrosNuevos.push(r);
+          continue;
+        }
+        
+        console.log(`Actualizando boleta ${r.boleta} (ID: ${existente.id})...`);
+        
+        const response = await fetch(SB_URL + '/rest/v1/' + TABLE + '?id=eq.' + existente.id, {
+          method: 'PATCH',
+          headers: {
+            'apikey': SB_KEY,
+            'Authorization': 'Bearer ' + (authToken || SB_KEY),
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify({
+            ...r,
+            modificado_por: r.registrado_por,
+            fecha_modificacion: new Date().toISOString()
+          })
+        });
+        
+        if (!response.ok) {
+          const err = await response.text();
+          throw new Error(`Error actualizando ${r.boleta}: ${err}`);
+        }
+        
+        const actualizado = await response.json();
+        if (actualizado.length > 0) {
+          console.log(`✓ Boleta ${r.boleta} actualizada correctamente`);
+          if (actualizado[0].tipo === 'salida_definitiva') importados.def++;
+          else importados.temp++;
+          
+          // Actualizar en listas locales
+          const idx = allRecords.findIndex(x => x.id === existente.id);
+          if (idx >= 0) allRecords[idx] = actualizado[0];
+          const tipo = actualizado[0].tipo;
+          const rawIdx = rawData[tipo === 'salida_definitiva' ? 'def' : 'temp'].findIndex(x => x.id === existente.id);
+          if (rawIdx >= 0) rawData[tipo === 'salida_definitiva' ? 'def' : 'temp'][rawIdx] = actualizado[0];
+        } else {
+          console.warn(`⚠ PATCH de boleta ${r.boleta} no devolvió datos`);
+        }
+        
+      } catch(e) {
+        console.error('Error actualizando:', e);
+        errores.push(e.message);
+      }
+      
+      if (i % 10 === 0) {
+        showToast(`Actualizando existentes... ${i}/${registrosActualizar.length}`, 'info');
+      }
     }
     
     // Recargar datos
@@ -3805,8 +4156,11 @@ const EDIT_FIELDS=[
   {key:'descripcion',label:'Descripción',type:'textarea',full:true},{key:'falla',label:'Falla',type:'textarea',full:true},
   {key:'factura_salida',label:'Factura de Salida',type:'text'},
   {key:'dev',label:'Nota de Crédito',type:'text',dev:true},
-  {key:'estatus',label:'Estatus',type:'text'},
+  {key:'ticket_rma',label:'Ticket RMA',type:'text'},
+  {key:'fecha_rma',label:'Fecha',type:'date'},
   {key:'serie_fabrica',label:'Serie Equipo Nuevo',type:'text'},
+  {key:'estatus',label:'Estatus',type:'select',opts:[['reemplazo_total','REEMPLAZO TOTAL'],['repuesto_ingresado','REPUESTO INGRESADO'],['nota_credito_marca','NOTA DE CRÉDITO MARCA'],['en_proceso','EN PROCESO'],['pendiente_tramite','PENDIENTE DE TRÁMITE'],['fuera_garantia','FUERA DE GARANTÍA'],['compra_repuesto','COMPRA DE REPUESTO']]},
+  {key:'observaciones',label:'Observaciones',type:'textarea'},{key:'seguimiento',label:'Seguimiento',type:'textarea'},
 ];
 
 function openEdit(id){
@@ -3825,7 +4179,7 @@ function openEdit(id){
   let rmaStarted=false;
   EDIT_FIELDS.forEach(f=>{
     // Agregar titulo RMA antes del primer campo de la seccion
-    if(!rmaStarted && (f.key==='estatus' || f.key==='serie_fabrica')){
+    if(!rmaStarted && (f.key==='ticket_rma' || f.key==='fecha_rma' || f.key==='estatus' || f.key==='serie_fabrica')){
       html+=`<div class="field field-full" style="grid-column:1/-1;margin-top:.5rem;"><div style="font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding:.5rem 0;border-top:1px solid var(--border);">RMA</div></div>`;
       rmaStarted=true;
     }
@@ -3845,6 +4199,9 @@ function openEdit(id){
       if(!canEditDev){
         inp+=`<div style="font-size:.72rem;color:var(--ink-4);margin-top:.25rem;">Solo el autor o admin puede editar este campo</div>`;
       }
+    }
+    else if(f.key==='ticket_rma'){
+      inp=`<input id="e_${f.key}" type="${f.type}" class="field-input" value="${val}" oninput="if(this.value){const hoy=new Date().toISOString().split('T')[0];const fechaEl=document.getElementById('e_fecha_rma');if(fechaEl&&!fechaEl.value)fechaEl.value=hoy;}">`;
     }
     else{inp=`<input id="e_${f.key}" type="${f.type}" class="field-input" value="${val}">`;}
     html+=`<div class="field${f.full?' field-full':''}"><label class="field-label">${f.label}</label>${inp}</div>`;
