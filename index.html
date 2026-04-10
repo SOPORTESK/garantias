@@ -960,11 +960,14 @@
 
       <!-- PANEL ESTADÍSTICAS -->
       <div id="panel-control de calidad-admin" style="display:none;">
-        <div class="stat-grid" style="margin-bottom:1.5rem;grid-template-columns:repeat(5,1fr);">
+        <div class="stat-grid" style="margin-bottom:1.5rem;grid-template-columns:repeat(8,1fr);gap:.75rem;">
           <div class="stat-card c-brand"><div class="stat-label">Total</div><div class="stat-value" id="st-total">—</div><div class="stat-sub">en la base</div></div>
           <div class="stat-card c-blue"><div class="stat-label">Definitivas</div><div class="stat-value" id="st-def">—</div><div class="stat-sub">salida definitiva</div></div>
           <div class="stat-card c-green"><div class="stat-label">Temporales</div><div class="stat-value" id="st-temp">—</div><div class="stat-sub">salida temporal</div></div>
           <div class="stat-card c-purple"><div class="stat-label">Hoy</div><div class="stat-value" id="st-hoy">—</div><div class="stat-sub">registros del día</div></div>
+          <div class="stat-card" style="border-top:3px solid var(--red);"><div class="stat-label" style="color:var(--red);">Por Aprobar</div><div class="stat-value" id="st-pendientes">—</div><div class="stat-sub">sin DEV</div></div>
+          <div class="stat-card" style="border-top:3px solid var(--green);"><div class="stat-label" style="color:var(--green);">Este Mes</div><div class="stat-value" id="st-mes">—</div><div class="stat-sub">vs mes ant.</div></div>
+          <div class="stat-card" style="border-top:3px solid var(--blue);"><div class="stat-label" style="color:var(--blue);">Top Sede</div><div class="stat-value" id="st-top-sede" style="font-size:1.1rem;">—</div><div class="stat-sub" id="st-top-sede-count">0 registros</div></div>
           <div class="stat-card" style="border-top:3px solid var(--amber);">
             <div class="stat-label" style="color:var(--amber);">Tiempo de Aprobación</div>
             <div style="display:flex;align-items:baseline;gap:.35rem;margin:.35rem 0 .1rem;">
@@ -3039,7 +3042,12 @@ function statsInit() {
 
   // Por categoría
   const cats = {};
-  all.forEach(r=>{const k=CAT_LABELS[r.categoria]||r.categoria||'Sin categoría';cats[k]=(cats[k]||0)+1;});
+  all.forEach(r=>{
+    let k = CAT_LABELS[r.categoria] || r.categoria || 'Sin categoría';
+    // Normalizar: trim, uppercase para agrupar correctamente
+    k = k.trim().toUpperCase();
+    cats[k]=(cats[k]||0)+1;
+  });
   const catKeys = Object.keys(cats);
   statsCharts['cat'] = new Chart(document.getElementById('chart-por-cat'), {
     type:'doughnut', data:{labels:catKeys,datasets:[{data:catKeys.map(k=>cats[k]),backgroundColor:COLORS}]},
@@ -3048,7 +3056,12 @@ function statsInit() {
 
   // Por motivo
   const mots = {};
-  all.forEach(r=>{const k=MOT_LABELS[r.motivo]||r.motivo||'Sin motivo';mots[k]=(mots[k]||0)+1;});
+  all.forEach(r=>{
+    let k = MOT_LABELS[r.motivo] || r.motivo || 'Sin motivo';
+    // Normalizar: trim, uppercase para agrupar correctamente
+    k = k.trim().toUpperCase();
+    mots[k]=(mots[k]||0)+1;
+  });
   const motKeys = Object.keys(mots);
   statsCharts['mot'] = new Chart(document.getElementById('chart-por-mot'), {
     type:'bar', data:{labels:motKeys,datasets:[{label:'Registros',data:motKeys.map(k=>mots[k]),backgroundColor:'#2563EB',borderRadius:4}]},
@@ -3057,7 +3070,22 @@ function statsInit() {
 
   // Por sede
   const sedes = {};
-  all.forEach(r=>{const k=r.sede||'Sin sede';sedes[k]=(sedes[k]||0)+1;});
+  all.forEach(r=>{
+    let k = r.sede || 'Sin sede';
+    // Normalizar nombre de sede: trim, uppercase, reemplazar múltiples espacios
+    k = k.trim().toUpperCase().replace(/\s+/g, ' ');
+    // Mapear variaciones comunes
+    const sedeMap = {
+      'SAN JOSE': 'SAN JOSÉ',
+      'SJ': 'SAN JOSÉ',
+      'LIBERIA': 'LIBERIA',
+      'PEREZ ZELEDON': 'PÉREZ ZELEDÓN',
+      'PÉREZ ZELEDÓN': 'PÉREZ ZELEDÓN',
+      'SIN SEDE': 'SIN SEDE'
+    };
+    k = sedeMap[k] || k;
+    sedes[k]=(sedes[k]||0)+1;
+  });
   const sedeKeys = Object.keys(sedes);
   statsCharts['sede'] = new Chart(document.getElementById('chart-por-sede'), {
     type:'doughnut', data:{labels:sedeKeys,datasets:[{data:sedeKeys.map(k=>sedes[k]),backgroundColor:COLORS}]},
@@ -4139,6 +4167,23 @@ async function adminLoadRMARecords() {
       return hasRMA && hasTicketRMA;
     });
 
+    // Cargar historial para cada registro RMA
+    if (rmaRawData.length > 0) {
+      try {
+        const ids = rmaRawData.map(r => r.id).join(',');
+        console.log('IDs a consultar:', ids);
+        const historial = await sbFetch('GET', 'garantias_historial?garantia_id=in.(' + ids + ')&order=fecha.desc');
+        console.log('Historial cargado:', historial);
+        // Asociar historial a cada registro
+        rmaRawData.forEach(r => {
+          r.historial = (historial || []).filter(h => h.garantia_id === r.id);
+          console.log('Registro', r.boleta, 'historial:', r.historial);
+        });
+      } catch (e) {
+        console.error('Error al cargar historial:', e);
+      }
+    }
+    
     rmaRecords = [...rmaRawData];
     adminPopulateRMAFilters();
     adminApplyRMAFilters();
@@ -4216,21 +4261,27 @@ function adminRenderRMATable() {
   }
 
   tbody.innerHTML = rmaRecords.map((r, i) => {
+    // Obtener fecha del historial más reciente si existe
+    const fechaHistorial = r.historial && r.historial.length > 0 ? r.historial[0].fecha : null;
+    const fechaMostrar = fechaHistorial || r.fecha_rma;
+    const fechaCelda = fechaMostrar ? fmtDate(fechaMostrar) : '—';
+    const fechaTooltip = fechaMostrar ? fmtDate(fechaMostrar) : 'Sin fecha';
+    console.log('Tooltip seguimiento:', r.boleta, 'fechaTooltip:', fechaTooltip, 'seguimiento:', r.seguimiento);
     return `<tr style="animation-delay:${i*0.02}s">
       <td class="td-mono">${r.ticket || '—'}</td>
       <td class="td-wrap"><strong>${r.nombre || '—'}</strong></td>
       <td class="td-mono">${r.ticket_rma || '—'}</td>
-      <td>${r.fecha_rma ? fmtDate(r.fecha_rma) : '—'}</td>
+      <td>${fechaCelda}</td>
       <td class="td-mono">${r.serie || '—'}</td>
       <td class="td-mono">${r.numero_serie || '—'}</td>
       <td class="td-truncate" data-tip="${(r.falla || '—').replace(/"/g, '&quot;')}">${r.falla || '—'}</td>
       <td class="td-mono">${r.serie_fabrica || '—'}</td>
       <td>${r.estatus || '—'}</td>
       <td class="td-mono">${r.boleta || '—'}</td>
-      <td class="td-truncate" data-tip="${(r.observaciones || '—').replace(/"/g, '&quot;')}">${r.observaciones || '—'}</td>
-      <td class="td-truncate" data-tip="${(r.seguimiento || '—').replace(/"/g, '&quot;')}">${r.seguimiento || '—'}</td>
+      <td class="td-truncate" data-tip="[${fechaTooltip}] ${(r.observaciones || '—').replace(/"/g, '&quot;')}">${r.observaciones || '—'}</td>
+      <td class="td-truncate" data-tip="[${fechaTooltip}] ${(r.seguimiento || '—').replace(/"/g, '&quot;')}">${r.seguimiento || '—'}</td>
       <td>
-        <button class="btn btn-sm" onclick="editRecord('${r.id}')" title="Editar">
+        <button class="btn btn-sm" onclick="openEdit('${r.id}')" title="Editar">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
         </button>
       </td>
@@ -4263,6 +4314,40 @@ function adminUpdateStats(all) {
     document.getElementById('st-aprov-max').textContent = '—';
   }
   document.getElementById('st-aprov-n').textContent = dias.length;
+  
+  // Por Aprobar (categorías NC/Nota de Crédito sin DEV)
+  // Las categorías en BD son: 'rma', 'garantia_1', 'nota_credito', 'rma_nota_credito', 'garantia_1_nota_credito', etc.
+  const ncSinDev = all.filter(r => {
+    const cat = (r.categoria || '').toLowerCase();
+    // Buscar categorías que incluyan: nc, nota_credito, nota de credito
+    const esNC = cat.includes('nc') || cat.includes('nota') || cat.includes('credito');
+    const tieneDev = r.dev && r.dev.toString().trim() !== '' && r.dev !== null;
+    return esNC && !tieneDev;
+  });
+  console.log('Total NC sin DEV:', ncSinDev.length, 'de', all.length, 'registros');
+  document.getElementById('st-pendientes').textContent = ncSinDev.length;
+  
+  // Este Mes vs Mes Anterior
+  const esteMes = new Date().toISOString().slice(0, 7);
+  const mesPasado = new Date(Date.now() - 30*24*60*60*1000).toISOString().slice(0, 7);
+  const regsEsteMes = all.filter(r => r.fecha_creacion && r.fecha_creacion.startsWith(esteMes)).length;
+  const regsMesPasado = all.filter(r => r.fecha_creacion && r.fecha_creacion.startsWith(mesPasado)).length;
+  document.getElementById('st-mes').textContent = regsEsteMes;
+  
+  // Top Sede
+  const sedeCounts = {};
+  all.forEach(r => {
+    let sede = (r.sede || 'Sin sede').trim().toUpperCase();
+    sedeCounts[sede] = (sedeCounts[sede] || 0) + 1;
+  });
+  const topSede = Object.entries(sedeCounts).sort((a,b) => b[1] - a[1])[0];
+  if (topSede) {
+    document.getElementById('st-top-sede').textContent = topSede[0].substring(0, 10);
+    document.getElementById('st-top-sede-count').textContent = topSede[1] + ' registros';
+  } else {
+    document.getElementById('st-top-sede').textContent = '—';
+    document.getElementById('st-top-sede-count').textContent = '0 registros';
+  }
 }
 function adminUpdateBadges() { document.getElementById('nb-def').textContent=rawData.def.length; document.getElementById('nb-temp').textContent=rawData.temp.length; }
 
@@ -4334,7 +4419,7 @@ function adminSwitchSection(sec) {
     'salidas-definitivas': ['Salidas Definitivas','Registros con salida definitiva'],
     'salidas-temporales':  ['Salidas Temporales', 'Registros con salida temporal'],
     'usuarios':            ['Usuarios',           'Gestión de usuarios y roles'],
-    'control de calidad':        ['KPIs',       'Gráficas y resumen de registros'],
+    'control de calidad':        ['Control de Calidad',       'KPIs'],
     'tramites-marca':      ['Trámites con Marca', ''],
     'herramientas':        ['Herramientas',       'Ajustes y acciones de administrador']
   };
@@ -4486,10 +4571,81 @@ function openEdit(id){
     else{inp=`<input id="e_${f.key}" type="${f.type}" class="field-input" value="${val}">`;}
     html+=`<div class="field${f.full?' field-full':''}"><label class="field-label">${f.label}</label>${inp}</div>`;
   });
+  // Agregar sección de historial al final
+  html+=`<div class="field field-full" style="grid-column:1/-1;margin-top:1rem;border-top:2px solid var(--brand);padding-top:1rem;">
+    <div style="font-size:.85rem;font-weight:700;color:var(--brand);margin-bottom:.75rem;">📚 Historial de Cambios</div>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+      <div style="flex:1;min-width:250px;">
+        <label style="font-size:.75rem;font-weight:600;color:var(--ink-3);display:block;margin-bottom:.25rem;">Seleccionar fecha</label>
+        <select id="historial-select" onchange="showHistorialEntry(this.value)" style="width:100%;padding:.5rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);font-size:.875rem;">
+          <option value="">Cargando historial...</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:1rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div style="background:var(--bg-2);padding:.75rem;border-radius:var(--radius-sm);border:1px solid var(--border);">
+        <div style="font-size:.7rem;font-weight:700;color:var(--ink-3);text-transform:uppercase;margin-bottom:.25rem;">Observaciones (histórico)</div>
+        <div id="historial-observaciones" style="font-size:.85rem;color:var(--ink-2);white-space:pre-wrap;min-height:60px;">Seleccione una fecha para ver el historial</div>
+      </div>
+      <div style="background:var(--bg-2);padding:.75rem;border-radius:var(--radius-sm);border:1px solid var(--border);">
+        <div style="font-size:.7rem;font-weight:700;color:var(--ink-3);text-transform:uppercase;margin-bottom:.25rem;">Seguimiento (histórico)</div>
+        <div id="historial-seguimiento" style="font-size:.85rem;color:var(--ink-2);white-space:pre-wrap;min-height:60px;"></div>
+      </div>
+    </div>
+  </div>`;
+  
   document.getElementById('modalBody').innerHTML=html;
   document.getElementById('editModal').classList.add('open');
+  
+  // Cargar historial
+  loadHistorial(id);
 }
 function closeModal(){document.getElementById('editModal').classList.remove('open');editingId=null;}
+
+// Variables para historial
+let historialData = [];
+
+async function loadHistorial(garantiaId) {
+  try {
+    const data = await sbFetch('GET', 'garantias_historial?garantia_id=eq.' + garantiaId + '&order=fecha.desc');
+    historialData = data || [];
+    renderHistorialSelect();
+  } catch (e) {
+    console.error('Error al cargar historial:', e);
+    historialData = [];
+  }
+}
+
+function renderHistorialSelect() {
+  const select = document.getElementById('historial-select');
+  if (!select) return;
+  
+  if (historialData.length === 0) {
+    select.innerHTML = '<option value="">Sin historial</option>';
+    return;
+  }
+  
+  select.innerHTML = '<option value="">Seleccionar fecha...</option>' + 
+    historialData.map((h, i) => {
+      const fecha = new Date(h.fecha).toLocaleString('es-CR');
+      return `<option value="${i}">${fecha} - ${h.modificado_por}</option>`;
+    }).join('');
+}
+
+function showHistorialEntry(index) {
+  const obsDiv = document.getElementById('historial-observaciones');
+  const segDiv = document.getElementById('historial-seguimiento');
+  
+  if (index === '' || !historialData[index]) {
+    if (obsDiv) obsDiv.textContent = 'Seleccione una fecha para ver el historial';
+    if (segDiv) segDiv.textContent = '';
+    return;
+  }
+  
+  const entry = historialData[index];
+  if (obsDiv) obsDiv.textContent = entry.observaciones || '(Sin observaciones)';
+  if (segDiv) segDiv.textContent = entry.seguimiento || '(Sin seguimiento)';
+}
 async function saveEdit(){
   const btn=document.getElementById('modalSaveBtn'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando…';
   const payload={};
@@ -4583,6 +4739,24 @@ async function saveEdit(){
   try{
     // Guardar el registro editado primero
     await sbFetch('PATCH',TABLE+'?id=eq.'+editingId,payload);
+    
+    // Guardar en historial automáticamente
+    try {
+      const historialPayload = {
+        garantia_id: editingId,
+        observaciones: payload.observaciones || orig?.observaciones || '',
+        seguimiento: payload.seguimiento || orig?.seguimiento || '',
+        modificado_por: payload.modificado_por
+      };
+      if (historialPayload.observaciones || historialPayload.seguimiento) {
+        await sbFetch('POST', 'garantias_historial', historialPayload);
+        console.log('Historial guardado:', historialPayload);
+      }
+    } catch (histErr) {
+      console.error('Error al guardar historial:', histErr);
+      // No bloquear el flujo principal si falla el historial
+    }
+    
     // Luego actualizar los demás registros afectados
     if(actualizarOtros && registrosParaActualizar.length > 0){
       for(const reg of registrosParaActualizar){
