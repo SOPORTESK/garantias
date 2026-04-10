@@ -2335,6 +2335,7 @@ async function articuloConfirmAdd() {
 ═══════════════════════════════════════ */
 // consecutiveNum = 29178 (último usado), el próximo será 29179
 let consecutiveNum = 29178;
+let consecutiveNumManual = false; // Indica si fue ajustado manualmente desde admin
 let allRecords = [];
 let lastSavedRecord = null;
 
@@ -2358,7 +2359,8 @@ async function loadRecords() {
     }
     
     allRecords = all;
-    if (allRecords.length > 0) {
+    // Solo actualizar consecutiveNum si NO fue ajustado manualmente
+    if (!consecutiveNumManual && allRecords.length > 0) {
       const maxNum = Math.max(...allRecords.map(r => r.numero_consecutivo || 0));
       if (maxNum >= 29179) consecutiveNum = maxNum;
     }
@@ -3171,6 +3173,7 @@ function revertBoletaPersonalizado() {
   }
   if (!confirm('¿Revertir el contador al número ' + num + '? El próximo registro usará ' + (num + 1) + '.')) return;
   consecutiveNum = num;
+  consecutiveNumManual = true; // Marcar que fue ajustado manualmente
   renderHeaderBoleta();
   showToast('Contador en ' + num + ' · próximo será ' + (num + 1), 'info');
 }
@@ -3964,6 +3967,7 @@ function adminAjustarBoleta() {
   if (!num || num < 1) { showToast('Ingresá un número válido', 'error'); return; }
   if (!confirm('¿Ajustar el número de boleta a ' + num + '?\nEl próximo registro usará ' + (num+1) + '.')) return;
   consecutiveNum = num;
+  consecutiveNumManual = true; // Marcar que fue ajustado manualmente
   renderHeaderBoleta();
   const el = document.getElementById('boletaActualAdmin');
   if (el) el.textContent = consecutiveNum;
@@ -4134,7 +4138,8 @@ async function adminLoadAll() {
     
     if (all.length > allRecords.length) {
       allRecords = [...all];
-      if (allRecords.length > 0) {
+      // Solo actualizar consecutiveNum si NO fue ajustado manualmente
+      if (!consecutiveNumManual && allRecords.length > 0) {
         const mx = Math.max(...allRecords.map(r => r.numero_consecutivo || 0));
         if (mx >= 29179) consecutiveNum = mx;
       }
