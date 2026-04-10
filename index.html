@@ -1823,7 +1823,17 @@ function calcBoleta(registro, num) {
   return p ? p + num : String(num);
 }
 function renderHeaderBoleta() {
-  document.getElementById('headerBoleta').textContent = formatBoleta(consecutiveNum + 1);
+  const nextNum = consecutiveNum + 1;
+  const formatted = formatBoleta(nextNum);
+  console.log('renderHeaderBoleta - consecutiveNum:', consecutiveNum, 'nextNum:', nextNum, 'formatted:', formatted);
+  const el = document.getElementById('headerBoleta');
+  console.log('Elemento headerBoleta:', el);
+  if (el) {
+    el.textContent = formatted;
+    console.log('Texto actualizado a:', formatted);
+  } else {
+    console.error('Elemento headerBoleta no encontrado');
+  }
 }
 
 /* ═══════════════════════════════════════
@@ -2336,6 +2346,11 @@ async function articuloConfirmAdd() {
 // consecutiveNum = 29178 (último usado), el próximo será 29179
 let consecutiveNum = 29178;
 let consecutiveNumManual = false; // Indica si fue ajustado manualmente desde admin
+// Cargar valores guardados en localStorage
+const savedConsecutiveNum = localStorage.getItem('consecutiveNum');
+const savedConsecutiveNumManual = localStorage.getItem('consecutiveNumManual');
+if (savedConsecutiveNum !== null) consecutiveNum = parseInt(savedConsecutiveNum);
+if (savedConsecutiveNumManual === 'true') consecutiveNumManual = true;
 let allRecords = [];
 let lastSavedRecord = null;
 
@@ -2362,7 +2377,14 @@ async function loadRecords() {
     // Solo actualizar consecutiveNum si NO fue ajustado manualmente
     if (!consecutiveNumManual && allRecords.length > 0) {
       const maxNum = Math.max(...allRecords.map(r => r.numero_consecutivo || 0));
-      if (maxNum >= 29179) consecutiveNum = maxNum;
+      // Ignorar valores absurdamente altos (probablemente errores de datos)
+      // El rango razonable es aprox 29179-50000 para este sistema
+      if (maxNum >= 29179 && maxNum <= 50000) {
+        consecutiveNum = maxNum;
+        console.log('consecutiveNum actualizado desde BD:', consecutiveNum);
+      } else {
+        console.log('maxNum fuera de rango razonable:', maxNum, '- manteniendo valor actual:', consecutiveNum);
+      }
     }
     renderHeaderBoleta();
   } catch (e) { console.error(e); }
@@ -3174,6 +3196,9 @@ function revertBoletaPersonalizado() {
   if (!confirm('¿Revertir el contador al número ' + num + '? El próximo registro usará ' + (num + 1) + '.')) return;
   consecutiveNum = num;
   consecutiveNumManual = true; // Marcar que fue ajustado manualmente
+  // Guardar en localStorage para persistir entre recargas
+  localStorage.setItem('consecutiveNum', consecutiveNum);
+  localStorage.setItem('consecutiveNumManual', 'true');
   renderHeaderBoleta();
   showToast('Contador en ' + num + ' · próximo será ' + (num + 1), 'info');
 }
@@ -3961,17 +3986,29 @@ async function saveUser() {
 }
 
 function adminAjustarBoleta() {
-  if (!isAdmin()) { showToast('Solo administradores', 'error'); return; }
+  console.log('adminAjustarBoleta llamada');
+  if (!isAdmin()) { showToast('Solo administradores', 'error'); console.log('No es admin'); return; }
   const input = document.getElementById('adminBoletaInput');
+  console.log('Input encontrado:', input);
   const num = parseInt(input?.value);
-  if (!num || num < 1) { showToast('Ingresá un número válido', 'error'); return; }
-  if (!confirm('¿Ajustar el número de boleta a ' + num + '?\nEl próximo registro usará ' + (num+1) + '.')) return;
+  console.log('adminAjustarBoleta - Input value:', input?.value, 'Parsed num:', num);
+  if (!num || num < 1) { showToast('Ingresá un número válido', 'error'); console.log('Número inválido'); return; }
+  if (!confirm('¿Ajustar el número de boleta a ' + num + '?\nEl próximo registro usará ' + (num+1) + '.')) {
+    console.log('Usuario canceló');
+    return;
+  }
+  console.log('Ajustando consecutiveNum de', consecutiveNum, 'a', num);
   consecutiveNum = num;
   consecutiveNumManual = true; // Marcar que fue ajustado manualmente
+  // Guardar en localStorage para persistir entre recargas
+  localStorage.setItem('consecutiveNum', consecutiveNum);
+  localStorage.setItem('consecutiveNumManual', 'true');
   renderHeaderBoleta();
   const el = document.getElementById('boletaActualAdmin');
+  console.log('Elemento boletaActualAdmin:', el);
   if (el) el.textContent = consecutiveNum;
   if (input) input.value = '';
+  console.log('consecutiveNum después del ajuste:', consecutiveNum, 'consecutiveNumManual:', consecutiveNumManual);
   showToast('Boleta ajustada a ' + num, 'success', 'Próximo: ' + (num+1));
 }
 
@@ -4141,7 +4178,13 @@ async function adminLoadAll() {
       // Solo actualizar consecutiveNum si NO fue ajustado manualmente
       if (!consecutiveNumManual && allRecords.length > 0) {
         const mx = Math.max(...allRecords.map(r => r.numero_consecutivo || 0));
-        if (mx >= 29179) consecutiveNum = mx;
+        // Ignorar valores absurdamente altos (probablemente errores de datos)
+        if (mx >= 29179 && mx <= 50000) {
+          consecutiveNum = mx;
+          console.log('consecutiveNum actualizado desde adminLoadAll:', consecutiveNum);
+        } else {
+          console.log('maxNum fuera de rango razonable en adminLoadAll:', mx, '- manteniendo valor actual:', consecutiveNum);
+        }
       }
       renderHeaderBoleta();
     }
