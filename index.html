@@ -559,6 +559,10 @@
               <label class="field-label" for="numeroSerie">Serie</label>
               <input id="numeroSerie" name="numeroSerie" type="text" class="field-input">
             </div>
+            <div class="field col-2" id="boletaFisicaField" style="display:none">
+              <label class="field-label" for="boletaFisica">Boleta Física</label>
+              <input id="boletaFisica" name="boletaFisica" type="text" class="field-input">
+            </div>
           </div>
           <div class="form-grid" style="margin-top:.75rem">
             <div class="field col-full">
@@ -1718,6 +1722,7 @@ function limpiarFormulario() {
   form.querySelectorAll('.error,.filled').forEach(el => el.classList.remove('error','filled'));
   document.getElementById('marca').disabled = false;
   document.getElementById('marca').placeholder = '';
+  document.getElementById('boletaFisicaField').style.display = 'none';
   renderHeaderBoleta();
   updateProgress();
 }
@@ -1985,12 +1990,13 @@ function invParseExcel(file) {
         console.log('Primeras 3 filas:', bestData.slice(0, 3));
         
         // Detectar si las columnas están vacías (nombres como __EMPTY, __EMPTY_1, etc.)
-        // y en ese caso, usar la segunda fila como encabezados
+        // Solo reemplazar encabezados si TODOS son inválidos, no si solo algunos lo son
         if (bestData.length > 0) {
           const firstKeys = Object.keys(bestData[0]);
-          const hasEmptyHeaders = firstKeys.some(k => k.startsWith('__EMPTY'));
-          
-          if (hasEmptyHeaders && bestData.length > 1) {
+          // Verificar si TODOS los encabezados son inválidos (empiezan con __EMPTY o __EMPTY_)
+          const allEmptyHeaders = firstKeys.every(k => k.startsWith('__EMPTY') || k.startsWith('Col_'));
+
+          if (allEmptyHeaders && bestData.length > 1) {
             // Usar la primera fila de datos como nombres de columnas
             const headerRow = bestData[0];
             const newData = bestData.slice(1).map(row => {
@@ -2005,6 +2011,8 @@ function invParseExcel(file) {
             });
             bestData = newData;
             console.log('Columnas corregidas (usando primera fila):', bestData.length > 0 ? Object.keys(bestData[0]) : 'N/A');
+          } else {
+            console.log('Manteniendo encabezados originales (tienen nombres válidos)');
           }
         }
         
@@ -3256,7 +3264,7 @@ async function importGarantiasHandleFile(file) {
     // Mostrar columnas detectadas
     const primerasColumnas = rows.length > 0 ? Object.keys(rows[0]) : [];
     console.log('=== COLUMNAS EXACTAS EN EL EXCEL ===');
-    console.log(primerasColumnas);
+    console.log('Columnas:', primerasColumnas.join(', '));
     console.log('Total columnas:', primerasColumnas.length);
     
     const { findKey } = rows.length > 0 ? createColumnFinder(rows[0]) : { findKey: () => null };
@@ -3264,8 +3272,8 @@ async function importGarantiasHandleFile(file) {
     // Mapeo completo de campos requeridos y opcionales
     const camposMapeo = [
       { nombre: 'Tipo', requerido: true, variantes: ['tipo', 'tiposalida', 'tipodesalida', 'salida', 'salidas', 'tipos', 'tipogarantia'] },
-      { nombre: 'Categoría', requerido: true, variantes: ['categoria', 'categoría', 'cat', 'categ', 'categorias', 'tipocategoria', 'tipodecategoria', 'categoriasalida', 'garantiacategoria'] },
-      { nombre: 'Nombre', requerido: true, variantes: ['nombre', 'cliente', 'nombrecliente', 'nomcliente', 'clientes', 'nombres', 'titular', 'nombrecompleto', 'nombredecl', 'nombreclientes', 'solicitado por', 'solicitadopor'] },
+      { nombre: 'Categoría', requerido: true, variantes: ['categoria', 'categoría', 'cat', 'categ', 'categorias', 'tipocategoria', 'tipodecategoria', 'categoriasalida', 'garantiacategoria', 'categoria de salida', 'tipo de categoria', 'tipo categoria', 'categoria salida', 'garantia categoria', 'cat salida'] },
+      { nombre: 'Nombre', requerido: true, variantes: ['nombre', 'cliente', 'nombrecliente', 'nomcliente', 'clientes', 'nombres', 'titular', 'nombrecompleto', 'nombredecl', 'nombreclientes', 'solicitado por', 'solicitadopor', 'Cliente', 'CLIENTE', 'nombre del cliente', 'nombre del Cliente', 'Nombre Cliente', 'Nombre del Cliente'] },
       { nombre: 'Artículo', requerido: false, variantes: ['articulo', 'serie', 'numarticulo', 'codigo', 'codigoproducto', 'sku', 'art', 'producto'] },
       { nombre: 'Marca', requerido: false, variantes: ['marca', 'marcas', 'brand', 'fabricante', 'manufacturer'] },
       { nombre: 'Ticket', requerido: false, variantes: ['ticket', 'tickets', 'numticket', 'noticket', 'ticket nº', 'ticketnº'] },
@@ -3429,11 +3437,11 @@ function mapGarantiaRow(row) {
   // Mapear todos los campos con más variantes (incluyendo nombres exactos del Excel)
   return {
     tipo: tipo,
-    categoria: normalizeCategoria(getVal(['categoria', 'categoría', 'cat', 'categ', 'categorias', 'tipocategoria', 'tipodecategoria', 'categoriasalida', 'garantiacategoria'])),
+    categoria: normalizeCategoria(getVal(['categoria', 'categoría', 'cat', 'categ', 'categorias', 'tipocategoria', 'tipodecategoria', 'categoriasalida', 'garantiacategoria', 'categoria de salida', 'tipo de categoria', 'tipo categoria', 'categoria salida', 'garantia categoria', 'cat salida', 'categoria salida'])),
     motivo: normalizeMotivo(getVal(['motivo', 'motivos', 'razon', 'motiv'])),
     ticket: String(getVal(['ticket', 'tickets', 'numticket', 'noticket', 'ticket nº', 'ticketnº']) || ''),
     sede: String(getVal(['sede', 'sedes', 'ubicacion', 'lugar', 'sucursal']) || ''),
-    nombre: String(getVal(['nombre', 'cliente', 'nombrecliente', 'nomcliente', 'clientes', 'nombres', 'titular', 'nombrecompleto', 'nombredecl', 'nombreclientes', 'solicitado por', 'solicitadopor']) || ''),
+    nombre: String(getVal(['nombre', 'cliente', 'nombrecliente', 'nomcliente', 'clientes', 'nombres', 'titular', 'nombrecompleto', 'nombredecl', 'nombreclientes', 'solicitado por', 'solicitadopor', 'Cliente', 'CLIENTE', 'nombre del cliente', 'nombre del Cliente', 'Nombre Cliente', 'Nombre del Cliente']) || ''),
     factura: String(getVal(['factura', 'facturas', 'numfactura', 'nofactura', 'fact']) || ''),
     cantidad: parseInt(getVal(['cantidad', 'cant', 'qty', 'cantidades', 'unidades'])) || 1,
     fecha_compra: formatFecha(getVal(['fechacompra', 'fechadecompra', 'compra', 'fechadocompra', 'fechafactura', 'fecha de compra'])),
