@@ -921,6 +921,7 @@
                     <th>Cliente</th>
                     <th>Ticket RMA</th>
                     <th>Fecha Ticket RMA</th>
+                    <th>Tiempo</th>
                     <th>Artículo</th>
                     <th>Serie</th>
                     <th>Falla</th>
@@ -4307,10 +4308,41 @@ function adminClearRMAFilters() {
   adminApplyRMAFilters();
 }
 
+// Función para calcular el tiempo transcurrido
+function calcularTiempoTranscurrido(fechaInicio, fechaFin, estatus) {
+  if (!fechaInicio) return '—';
+  
+  const inicio = new Date(fechaInicio);
+  const fin = fechaFin ? new Date(fechaFin) : new Date();
+  
+  // Determinar estatus cerrado
+  const estatusCerrados = ['reemplazo_total', 'repuesto_ingresado', 'nota_credito_marca', 'fuera_garantia', 'compra_repuesto'];
+  const estatusAbiertos = ['en_proceso', 'pendiente_tramite'];
+  const esCerrado = estatus && estatusCerrados.includes(estatus);
+  
+  // Si está cerrado y tiene fecha_modificacion, usar esa fecha
+  // Si está abierto, usar fecha actual
+  const fechaCalculo = (esCerrado && fechaFin) ? fin : new Date();
+  
+  const diffMs = fechaCalculo - inicio;
+  const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const diffHoras = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  
+  if (diffDias === 0) {
+    if (diffHoras === 0) {
+      const diffMinutos = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      return diffMinutos + ' min';
+    }
+    return diffHoras + 'h';
+  }
+  
+  return diffDias + 'd ' + diffHoras + 'h';
+}
+
 function adminRenderRMATable() {
   const tbody = document.getElementById('rma-tbody');
   if (!rmaRecords.length) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="13" style="text-align:center;padding:2rem;">
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="14" style="text-align:center;padding:2rem;">
       <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros
     </td></tr>`;
     return;
@@ -4322,12 +4354,23 @@ function adminRenderRMATable() {
     const fechaMostrar = fechaHistorial || r.fecha_rma;
     const fechaCelda = fechaMostrar ? fmtDate(fechaMostrar) : '—';
     const fechaTooltip = fechaMostrar ? fmtDate(fechaMostrar) : 'Sin fecha';
+    
+    // Calcular tiempo transcurrido
+    const tiempoTranscurrido = calcularTiempoTranscurrido(r.fecha_rma, r.fecha_modificacion, r.estatus_rma);
+    
+    // Determinar color según estatus
+    const estatusCerrados = ['reemplazo_total', 'repuesto_ingresado', 'nota_credito_marca', 'fuera_garantia', 'compra_repuesto'];
+    const estatusAbiertos = ['en_proceso', 'pendiente_tramite'];
+    const esCerrado = r.estatus_rma && estatusCerrados.includes(r.estatus_rma);
+    const tiempoStyle = esCerrado ? 'color:var(--green);font-weight:600;' : 'color:var(--ink-2);';
+    
     console.log('Tooltip seguimiento:', r.boleta, 'fechaTooltip:', fechaTooltip, 'seguimiento:', r.seguimiento);
     return `<tr style="animation-delay:${i*0.02}s">
       <td class="td-mono">${r.ticket || '—'}</td>
       <td class="td-wrap"><strong>${r.nombre || '—'}</strong></td>
       <td class="td-mono">${r.ticket_rma || '—'}</td>
       <td>${fechaCelda}</td>
+      <td style="${tiempoStyle}">${tiempoTranscurrido}</td>
       <td class="td-mono">${r.serie || '—'}</td>
       <td class="td-mono">${r.numero_serie || '—'}</td>
       <td class="td-truncate" data-tip="${(r.falla || '—').replace(/"/g, '&quot;')}">${r.falla || '—'}</td>
