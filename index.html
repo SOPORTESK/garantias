@@ -4262,7 +4262,7 @@ function adminPopulateRMAFilters() {
   }
 
   // Llenar filtro de estatus
-  const estatus = [...new Set(rmaRawData.map(r => r.estatus_rma).filter(e => e))].sort();
+  const estatus = [...new Set(rmaRawData.map(r => r.estatus).filter(e => e))].sort();
   const estatusSelect = document.getElementById('rma-filter-estatus');
   if (estatusSelect) {
     estatusSelect.innerHTML = '<option value="">Todos</option>';
@@ -4280,7 +4280,7 @@ function adminApplyRMAFilters() {
 
   rmaRecords = rmaRawData.filter(r => {
     if (marca && r.marca && r.marca.toLowerCase() !== marca) return false;
-    if (estatus && r.estatus_rma && r.estatus_rma.toLowerCase() !== estatus) return false;
+    if (estatus && r.estatus && r.estatus.toLowerCase() !== estatus) return false;
     if (fecha && r.fecha_rma && r.fecha_rma.slice(0, 10) !== fecha) return false;
     if (search) {
       const hay = [
@@ -4356,12 +4356,12 @@ function adminRenderRMATable() {
     const fechaTooltip = fechaMostrar ? fmtDate(fechaMostrar) : 'Sin fecha';
     
     // Calcular tiempo transcurrido
-    const tiempoTranscurrido = calcularTiempoTranscurrido(r.fecha_rma, r.fecha_modificacion, r.estatus_rma);
+    const tiempoTranscurrido = calcularTiempoTranscurrido(r.fecha_rma, r.fecha_modificacion, r.estatus);
     
     // Determinar color según estatus
     const estatusCerrados = ['reemplazo_total', 'repuesto_ingresado', 'nota_credito_marca', 'fuera_garantia', 'compra_repuesto'];
     const estatusAbiertos = ['en_proceso', 'pendiente_tramite'];
-    const esCerrado = r.estatus_rma && estatusCerrados.includes(r.estatus_rma);
+    const esCerrado = r.estatus && estatusCerrados.includes(r.estatus);
     const tiempoStyle = esCerrado ? 'color:var(--green);font-weight:600;' : 'color:var(--ink-2);';
     
     console.log('Tooltip seguimiento:', r.boleta, 'fechaTooltip:', fechaTooltip, 'seguimiento:', r.seguimiento);
@@ -4375,7 +4375,7 @@ function adminRenderRMATable() {
       <td class="td-mono">${r.numero_serie || '—'}</td>
       <td class="td-truncate" data-tip="${(r.falla || '—').replace(/"/g, '&quot;')}">${r.falla || '—'}</td>
       <td class="td-mono">${r.serie_fabrica || '—'}</td>
-      <td>${r.estatus_rma || '—'}</td>
+      <td>${r.estatus || '—'}</td>
       <td class="td-mono">${r.boleta || '—'}</td>
       <td class="td-truncate" data-tip="[${fechaTooltip}] ${(r.observaciones || '—').replace(/"/g, '&quot;')}">${r.observaciones || '—'}</td>
       <td class="td-truncate" data-tip="[${fechaTooltip}] ${(r.seguimiento || '—').replace(/"/g, '&quot;')}">${r.seguimiento || '—'}</td>
@@ -4626,7 +4626,7 @@ const EDIT_FIELDS=[
   {key:'ticket_rma',label:'Ticket RMA',type:'text'},
   {key:'fecha_rma',label:'Fecha',type:'date'},
   {key:'serie_fabrica',label:'Serie Equipo Nuevo',type:'text'},
-  {key:'estatus_rma',label:'Estatus',type:'select',opts:[['reemplazo_total','REEMPLAZO TOTAL'],['repuesto_ingresado','REPUESTO INGRESADO'],['nota_credito_marca','NOTA DE CRÉDITO MARCA'],['en_proceso','EN PROCESO'],['pendiente_tramite','PENDIENTE DE TRÁMITE'],['fuera_garantia','FUERA DE GARANTÍA'],['compra_repuesto','COMPRA DE REPUESTO']]},
+  {key:'estatus',label:'Estatus',type:'select',opts:[['reemplazo_total','REEMPLAZO TOTAL'],['repuesto_ingresado','REPUESTO INGRESADO'],['nota_credito_marca','NOTA DE CRÉDITO MARCA'],['en_proceso','EN PROCESO'],['pendiente_tramite','PENDIENTE DE TRÁMITE'],['fuera_garantia','FUERA DE GARANTÍA'],['compra_repuesto','COMPRA DE REPUESTO']]},
   {key:'observaciones',label:'Observaciones',type:'textarea'},{key:'seguimiento',label:'Seguimiento',type:'textarea'},
 ];
 
