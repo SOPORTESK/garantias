@@ -4312,30 +4312,40 @@ function adminClearRMAFilters() {
 function calcularTiempoTranscurrido(fechaInicio, fechaFin, estatus) {
   if (!fechaInicio) return '—';
   
+  // Usar fecha y hora exacta de fecha_creacion (formato ISO de Supabase)
   const inicio = new Date(fechaInicio);
-  const fin = fechaFin ? new Date(fechaFin) : new Date();
   
   // Determinar estatus cerrado
   const estatusCerrados = ['reemplazo_total', 'repuesto_ingresado', 'nota_credito_marca', 'fuera_garantia', 'compra_repuesto'];
   const estatusAbiertos = ['en_proceso', 'pendiente_tramite'];
   const esCerrado = estatus && estatusCerrados.includes(estatus);
   
-  // Si está cerrado y tiene fecha_modificacion, usar esa fecha
-  // Si está abierto, usar fecha actual
-  const fechaCalculo = (esCerrado && fechaFin) ? fin : new Date();
-  
-  const diffMs = fechaCalculo - inicio;
-  const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const diffHoras = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  
-  if (diffDias === 0) {
-    if (diffHoras === 0) {
-      const diffMinutos = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-      return diffMinutos + ' min';
-    }
-    return diffHoras + 'h';
+  // Determinar fecha de cierre
+  let fin;
+  if (esCerrado && fechaFin) {
+    fin = new Date(fechaFin);
+  } else {
+    // Usar fecha y hora actual del dispositivo
+    fin = new Date();
   }
   
+  // Calcular diferencia exacta
+  const diffMs = fin - inicio;
+  const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const diffHoras = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const diffMinutos = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  
+  // Si es menos de 1 hora, mostrar minutos
+  if (diffDias === 0 && diffHoras === 0) {
+    return diffMinutos + ' min';
+  }
+  
+  // Si es menos de 1 día, mostrar horas y minutos
+  if (diffDias === 0) {
+    return diffHoras + 'h ' + diffMinutos + 'm';
+  }
+  
+  // Si es 1 día o más, mostrar días y horas
   return diffDias + 'd ' + diffHoras + 'h';
 }
 
@@ -4355,8 +4365,8 @@ function adminRenderRMATable() {
     const fechaCelda = fechaMostrar ? fmtDate(fechaMostrar) : '—';
     const fechaTooltip = fechaMostrar ? fmtDate(fechaMostrar) : 'Sin fecha';
     
-    // Calcular tiempo transcurrido
-    const tiempoTranscurrido = calcularTiempoTranscurrido(r.fecha_rma, r.fecha_modificacion, r.estatus);
+    // Calcular tiempo transcurrido usando fecha_creacion para precision real
+    const tiempoTranscurrido = calcularTiempoTranscurrido(r.fecha_creacion, r.fecha_modificacion, r.estatus);
     
     // Determinar color según estatus
     const estatusCerrados = ['reemplazo_total', 'repuesto_ingresado', 'nota_credito_marca', 'fuera_garantia', 'compra_repuesto'];
