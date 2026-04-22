@@ -1159,6 +1159,7 @@
     <div class="modal-body"><div class="modal-grid" id="modalBody"></div></div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-blue" id="modalCopyBtn" onclick="copyEditedRecord()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>Copiar comprobante</button>
       <button class="btn btn-primary" id="modalSaveBtn" onclick="saveEdit()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Guardar Cambios</button>
     </div>
   </div>
@@ -4713,6 +4714,48 @@ function openEdit(id){
   loadHistorial(id);
 }
 function closeModal(){document.getElementById('editModal').classList.remove('open');editingId=null;}
+
+/* Copiar comprobante del registro en edición */
+async function copyEditedRecord() {
+  if (!editingId) { showToast('No hay registro en edición','error'); return; }
+  showToast('Generando comprobante…','info');
+  try {
+    // Construir objeto registro con los valores actuales del formulario
+    const record = {};
+    EDIT_FIELDS.forEach(f => {
+      const el = document.getElementById('e_' + f.key);
+      if (el && !el.disabled) {
+        let val = el.value;
+        if (f.dev && val) val = 'DEV-' + val.replace(/^DEV-/i, '');
+        record[f.key] = val || null;
+      }
+    });
+    // Agregar campos adicionales necesarios para la captura
+    record.id = editingId;
+    record.fecha_creacion = new Date().toISOString();
+    
+    const canvas = await captureRecord(record);
+    canvas.toBlob(async blob => {
+      if (!blob) { showToast('Error al generar imagen','error'); return; }
+      try {
+        await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+        showToast('Comprobante copiado al portapapeles','success');
+      } catch (e) {
+        console.log('Clipboard falló, descargando...', e);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.download = 'Garantia_' + (record.boleta || 'comprobante') + '.png';
+        a.href = url;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        showToast('No se pudo copiar — imagen descargada','info');
+      }
+    }, 'image/png');
+  } catch (err) {
+    console.error('Error en copyEditedRecord:', err);
+    showToast('Error al generar comprobante','error', err.message);
+  }
+}
 
 // Variables para historial
 let historialData = [];
