@@ -800,6 +800,31 @@
       </tr></thead><tbody id="reg-tbody-temp"><tr class="empty-row"><td colspan="16"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
     </div>
 
+    <!-- Mis Trámites RMA -->
+    <div class="data-panel" style="margin-top:1.5rem;">
+      <div class="data-panel-header">
+        <div class="data-panel-title">
+          <span class="panel-dot" style="background:var(--blue);"></span>
+          <span style="font-size:.9375rem;font-weight:700;color:var(--ink-1)">Mis Trámites RMA</span>
+          <span style="font-size:.75rem;color:var(--ink-4)" id="reg-count-misrma"></span>
+        </div>
+        <div class="data-panel-actions">
+          <button class="btn btn-sm" onclick="exportMisRMAExcel()" style="padding:.4rem .9rem;font-weight:600;background:var(--blue);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Descargar Mis RMAs
+          </button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table style="table-layout:auto;width:auto;min-width:100%;">
+          <thead><tr>
+            <th>Ticket</th><th>Cliente</th><th>Marca</th><th>Ticket RMA</th><th>Fecha RMA</th><th>Tiempo</th><th>Estatus</th><th>Boleta</th>
+          </tr></thead>
+          <tbody id="reg-tbody-misrma"><tr class="empty-row"><td colspan="8"><span class="spinner" style="border-top-color:var(--blue)"></span> Cargando…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -978,7 +1003,8 @@
                   <input type="text" id="rma-filter-search" oninput="adminApplyRMAFilters()" placeholder="Ticket, cliente, serie..." style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);">
                 </div>
                 <button onclick="adminClearRMAFilters()" style="padding:0.5rem 1rem;background:var(--ink-4);color:var(--ink-1);border:none;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;">Limpiar</button>
-                <button class="btn btn-success btn-sm" onclick="exportRMAExcel()" style="padding:0.5rem 1rem;font-weight:600;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> Excel</button>
+                <button class="btn btn-success btn-sm" onclick="exportRMAExcel()" style="padding:0.5rem 1rem;font-weight:600;" title="Descargar todos los RMA visibles"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> Excel (Todo)</button>
+                <button class="btn btn-sm" onclick="exportMisRMAExcel()" style="padding:0.5rem 1rem;font-weight:600;background:var(--blue);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;" title="Descargar solo mis RMAs"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg> Mis RMAs</button>
               </div>
             </div>
 
@@ -3482,6 +3508,47 @@ function regLoadAll() {
   regRecords.temp = [...(rawData.temp || [])].sort(compareBoletaCustom);
   regRenderTable('def');
   regRenderTable('temp');
+  regRenderMisRMA();
+}
+
+function regRenderMisRMA() {
+  const tbody = document.getElementById('reg-tbody-misrma');
+  const countEl = document.getElementById('reg-count-misrma');
+  if (!tbody) return;
+  const myName = (function(){
+    const n = currentPerfil?.nombre || currentUser?.user_metadata?.nombre || '';
+    const a = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
+    return a ? n + ' ' + a : n;
+  })();
+  const rmaData = allRecords.filter(r => {
+    const cat = (r.categoria || '').toLowerCase();
+    const hasRMA = cat.includes('rma');
+    const ticketRMA = r.ticket_rma || r.ticketrma || r.rma || '';
+    const hasTicket = ticketRMA && ticketRMA.trim() !== '';
+    const esMio = r.registrado_por && myName && r.registrado_por.trim().toLowerCase() === myName.trim().toLowerCase();
+    return hasRMA && hasTicket && esMio;
+  });
+  if (countEl) countEl.textContent = rmaData.length + ' registro' + (rmaData.length !== 1 ? 's' : '');
+  if (!rmaData.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--ink-4);">No tenés trámites RMA registrados</td></tr>';
+    return;
+  }
+  const estatusLabels = { reemplazo_total:'Reemplazo Total', repuesto_ingresado:'Repuesto Ingresado', nota_credito_marca:'NC Marca', en_proceso:'En Proceso', pendiente_tramite:'Pendiente Trámite', fuera_garantia:'Fuera de Garantía', compra_repuesto:'Compra Repuesto' };
+  tbody.innerHTML = rmaData.map(r => {
+    const tiempo = calcularTiempoTranscurrido(r.fecha_rma || r.fecha_creacion, r.fecha_modificacion, r.estatus);
+    const cerrados = ['reemplazo_total','repuesto_ingresado','nota_credito_marca','fuera_garantia','compra_repuesto'];
+    const esCerrado = r.estatus && cerrados.includes(r.estatus);
+    const tStyle = esCerrado ? 'color:var(--green);font-weight:600;' : 'color:var(--ink-2);';
+    return '<tr>' +
+      '<td class="td-mono">' + (r.ticket || '—') + '</td>' +
+      '<td><strong>' + (r.nombre || '—') + '</strong></td>' +
+      '<td>' + (r.marca || '—') + '</td>' +
+      '<td class="td-mono">' + (r.ticket_rma || '—') + '</td>' +
+      '<td>' + (r.fecha_rma ? fmtDate(r.fecha_rma) : '—') + '</td>' +
+      '<td style="' + tStyle + '">' + tiempo + '</td>' +
+      '<td>' + (estatusLabels[r.estatus] || r.estatus || '—') + '</td>' +
+      '<td class="td-mono">' + (r.boleta || '—') + '</td></tr>';
+  }).join('');
 }
 
 function regExportExcel(type) {
@@ -4630,6 +4697,36 @@ function exportRMAExcel() {
   XLSX.utils.book_append_sheet(wb, ws, 'Registros RMA');
   XLSX.writeFile(wb, 'Registros_RMA_' + new Date().toISOString().slice(0,10) + '.xlsx');
   showToast('Excel descargado', 'success', data.length + ' registros');
+}
+
+function exportMisRMAExcel() {
+  const myName = (function(){
+    const n = currentPerfil?.nombre || currentUser?.user_metadata?.nombre || '';
+    const a = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
+    return a ? n + ' ' + a : n;
+  })();
+  if (!myName) { showToast('No se pudo determinar el usuario actual', 'error'); return; }
+  const misRMA = (rmaRawData || []).filter(r => r.registrado_por && r.registrado_por.trim().toLowerCase() === myName.trim().toLowerCase());
+  if (!misRMA.length) { showToast('No tenés RMAs registrados a tu nombre', 'info', 'Usuario: ' + myName); return; }
+  const rows = misRMA.map(r => {
+    const dias = r.fecha_rma || r.fecha_creacion
+      ? Math.max(0, Math.round(((r.estatus && KPI_ESTATUS_CERRADOS.includes(r.estatus) && r.fecha_modificacion ? new Date(r.fecha_modificacion) : new Date()) - new Date(r.fecha_rma || r.fecha_creacion)) / 864e5))
+      : '';
+    return {
+      Ticket: r.ticket || '', Cliente: r.nombre || '', Marca: r.marca || '',
+      'Ticket RMA': r.ticket_rma || '', 'Fecha RMA': r.fecha_rma ? fmtDate(r.fecha_rma) : '',
+      'Días Transcurridos': dias,
+      Artículo: r.serie || '', Serie: r.numero_serie || '', Falla: r.falla || '',
+      'Serie Equipo Nuevo': r.serie_fabrica || '',
+      Estatus: KPI_ESTATUS_LABELS[r.estatus] || r.estatus || '',
+      Boleta: r.boleta || '', Observaciones: r.observaciones || '', Seguimiento: r.seguimiento || ''
+    };
+  });
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb, ws, 'Mis RMAs');
+  XLSX.writeFile(wb, 'Mis_RMA_' + myName.replace(/\s+/g, '_') + '_' + new Date().toISOString().slice(0, 10) + '.xlsx');
+  showToast('Excel descargado', 'success', misRMA.length + ' registros de ' + myName);
 }
 
 // Función para calcular el tiempo transcurrido
