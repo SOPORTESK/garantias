@@ -2345,14 +2345,9 @@ async function articuloConfirmAdd() {
 /* ═══════════════════════════════════════
    FORM STATE
 ═══════════════════════════════════════ */
-// consecutiveNum = 29178 (último usado), el próximo será 29179
+// consecutiveNum se obtiene SIEMPRE desde la BD (fuente única de verdad)
+// para evitar duplicados entre múltiples dispositivos
 let consecutiveNum = 29178;
-let consecutiveNumManual = false; // Indica si fue ajustado manualmente desde admin
-// Cargar valores guardados en localStorage
-const savedConsecutiveNum = localStorage.getItem('consecutiveNum');
-const savedConsecutiveNumManual = localStorage.getItem('consecutiveNumManual');
-if (savedConsecutiveNum !== null) consecutiveNum = parseInt(savedConsecutiveNum);
-if (savedConsecutiveNumManual === 'true') consecutiveNumManual = true;
 let allRecords = [];
 let lastSavedRecord = null;
 
@@ -2376,16 +2371,16 @@ async function loadRecords() {
     }
     
     allRecords = all;
-    // Solo actualizar consecutiveNum si NO fue ajustado manualmente
-    if (!consecutiveNumManual && allRecords.length > 0) {
+    // SIEMPRE obtener el consecutivo desde la BD (fuente única de verdad)
+    // para evitar duplicados entre múltiples dispositivos
+    if (allRecords.length > 0) {
       const maxNum = Math.max(...allRecords.map(r => r.numero_consecutivo || 0));
-      // Ignorar valores absurdamente altos (probablemente errores de datos)
-      // El rango razonable es aprox 29179-50000 para este sistema
-      if (maxNum >= 29179 && maxNum <= 50000) {
+      // Validar rango razonable (29179 en adelante, sin límite superior rígido)
+      if (maxNum >= 29179) {
         consecutiveNum = maxNum;
         console.log('consecutiveNum actualizado desde BD:', consecutiveNum);
       } else {
-        console.log('maxNum fuera de rango razonable:', maxNum, '- manteniendo valor actual:', consecutiveNum);
+        console.log('maxNum fuera de rango mínimo:', maxNum, '- manteniendo valor actual:', consecutiveNum);
       }
     }
     renderHeaderBoleta();
@@ -2410,46 +2405,55 @@ async function handleSubmit(e) {
   }
   if (!valid) { showToast('Campos incompletos','error','Completá todos los campos marcados en rojo'); return; }
 
-  // Confirmación antes de guardar
-  const confirmMsg = [
-    'Tipo: ' + (document.getElementById('tipo').options[document.getElementById('tipo').selectedIndex]?.text || '—'),
-    'Cliente: ' + (document.getElementById('nombre').value || '—'),
-    'Ticket: ' + (document.getElementById('ticket').value || '—'),
-    'Boleta: ' + formatBoleta(consecutiveNum + 1)
-  ].join('\n');
-  if (!confirm('¿Guardar este registro?\n\n' + confirmMsg)) {
-    // Re-deshabilitar campos del inventario si corresponde
-    if (articuloMatchedItem) {
-      if (articuloMatchedItem.marca) document.getElementById('marca').disabled = true;
-      document.getElementById('descripcion').disabled = true;
-    }
-    return;
-  }
-
   const btn=document.getElementById('submitBtn'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando…';
 
-  consecutiveNum++;
-  const prefix=buildPrefix(), boleta=formatBoleta(consecutiveNum,prefix);
-  const fd=new FormData(form);
-  const nombre_reg   = currentPerfil?.nombre   || currentUser?.user_metadata?.nombre   || currentUser?.email?.split('@')[0] || '?';
-  const apellido_reg = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
-  const registrado_por = apellido_reg ? nombre_reg + ' ' + apellido_reg : nombre_reg;
-
-  const payload={
-    numero_consecutivo:consecutiveNum, boleta,
-    tipo:fd.get('tipo'), categoria:fd.get('categoria'), motivo:fd.get('motivo'),
-    ticket:fd.get('ticket'), sede:fd.get('sede'), nombre:fd.get('nombre'), factura:fd.get('factura'),
-    cantidad:parseInt(fd.get('cantidad'))||1, fecha_compra:fd.get('fechaCompra')||null,
-    marca:document.getElementById('marca').value,
-    serie:document.getElementById('articulo').value||null,
-    numero_serie:document.getElementById('numeroSerie').value||null,
-    descripcion:document.getElementById('descripcion').value,
-    falla:fd.get('falla'),
-    fecha_creacion:new Date().toISOString(),
-    registrado_por: registrado_por
-  };
-
   try {
+    // OBTENER CONSECUTIVO FRESCO DESDE LA BD (evita duplicados entre dispositivos)
+    // Se hace JUSTO ANTES de guardar para minimizar ventana de carrera
+    const maxResponse = await sbFetch('GET', TABLE + '?order=numero_consecutivo.desc&limit=1', null);
+    const maxEnBD = (maxResponse && maxResponse[0]?.numero_consecutivo) || 29178;
+    consecutiveNum = maxEnBD + 1;
+    
+    const prefix=buildPrefix(), boleta=formatBoleta(consecutiveNum,prefix);
+    
+    // Confirmación antes de guardar (con número real)
+    const confirmMsg = [
+      'Tipo: ' + (document.getElementById('tipo').options[document.getElementById('tipo').selectedIndex]?.text || '—'),
+      'Cliente: ' + (document.getElementById('nombre').value || '—'),
+      'Ticket: ' + (document.getElementById('ticket').value || '—'),
+      'Boleta: ' + boleta
+    ].join('\n');
+    
+    if (!confirm('¿Guardar este registro?\n\n' + confirmMsg)) {
+      // Re-deshabilitar campos del inventario si corresponde
+      if (articuloMatchedItem) {
+        if (articuloMatchedItem.marca) document.getElementById('marca').disabled = true;
+        document.getElementById('descripcion').disabled = true;
+      }
+      btn.disabled=false;
+      btn.innerHTML='<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Guardar Registro';
+      return;
+    }
+    
+    const fd=new FormData(form);
+    const nombre_reg   = currentPerfil?.nombre   || currentUser?.user_metadata?.nombre   || currentUser?.email?.split('@')[0] || '?';
+    const apellido_reg = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
+    const registrado_por = apellido_reg ? nombre_reg + ' ' + apellido_reg : nombre_reg;
+
+    const payload={
+      numero_consecutivo:consecutiveNum, boleta,
+      tipo:fd.get('tipo'), categoria:fd.get('categoria'), motivo:fd.get('motivo'),
+      ticket:fd.get('ticket'), sede:fd.get('sede'), nombre:fd.get('nombre'), factura:fd.get('factura'),
+      cantidad:parseInt(fd.get('cantidad'))||1, fecha_compra:fd.get('fechaCompra')||null,
+      marca:document.getElementById('marca').value,
+      serie:document.getElementById('articulo').value||null,
+      numero_serie:document.getElementById('numeroSerie').value||null,
+      descripcion:document.getElementById('descripcion').value,
+      falla:fd.get('falla'),
+      fecha_creacion:new Date().toISOString(),
+      registrado_por: registrado_por
+    };
+
     console.log('Payload a enviar:', payload);
     console.log('currentPerfil:', currentPerfil);
     console.log('currentUser:', currentUser);
@@ -2487,7 +2491,6 @@ async function handleSubmit(e) {
       }
     }
     populatePrintForm(payload);
-    // Ya no abrimos el modal aqui - las opciones de exportar estan en el boton Enviar
     // Limpiar el formulario para nuevo registro
     document.getElementById('warrantyForm').reset();
     articuloClear();
@@ -2495,7 +2498,7 @@ async function handleSubmit(e) {
   } catch(err) {
     console.error('Error completo:', err);
     console.error('Mensaje de error:', err.message);
-    consecutiveNum--;
+    // NO decrementamos - al recargar se obtendrá el valor correcto desde BD
     renderHeaderBoleta();
     showToast('Error al guardar','error',err.message);
   } finally {
@@ -3197,10 +3200,6 @@ function revertBoletaPersonalizado() {
   }
   if (!confirm('¿Revertir el contador al número ' + num + '? El próximo registro usará ' + (num + 1) + '.')) return;
   consecutiveNum = num;
-  consecutiveNumManual = true; // Marcar que fue ajustado manualmente
-  // Guardar en localStorage para persistir entre recargas
-  localStorage.setItem('consecutiveNum', consecutiveNum);
-  localStorage.setItem('consecutiveNumManual', 'true');
   renderHeaderBoleta();
   showToast('Contador en ' + num + ' · próximo será ' + (num + 1), 'info');
 }
@@ -4001,16 +4000,12 @@ function adminAjustarBoleta() {
   }
   console.log('Ajustando consecutiveNum de', consecutiveNum, 'a', num);
   consecutiveNum = num;
-  consecutiveNumManual = true; // Marcar que fue ajustado manualmente
-  // Guardar en localStorage para persistir entre recargas
-  localStorage.setItem('consecutiveNum', consecutiveNum);
-  localStorage.setItem('consecutiveNumManual', 'true');
   renderHeaderBoleta();
   const el = document.getElementById('boletaActualAdmin');
   console.log('Elemento boletaActualAdmin:', el);
   if (el) el.textContent = consecutiveNum;
   if (input) input.value = '';
-  console.log('consecutiveNum después del ajuste:', consecutiveNum, 'consecutiveNumManual:', consecutiveNumManual);
+  console.log('consecutiveNum después del ajuste:', consecutiveNum);
   showToast('Boleta ajustada a ' + num, 'success', 'Próximo: ' + (num+1));
 }
 
@@ -4146,46 +4141,38 @@ async function adminLoadAll() {
     let hasMore = true;
     
     while (hasMore) {
-      const batch = await sbFetch('GET', TABLE + '?order=fecha_creacion.desc&limit=' + limit + '&offset=' + offset, null) || [];
+      const batch = await sbFetch('GET', TABLE + '?order=numero_consecutivo.desc&limit=' + limit + '&offset=' + offset, null) || [];
       all = all.concat(batch);
-      
+
       if (batch.length < limit) {
         hasMore = false;
       } else {
         offset += limit;
       }
     }
-    
-    // Ordenar por fecha_creacion descendente (más reciente arriba) después de cargar
-    all.sort((a, b) => {
-      const da = a.fecha_creacion ? new Date(a.fecha_creacion) : new Date(0);
-      const db = b.fecha_creacion ? new Date(b.fecha_creacion) : new Date(0);
-      return db - da; // descendente: más reciente primero
-    });
-    
+
+    // Ordenar por numero_consecutivo descendente (mayor arriba) después de cargar
+    all.sort((a, b) => (b.numero_consecutivo || 0) - (a.numero_consecutivo || 0));
+
     rawData.def = all.filter(r => r.tipo === 'salida_definitiva');
     rawData.temp = all.filter(r => r.tipo === 'salida_temporal');
-    
-    // Asegurar que ambos arrays estén ordenados por fecha descendente
-    const sortByDateDesc = (a, b) => {
-      const da = a.fecha_creacion ? new Date(a.fecha_creacion) : new Date(0);
-      const db = b.fecha_creacion ? new Date(b.fecha_creacion) : new Date(0);
-      return db - da;
-    };
-    rawData.def.sort(sortByDateDesc);
-    rawData.temp.sort(sortByDateDesc);
+
+    // Asegurar que ambos arrays estén ordenados por numero_consecutivo descendente
+    const sortByBoletaDesc = (a, b) => (b.numero_consecutivo || 0) - (a.numero_consecutivo || 0);
+    rawData.def.sort(sortByBoletaDesc);
+    rawData.temp.sort(sortByBoletaDesc);
     
     if (all.length > allRecords.length) {
       allRecords = [...all];
-      // Solo actualizar consecutiveNum si NO fue ajustado manualmente
-      if (!consecutiveNumManual && allRecords.length > 0) {
+      // SIEMPRE obtener el consecutivo desde la BD (fuente única de verdad)
+      if (allRecords.length > 0) {
         const mx = Math.max(...allRecords.map(r => r.numero_consecutivo || 0));
-        // Ignorar valores absurdamente altos (probablemente errores de datos)
-        if (mx >= 29179 && mx <= 50000) {
+        // Validar rango mínimo (sin límite superior rígido)
+        if (mx >= 29179) {
           consecutiveNum = mx;
           console.log('consecutiveNum actualizado desde adminLoadAll:', consecutiveNum);
         } else {
-          console.log('maxNum fuera de rango razonable en adminLoadAll:', mx, '- manteniendo valor actual:', consecutiveNum);
+          console.log('maxNum fuera de rango mínimo en adminLoadAll:', mx, '- manteniendo valor actual:', consecutiveNum);
         }
       }
       renderHeaderBoleta();
@@ -5136,6 +5123,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Inicializar consecutiveNum si no existe
     if (typeof consecutiveNum === 'undefined') window.consecutiveNum = 29178;
+    
+    // LIMPIAR localStorage antiguo de consecutivos (ya no se usa - ahora se obtiene desde BD)
+    localStorage.removeItem('consecutiveNum');
+    localStorage.removeItem('consecutiveNumManual');
+    
     document.querySelectorAll('.field-input:not(#articulo),.field-select,.field-textarea').forEach(el=>{
       el.addEventListener('input',()=>{el.classList.toggle('filled',!!el.value);el.classList.remove('error');});
       el.addEventListener('change',()=>{el.classList.toggle('filled',!!el.value);el.classList.remove('error');updateProgress();});
