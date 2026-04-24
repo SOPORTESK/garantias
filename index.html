@@ -4664,8 +4664,8 @@ function adminRenderRMATable() {
     const fechaCelda = fechaMostrar ? fmtDate(fechaMostrar) : '—';
     const fechaTooltip = fechaMostrar ? fmtDate(fechaMostrar) : 'Sin fecha';
     
-    // Calcular tiempo transcurrido usando fecha_creacion para precision real
-    const tiempoTranscurrido = calcularTiempoTranscurrido(r.fecha_creacion, r.fecha_modificacion, r.estatus);
+    // Calcular tiempo transcurrido usando fecha_rma (inicio real del proceso) con fallback a fecha_creacion
+    const tiempoTranscurrido = calcularTiempoTranscurrido(r.fecha_rma || r.fecha_creacion, r.fecha_modificacion, r.estatus);
     
     // Determinar color según estatus
     const estatusCerrados = ['reemplazo_total', 'repuesto_ingresado', 'nota_credito_marca', 'fuera_garantia', 'compra_repuesto'];
@@ -4865,8 +4865,9 @@ function kpiGetFilteredData() {
 }
 
 function kpiCalcDias(r) {
-  if (!r.fecha_creacion) return null;
-  const inicio = new Date(r.fecha_creacion);
+  const fechaBase = r.fecha_rma || r.fecha_creacion;
+  if (!fechaBase) return null;
+  const inicio = new Date(fechaBase);
   const esCerrado = r.estatus && KPI_ESTATUS_CERRADOS.includes(r.estatus);
   const fin = esCerrado && r.fecha_modificacion ? new Date(r.fecha_modificacion) : new Date();
   return Math.max(0, Math.round((fin - inicio) / 864e5));
