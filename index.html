@@ -978,6 +978,7 @@
                   <input type="text" id="rma-filter-search" oninput="adminApplyRMAFilters()" placeholder="Ticket, cliente, serie..." style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);">
                 </div>
                 <button onclick="adminClearRMAFilters()" style="padding:0.5rem 1rem;background:var(--ink-4);color:var(--ink-1);border:none;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;">Limpiar</button>
+                <button class="btn btn-success btn-sm" onclick="exportRMAExcel()" style="padding:0.5rem 1rem;font-weight:600;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> Excel</button>
               </div>
             </div>
 
@@ -4605,6 +4606,30 @@ function adminClearRMAFilters() {
   document.getElementById('rma-filter-fecha').value = '';
   document.getElementById('rma-filter-search').value = '';
   adminApplyRMAFilters();
+}
+
+function exportRMAExcel() {
+  const data = rmaRecords;
+  if (!data.length) { showToast('No hay registros para exportar', 'info'); return; }
+  const rows = data.map(r => {
+    const dias = r.fecha_rma || r.fecha_creacion
+      ? Math.max(0, Math.round((( r.estatus && KPI_ESTATUS_CERRADOS.includes(r.estatus) && r.fecha_modificacion ? new Date(r.fecha_modificacion) : new Date()) - new Date(r.fecha_rma || r.fecha_creacion)) / 864e5))
+      : '';
+    return {
+      Ticket: r.ticket || '', Cliente: r.nombre || '', Marca: r.marca || '',
+      'Ticket RMA': r.ticket_rma || '', 'Fecha RMA': r.fecha_rma ? fmtDate(r.fecha_rma) : '',
+      'Días Transcurridos': dias,
+      Artículo: r.serie || '', Serie: r.numero_serie || '', Falla: r.falla || '',
+      'Serie Equipo Nuevo': r.serie_fabrica || '',
+      Estatus: KPI_ESTATUS_LABELS[r.estatus] || r.estatus || '',
+      Boleta: r.boleta || '', Observaciones: r.observaciones || '', Seguimiento: r.seguimiento || ''
+    };
+  });
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb, ws, 'Registros RMA');
+  XLSX.writeFile(wb, 'Registros_RMA_' + new Date().toISOString().slice(0,10) + '.xlsx');
+  showToast('Excel descargado', 'success', data.length + ' registros');
 }
 
 // Función para calcular el tiempo transcurrido
