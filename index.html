@@ -360,9 +360,78 @@
     #printForm .pf-value{font-size:11px;font-weight:500;color:#1A1108;border-bottom:1px solid #E8E5E0;padding-bottom:3px;min-height:18px;}
     #printForm .pf-value.pf-text-area{min-height:36px;white-space:pre-wrap;}
 
+    /* ── KPI DASHBOARD PREMIUM ── */
+    .kpi-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem;gap:1rem;flex-wrap:wrap;}
+    .kpi-title{font-size:1.5rem;font-weight:800;color:var(--ink-1);letter-spacing:-.02em;margin:0;}
+    .kpi-subtitle{font-size:.8rem;color:var(--ink-4);margin-top:.2rem;}
+    .kpi-actions{display:flex;gap:.5rem;flex-wrap:wrap;}
+    .kpi-export-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .9rem;font-family:var(--font);font-size:.78rem;font-weight:600;color:var(--ink-2);background:var(--surface);border:1px solid var(--border-2);border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);box-shadow:var(--shadow-sm);}
+    .kpi-export-btn:hover{background:var(--bg-2);border-color:var(--border-3);box-shadow:var(--shadow-md);transform:translateY(-1px);}
+    .kpi-export-btn:active{transform:translateY(0);}
+    .kpi-export-btn svg{flex-shrink:0;}
+
+    .kpi-filter-bar{display:flex;align-items:flex-end;gap:1rem;flex-wrap:wrap;padding:1rem 1.25rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:1.5rem;box-shadow:var(--shadow-sm);}
+    .kpi-filter-group{display:flex;flex-direction:column;gap:.25rem;}
+    .kpi-filter-label{font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-4);}
+    .kpi-filter-select,.kpi-filter-input{font-family:var(--font);font-size:.82rem;color:var(--ink-1);background:var(--bg-2);border:1px solid var(--border-2);border-radius:var(--radius-sm);padding:.45rem .7rem;outline:none;transition:var(--transition);min-width:140px;}
+    .kpi-filter-select:focus,.kpi-filter-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-dim);}
+    .kpi-badge-period{display:inline-flex;align-items:center;padding:.35rem .75rem;background:var(--brand-dim);color:var(--brand);font-size:.72rem;font-weight:700;border-radius:999px;letter-spacing:.02em;}
+
+    .kpi-cards-row{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-bottom:1.25rem;}
+    .kpi-cards-row--3{grid-template-columns:repeat(3,1fr);}
+    .kpi-card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.25rem 1rem;overflow:hidden;box-shadow:var(--shadow-sm);transition:var(--transition);}
+    .kpi-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+    .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
+    .kpi-card--brand::before{background:linear-gradient(90deg,var(--brand),var(--brand-2));}
+    .kpi-card--amber::before{background:linear-gradient(90deg,var(--amber),#F59E0B);}
+    .kpi-card--green::before{background:linear-gradient(90deg,var(--green),#10B981);}
+    .kpi-card--red::before{background:linear-gradient(90deg,var(--red),#EF4444);}
+    .kpi-card--blue::before{background:linear-gradient(90deg,var(--blue),#3B82F6);}
+    .kpi-card--purple::before{background:linear-gradient(90deg,var(--purple),#8B5CF6);}
+    .kpi-card__icon{width:36px;height:36px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;margin-bottom:.75rem;}
+    .kpi-card--brand .kpi-card__icon{background:var(--brand-dim);color:var(--brand);}
+    .kpi-card--amber .kpi-card__icon{background:var(--amber-dim);color:var(--amber);}
+    .kpi-card--green .kpi-card__icon{background:var(--green-dim);color:var(--green);}
+    .kpi-card--red .kpi-card__icon{background:var(--red-dim);color:var(--red);}
+    .kpi-card--blue .kpi-card__icon{background:var(--blue-dim);color:var(--blue);}
+    .kpi-card--purple .kpi-card__icon{background:var(--purple-dim);color:var(--purple);}
+    .kpi-card__label{font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-4);margin-bottom:.4rem;}
+    .kpi-card__value{font-size:1.85rem;font-weight:800;line-height:1;color:var(--ink-1);font-variant-numeric:tabular-nums;}
+    .kpi-card--brand .kpi-card__value{color:var(--brand);}
+    .kpi-card--amber .kpi-card__value{color:var(--amber);}
+    .kpi-card--green .kpi-card__value{color:var(--green);}
+    .kpi-card--red .kpi-card__value{color:var(--red);}
+    .kpi-card--blue .kpi-card__value{color:var(--blue);}
+    .kpi-card--purple .kpi-card__value{color:var(--purple);}
+    .kpi-card__sub{font-size:.7rem;color:var(--ink-4);margin-top:.3rem;}
+    .kpi-card__trend{font-size:.7rem;font-weight:600;margin-top:.3rem;}
+    .kpi-card__trend.up{color:var(--green);}
+    .kpi-card__trend.down{color:var(--red);}
+    .kpi-card__trend.neutral{color:var(--ink-4);}
+
+    .kpi-charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;}
+    .kpi-chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm);transition:var(--transition);}
+    .kpi-chart-card:hover{box-shadow:var(--shadow-md);}
+    .kpi-chart-header{padding:1rem 1.25rem .5rem;border-bottom:1px solid var(--border);}
+    .kpi-chart-title{font-size:.85rem;font-weight:700;color:var(--ink-1);margin:0;}
+    .kpi-chart-body{padding:1rem 1.25rem 1.25rem;position:relative;min-height:100px;}
+
+    .kpi-table{width:100%;border-collapse:collapse;font-size:.8rem;}
+    .kpi-table th{background:var(--bg-2);padding:.65rem .75rem;text-align:left;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);border-bottom:2px solid var(--border-2);}
+    .kpi-table td{padding:.6rem .75rem;border-bottom:1px solid var(--border);color:var(--ink-2);vertical-align:middle;}
+    .kpi-table tbody tr:hover{background:var(--bg-2);}
+    .kpi-table tfoot td{font-weight:700;color:var(--ink-1);background:var(--surface-2);border-top:2px solid var(--border-2);}
+    .kpi-table .kpi-bar{height:6px;border-radius:3px;background:var(--bg-3);overflow:hidden;min-width:60px;}
+    .kpi-table .kpi-bar__fill{height:100%;border-radius:3px;transition:width .4s ease;}
+    .kpi-dias-badge{display:inline-flex;padding:.2rem .55rem;border-radius:999px;font-size:.72rem;font-weight:700;}
+    .kpi-dias-badge.ok{background:var(--green-dim);color:var(--green);}
+    .kpi-dias-badge.warn{background:var(--amber-dim);color:var(--amber);}
+    .kpi-dias-badge.critical{background:var(--red-dim);color:var(--red);}
+
     /* RESPONSIVE */
-    @media(max-width:768px){.admin-rail{display:none;}.stat-grid{grid-template-columns:1fr 1fr;}.modal-grid{grid-template-columns:1fr;}}
-    @media(max-width:600px){.topbar{padding:0 1rem;height:auto;padding:8px 1rem;}.pill-btn span.label{display:none;}.form-grid{grid-template-columns:1fr;}.form-actions{flex-direction:column;}.meta-chip{display:none;}.search-box input{width:160px;}}
+    @media(max-width:1100px){.kpi-cards-row{grid-template-columns:repeat(3,1fr);}.kpi-charts-grid{grid-template-columns:1fr;}}
+    @media(max-width:768px){.admin-rail{display:none;}.stat-grid{grid-template-columns:1fr 1fr;}.modal-grid{grid-template-columns:1fr;}.kpi-cards-row{grid-template-columns:repeat(2,1fr);}.kpi-cards-row--3{grid-template-columns:1fr;}}
+    @media(max-width:600px){.topbar{padding:0 1rem;height:auto;padding:8px 1rem;}.pill-btn span.label{display:none;}.form-grid{grid-template-columns:1fr;}.form-actions{flex-direction:column;}.meta-chip{display:none;}.search-box input{width:160px;}.kpi-cards-row{grid-template-columns:1fr;}.kpi-header{flex-direction:column;}}
   </style>
 </head>
 <body>
@@ -948,17 +1017,217 @@
             </div>
           </div>
           
-          <!-- Sub-panel: Análisis de Procesos -->
+          <!-- Sub-panel: Análisis de Procesos — KPI Dashboard Premium -->
           <div id="tramites-subtab-analisis" style="display:none;padding:1.5rem;">
-            <!-- RÓTULO 1: Identificador de Pestaña - Análisis de Procesos -->
-            <div style="padding:0.75rem;background:var(--green);color:white;font-weight:700;text-align:center;border-radius:var(--radius-sm);margin-bottom:1rem;">
-              ANÁLISIS DE PROCESOS
+
+            <!-- Header con título y acciones de exportación -->
+            <div class="kpi-header">
+              <div>
+                <h2 class="kpi-title">Análisis de Procesos RMA</h2>
+                <p class="kpi-subtitle">Dashboard de indicadores clave · Actualizado en tiempo real</p>
+              </div>
+              <div class="kpi-actions">
+                <button class="kpi-export-btn" onclick="kpiExportImage()" title="Descargar como imagen">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  <span>Imagen</span>
+                </button>
+                <button class="kpi-export-btn" onclick="kpiExportExcel()" title="Descargar como Excel">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  <span>Excel</span>
+                </button>
+                <button class="kpi-export-btn" onclick="kpiExportPDF()" title="Descargar como PDF">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                  <span>PDF</span>
+                </button>
+              </div>
             </div>
-            <div style="padding:1.5rem;background:var(--bg-2);border:2px solid var(--green);border-radius:var(--radius-sm);text-align:center;">
-              <!-- RÓTULO 2: Área de Trabajo - Análisis de Procesos -->
-              <div style="font-size:1.1rem;font-weight:700;color:var(--green);margin-bottom:0.5rem;">ANÁLISIS DE PROCESOS</div>
-              <div style="font-size:0.9rem;color:var(--ink-3);">Aquí se desarrollará la funcionalidad de Análisis de Procesos</div>
+
+            <!-- Filtro de período -->
+            <div class="kpi-filter-bar">
+              <div class="kpi-filter-group">
+                <label class="kpi-filter-label">Período</label>
+                <select id="kpi-periodo" onchange="kpiRefresh()" class="kpi-filter-select">
+                  <option value="all">Todo el historial</option>
+                  <option value="7d">Últimos 7 días</option>
+                  <option value="30d" selected>Últimos 30 días</option>
+                  <option value="90d">Últimos 90 días</option>
+                  <option value="6m">Últimos 6 meses</option>
+                  <option value="1y">Último año</option>
+                  <option value="custom">Rango personalizado</option>
+                </select>
+              </div>
+              <div class="kpi-filter-group" id="kpi-custom-range" style="display:none;">
+                <label class="kpi-filter-label">Desde</label>
+                <input type="date" id="kpi-fecha-desde" onchange="kpiRefresh()" class="kpi-filter-input">
+              </div>
+              <div class="kpi-filter-group" id="kpi-custom-range-2" style="display:none;">
+                <label class="kpi-filter-label">Hasta</label>
+                <input type="date" id="kpi-fecha-hasta" onchange="kpiRefresh()" class="kpi-filter-input">
+              </div>
+              <div class="kpi-filter-group">
+                <label class="kpi-filter-label">Marca</label>
+                <select id="kpi-marca" onchange="kpiRefresh()" class="kpi-filter-select">
+                  <option value="">Todas</option>
+                </select>
+              </div>
+              <div class="kpi-filter-group">
+                <span class="kpi-badge-period" id="kpi-period-label">Últimos 30 días</span>
+              </div>
             </div>
+
+            <!-- Contenedor captureable para exportar -->
+            <div id="kpi-capture-area">
+
+            <!-- ROW 1: Tarjetas resumen principales -->
+            <div class="kpi-cards-row">
+              <div class="kpi-card kpi-card--brand">
+                <div class="kpi-card__icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg></div>
+                <div class="kpi-card__label">Total Trámites</div>
+                <div class="kpi-card__value" id="kpi-total">0</div>
+                <div class="kpi-card__trend" id="kpi-total-trend"></div>
+              </div>
+              <div class="kpi-card kpi-card--amber">
+                <div class="kpi-card__icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+                <div class="kpi-card__label">En Proceso</div>
+                <div class="kpi-card__value" id="kpi-en-proceso">0</div>
+                <div class="kpi-card__sub" id="kpi-en-proceso-pct">0%</div>
+              </div>
+              <div class="kpi-card kpi-card--green">
+                <div class="kpi-card__icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+                <div class="kpi-card__label">Resueltos</div>
+                <div class="kpi-card__value" id="kpi-resueltos">0</div>
+                <div class="kpi-card__sub" id="kpi-resueltos-pct">0%</div>
+              </div>
+              <div class="kpi-card kpi-card--red">
+                <div class="kpi-card__icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
+                <div class="kpi-card__label">Pendientes</div>
+                <div class="kpi-card__value" id="kpi-pendientes">0</div>
+                <div class="kpi-card__sub" id="kpi-pendientes-pct">0%</div>
+              </div>
+              <div class="kpi-card kpi-card--blue">
+                <div class="kpi-card__icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div>
+                <div class="kpi-card__label">Tasa de Resolución</div>
+                <div class="kpi-card__value" id="kpi-tasa-resolucion">0%</div>
+                <div class="kpi-card__sub" id="kpi-tasa-label">resueltos / total</div>
+              </div>
+            </div>
+
+            <!-- ROW 2: Métricas de tiempo -->
+            <div class="kpi-cards-row kpi-cards-row--3">
+              <div class="kpi-card kpi-card--purple">
+                <div class="kpi-card__icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+                <div class="kpi-card__label">Tiempo Promedio de Resolución</div>
+                <div class="kpi-card__value" id="kpi-tiempo-avg">—</div>
+                <div class="kpi-card__sub" id="kpi-tiempo-avg-sub">días promedio</div>
+              </div>
+              <div class="kpi-card kpi-card--green">
+                <div class="kpi-card__icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg></div>
+                <div class="kpi-card__label">Resolución Más Rápida</div>
+                <div class="kpi-card__value" id="kpi-tiempo-min">—</div>
+                <div class="kpi-card__sub" id="kpi-tiempo-min-sub">mejor caso</div>
+              </div>
+              <div class="kpi-card kpi-card--red">
+                <div class="kpi-card__icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div>
+                <div class="kpi-card__label">Resolución Más Lenta</div>
+                <div class="kpi-card__value" id="kpi-tiempo-max">—</div>
+                <div class="kpi-card__sub" id="kpi-tiempo-max-sub">peor caso</div>
+              </div>
+            </div>
+
+            <!-- ROW 3: Gráficos principales -->
+            <div class="kpi-charts-grid">
+              <div class="kpi-chart-card">
+                <div class="kpi-chart-header">
+                  <h3 class="kpi-chart-title">Distribución por Estatus</h3>
+                </div>
+                <div class="kpi-chart-body">
+                  <canvas id="kpi-chart-estatus" height="260"></canvas>
+                </div>
+              </div>
+              <div class="kpi-chart-card">
+                <div class="kpi-chart-header">
+                  <h3 class="kpi-chart-title">Volumen por Mes</h3>
+                </div>
+                <div class="kpi-chart-body">
+                  <canvas id="kpi-chart-volumen" height="260"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- ROW 4: Gráficos secundarios -->
+            <div class="kpi-charts-grid">
+              <div class="kpi-chart-card">
+                <div class="kpi-chart-header">
+                  <h3 class="kpi-chart-title">Top Marcas con más Trámites</h3>
+                </div>
+                <div class="kpi-chart-body">
+                  <canvas id="kpi-chart-marcas" height="260"></canvas>
+                </div>
+              </div>
+              <div class="kpi-chart-card">
+                <div class="kpi-chart-header">
+                  <h3 class="kpi-chart-title">Tiempo Promedio por Marca (días)</h3>
+                </div>
+                <div class="kpi-chart-body">
+                  <canvas id="kpi-chart-tiempo-marca" height="260"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- ROW 5: Tabla resumen detallada -->
+            <div class="kpi-chart-card">
+              <div class="kpi-chart-header">
+                <h3 class="kpi-chart-title">Resumen Detallado por Marca</h3>
+              </div>
+              <div class="kpi-chart-body" style="padding:0;">
+                <div class="table-wrap">
+                  <table class="kpi-table" id="kpi-tabla-marcas">
+                    <thead>
+                      <tr>
+                        <th>Marca</th>
+                        <th>Total</th>
+                        <th>En Proceso</th>
+                        <th>Pendientes</th>
+                        <th>Resueltos</th>
+                        <th>Tasa Resolución</th>
+                        <th>Tiempo Prom.</th>
+                        <th>Más Rápido</th>
+                        <th>Más Lento</th>
+                      </tr>
+                    </thead>
+                    <tbody id="kpi-tabla-marcas-body"></tbody>
+                    <tfoot id="kpi-tabla-marcas-foot"></tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- ROW 6: Tabla de antigüedad de casos abiertos -->
+            <div class="kpi-chart-card">
+              <div class="kpi-chart-header">
+                <h3 class="kpi-chart-title">Casos Abiertos — Antigüedad</h3>
+              </div>
+              <div class="kpi-chart-body" style="padding:0;">
+                <div class="table-wrap">
+                  <table class="kpi-table" id="kpi-tabla-abiertos">
+                    <thead>
+                      <tr>
+                        <th>Ticket</th>
+                        <th>Cliente</th>
+                        <th>Marca</th>
+                        <th>Ticket RMA</th>
+                        <th>Estatus</th>
+                        <th>Días Abierto</th>
+                        <th>Boleta</th>
+                      </tr>
+                    </thead>
+                    <tbody id="kpi-tabla-abiertos-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            </div><!-- /kpi-capture-area -->
           </div>
         </div>
       </div>
@@ -2414,12 +2683,7 @@ async function loadRecords() {
       if (modernRecords.length > 0) {
         const maxNum = Math.max(...modernRecords.map(r => r.numero_consecutivo || 0));
         consecutiveNum = maxNum;
-        console.log('consecutiveNum actualizado desde BD (solo modernos):', consecutiveNum);
-      } else {
-        console.log('No hay registros modernos, manteniendo valor actual:', consecutiveNum);
       }
-    } else if (consecutiveNumManual) {
-      console.log('consecutiveNum manual activo, no se sobreescribe:', consecutiveNum);
     }
     renderHeaderBoleta();
   } catch (e) { console.error(e); }
@@ -2448,12 +2712,9 @@ async function handleSubmit(e) {
   try {
     // Si el admin ajustó el consecutivo manualmente, usar ese valor
     // Si no, obtener el máximo fresco desde la BD para evitar duplicados
-    console.log('=== GUARDANDO ===');
-    console.log('consecutiveNumManual:', consecutiveNumManual, '| consecutiveNum ANTES:', consecutiveNum);
     if (consecutiveNumManual) {
       consecutiveNum = consecutiveNum + 1;
       consecutiveNumManual = false;
-      console.log('Usando consecutivo MANUAL:', consecutiveNum);
     } else {
       // Buscar el max solo entre registros con prefijo moderno (G/T/NC)
       const modernRecords = allRecords.filter(r => hasModernBoletaPrefix(r));
@@ -2462,7 +2723,6 @@ async function handleSubmit(e) {
         maxEnBD = Math.max(...modernRecords.map(r => r.numero_consecutivo || 0));
       }
       consecutiveNum = maxEnBD + 1;
-      console.log('Usando consecutivo desde BD (solo modernos):', consecutiveNum, '(max en BD:', maxEnBD, ')');
     }
     
     const prefix=buildPrefix(), boleta=formatBoleta(consecutiveNum,prefix);
@@ -4046,26 +4306,19 @@ async function saveUser() {
 }
 
 function adminAjustarBoleta() {
-  console.log('adminAjustarBoleta llamada');
-  if (!isAdmin()) { showToast('Solo administradores', 'error'); console.log('No es admin'); return; }
+  if (!isAdmin()) { showToast('Solo administradores', 'error'); return; }
   const input = document.getElementById('adminBoletaInput');
-  console.log('Input encontrado:', input);
   const num = parseInt(input?.value);
-  console.log('adminAjustarBoleta - Input value:', input?.value, 'Parsed num:', num);
-  if (!num || num < 1) { showToast('Ingresá un número válido', 'error'); console.log('Número inválido'); return; }
+  if (!num || num < 1) { showToast('Ingresá un número válido', 'error'); return; }
   if (!confirm('¿Ajustar el número de boleta a ' + num + '?\nEl próximo registro usará ' + (num+1) + '.')) {
-    console.log('Usuario canceló');
     return;
   }
-  console.log('Ajustando consecutiveNum de', consecutiveNum, 'a', num);
   consecutiveNum = num;
   consecutiveNumManual = true;
   renderHeaderBoleta();
   const el = document.getElementById('boletaActualAdmin');
-  console.log('Elemento boletaActualAdmin:', el);
   if (el) el.textContent = consecutiveNum;
   if (input) input.value = '';
-  console.log('consecutiveNum después del ajuste:', consecutiveNum);
   showToast('Boleta ajustada a ' + num, 'success', 'Próximo: ' + (num+1));
 }
 
@@ -4231,9 +4484,6 @@ async function adminLoadAll() {
         if (modernRecords.length > 0) {
           const mx = Math.max(...modernRecords.map(r => r.numero_consecutivo || 0));
           consecutiveNum = mx;
-          console.log('consecutiveNum actualizado desde adminLoadAll (solo modernos):', consecutiveNum);
-        } else {
-          console.log('No hay registros modernos en adminLoadAll, manteniendo valor actual:', consecutiveNum);
         }
       }
       renderHeaderBoleta();
@@ -4563,7 +4813,374 @@ function tramitesSwitchSubtabSimple(tab) {
     if (analisis) analisis.style.display = 'block';
     if (btns[0]) btns[0].classList.remove('active');
     if (btns[1]) btns[1].classList.add('active');
+    kpiRefresh();
   }
+}
+
+/* ═══════════════════════════════════════
+   KPI DASHBOARD — ANÁLISIS DE PROCESOS
+═══════════════════════════════════════ */
+const KPI_ESTATUS_CERRADOS = ['reemplazo_total', 'repuesto_ingresado', 'nota_credito_marca', 'fuera_garantia', 'compra_repuesto'];
+const KPI_ESTATUS_ABIERTOS = ['en_proceso', 'pendiente_tramite'];
+const KPI_ESTATUS_LABELS = {
+  reemplazo_total:'Reemplazo Total', repuesto_ingresado:'Repuesto Ingresado',
+  nota_credito_marca:'NC Marca', en_proceso:'En Proceso', pendiente_tramite:'Pendiente Trámite',
+  fuera_garantia:'Fuera de Garantía', compra_repuesto:'Compra Repuesto'
+};
+const KPI_COLORS = ['#D1411E','#2563EB','#059669','#D97706','#7C3AED','#DC2626','#0891B2'];
+let kpiCharts = {};
+
+function kpiGetFilteredData() {
+  const periodo = document.getElementById('kpi-periodo')?.value || '30d';
+  const marcaFilter = document.getElementById('kpi-marca')?.value || '';
+  const customRange = document.getElementById('kpi-custom-range');
+  const customRange2 = document.getElementById('kpi-custom-range-2');
+  if (customRange) customRange.style.display = periodo === 'custom' ? '' : 'none';
+  if (customRange2) customRange2.style.display = periodo === 'custom' ? '' : 'none';
+
+  let data = [...(rmaRawData || [])];
+  const now = new Date();
+  let desde = null;
+  const labels = { all:'Todo el historial','7d':'Últimos 7 días','30d':'Últimos 30 días','90d':'Últimos 90 días','6m':'Últimos 6 meses','1y':'Último año',custom:'Rango personalizado' };
+  const el = document.getElementById('kpi-period-label');
+  if (el) el.textContent = labels[periodo] || '';
+
+  if (periodo === '7d') desde = new Date(now - 7*864e5);
+  else if (periodo === '30d') desde = new Date(now - 30*864e5);
+  else if (periodo === '90d') desde = new Date(now - 90*864e5);
+  else if (periodo === '6m') desde = new Date(now - 180*864e5);
+  else if (periodo === '1y') desde = new Date(now - 365*864e5);
+  else if (periodo === 'custom') {
+    const d = document.getElementById('kpi-fecha-desde')?.value;
+    const h = document.getElementById('kpi-fecha-hasta')?.value;
+    if (d) desde = new Date(d);
+    if (h) {
+      const hasta = new Date(h); hasta.setHours(23,59,59,999);
+      data = data.filter(r => !r.fecha_creacion || new Date(r.fecha_creacion) <= hasta);
+    }
+  }
+  if (desde) data = data.filter(r => r.fecha_creacion && new Date(r.fecha_creacion) >= desde);
+  if (marcaFilter) data = data.filter(r => (r.marca || '').toUpperCase() === marcaFilter.toUpperCase());
+  return data;
+}
+
+function kpiCalcDias(r) {
+  if (!r.fecha_creacion) return null;
+  const inicio = new Date(r.fecha_creacion);
+  const esCerrado = r.estatus && KPI_ESTATUS_CERRADOS.includes(r.estatus);
+  const fin = esCerrado && r.fecha_modificacion ? new Date(r.fecha_modificacion) : new Date();
+  return Math.max(0, Math.round((fin - inicio) / 864e5));
+}
+
+function kpiPopulateFilters() {
+  const sel = document.getElementById('kpi-marca');
+  if (!sel) return;
+  const marcas = [...new Set((rmaRawData || []).map(r => (r.marca || '').trim().toUpperCase()).filter(Boolean))].sort();
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Todas</option>' + marcas.map(m => '<option value="' + m + '"' + (m === cur ? ' selected' : '') + '>' + m + '</option>').join('');
+}
+
+function kpiRefresh() {
+  kpiPopulateFilters();
+  const data = kpiGetFilteredData();
+  const total = data.length;
+  const enProceso = data.filter(r => r.estatus === 'en_proceso').length;
+  const pendientes = data.filter(r => r.estatus === 'pendiente_tramite' || !r.estatus).length;
+  const resueltos = data.filter(r => r.estatus && KPI_ESTATUS_CERRADOS.includes(r.estatus)).length;
+  const tasa = total ? ((resueltos / total) * 100).toFixed(1) : 0;
+
+  document.getElementById('kpi-total').textContent = total;
+  document.getElementById('kpi-en-proceso').textContent = enProceso;
+  document.getElementById('kpi-en-proceso-pct').textContent = total ? ((enProceso/total)*100).toFixed(0) + '% del total' : '0%';
+  document.getElementById('kpi-resueltos').textContent = resueltos;
+  document.getElementById('kpi-resueltos-pct').textContent = total ? ((resueltos/total)*100).toFixed(0) + '% del total' : '0%';
+  document.getElementById('kpi-pendientes').textContent = pendientes;
+  document.getElementById('kpi-pendientes-pct').textContent = total ? ((pendientes/total)*100).toFixed(0) + '% del total' : '0%';
+  document.getElementById('kpi-tasa-resolucion').textContent = tasa + '%';
+  document.getElementById('kpi-tasa-label').textContent = resueltos + ' / ' + total;
+
+  const diasResueltos = data.filter(r => r.estatus && KPI_ESTATUS_CERRADOS.includes(r.estatus)).map(kpiCalcDias).filter(d => d !== null && d >= 0);
+  if (diasResueltos.length) {
+    const avg = (diasResueltos.reduce((a,b) => a+b, 0) / diasResueltos.length).toFixed(1);
+    document.getElementById('kpi-tiempo-avg').textContent = avg;
+    document.getElementById('kpi-tiempo-avg-sub').textContent = diasResueltos.length + ' casos resueltos';
+    document.getElementById('kpi-tiempo-min').textContent = Math.min(...diasResueltos);
+    document.getElementById('kpi-tiempo-min-sub').textContent = 'días';
+    document.getElementById('kpi-tiempo-max').textContent = Math.max(...diasResueltos);
+    document.getElementById('kpi-tiempo-max-sub').textContent = 'días';
+  } else {
+    document.getElementById('kpi-tiempo-avg').textContent = '—';
+    document.getElementById('kpi-tiempo-avg-sub').textContent = 'sin datos';
+    document.getElementById('kpi-tiempo-min').textContent = '—';
+    document.getElementById('kpi-tiempo-min-sub').textContent = '—';
+    document.getElementById('kpi-tiempo-max').textContent = '—';
+    document.getElementById('kpi-tiempo-max-sub').textContent = '—';
+  }
+
+  const periodo30 = data.filter(r => r.fecha_creacion && new Date(r.fecha_creacion) >= new Date(Date.now() - 30*864e5)).length;
+  const periodoAnt = data.filter(r => {
+    if (!r.fecha_creacion) return false;
+    const d = new Date(r.fecha_creacion);
+    return d >= new Date(Date.now() - 60*864e5) && d < new Date(Date.now() - 30*864e5);
+  }).length;
+  const trendEl = document.getElementById('kpi-total-trend');
+  if (trendEl) {
+    if (periodoAnt > 0) {
+      const diff = periodo30 - periodoAnt;
+      const pct = ((diff / periodoAnt) * 100).toFixed(0);
+      trendEl.className = 'kpi-card__trend ' + (diff > 0 ? 'up' : diff < 0 ? 'down' : 'neutral');
+      trendEl.textContent = (diff > 0 ? '+' : '') + pct + '% vs mes anterior';
+    } else {
+      trendEl.className = 'kpi-card__trend neutral';
+      trendEl.textContent = periodo30 + ' este mes';
+    }
+  }
+
+  kpiRenderCharts(data);
+  kpiRenderTableMarcas(data);
+  kpiRenderTableAbiertos(data);
+}
+
+function kpiRenderCharts(data) {
+  Object.keys(kpiCharts).forEach(k => { if (kpiCharts[k]) kpiCharts[k].destroy(); });
+  kpiCharts = {};
+
+  const estatusCounts = {};
+  data.forEach(r => {
+    const e = r.estatus || 'sin_estatus';
+    estatusCounts[e] = (estatusCounts[e] || 0) + 1;
+  });
+  const eKeys = Object.keys(estatusCounts);
+  const ctx1 = document.getElementById('kpi-chart-estatus');
+  if (ctx1) {
+    kpiCharts.estatus = new Chart(ctx1, {
+      type: 'doughnut',
+      data: {
+        labels: eKeys.map(k => KPI_ESTATUS_LABELS[k] || k),
+        datasets: [{ data: eKeys.map(k => estatusCounts[k]), backgroundColor: KPI_COLORS.slice(0, eKeys.length), borderWidth: 0, hoverOffset: 6 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11, family: "'Plus Jakarta Sans'" }, padding: 12, usePointStyle: true, pointStyle: 'circle' } } }, cutout: '62%' }
+    });
+  }
+
+  const meses = {};
+  data.forEach(r => { if (!r.fecha_creacion) return; const m = r.fecha_creacion.slice(0,7); meses[m] = (meses[m] || 0) + 1; });
+  const mKeys = Object.keys(meses).sort().slice(-12);
+  const ctx2 = document.getElementById('kpi-chart-volumen');
+  if (ctx2) {
+    kpiCharts.volumen = new Chart(ctx2, {
+      type: 'bar',
+      data: { labels: mKeys.map(m => { const [y,mo] = m.split('-'); return mo + '/' + y.slice(2); }), datasets: [{ label: 'Trámites', data: mKeys.map(k => meses[k]), backgroundColor: 'rgba(37,99,235,.75)', borderRadius: 6, borderSkipped: false }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } }, grid: { color: 'rgba(0,0,0,.05)' } }, x: { ticks: { font: { size: 11 } }, grid: { display: false } } } }
+    });
+  }
+
+  const marcaCounts = {};
+  data.forEach(r => { const m = (r.marca || 'Sin marca').trim().toUpperCase(); marcaCounts[m] = (marcaCounts[m] || 0) + 1; });
+  const topMarcas = Object.entries(marcaCounts).sort((a,b) => b[1] - a[1]).slice(0, 8);
+  const ctx3 = document.getElementById('kpi-chart-marcas');
+  if (ctx3) {
+    kpiCharts.marcas = new Chart(ctx3, {
+      type: 'bar',
+      data: { labels: topMarcas.map(m => m[0]), datasets: [{ label: 'Trámites', data: topMarcas.map(m => m[1]), backgroundColor: KPI_COLORS.slice(0, topMarcas.length), borderRadius: 6, borderSkipped: false }] },
+      options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } }, grid: { color: 'rgba(0,0,0,.05)' } }, y: { ticks: { font: { size: 11, weight: 600 } }, grid: { display: false } } } }
+    });
+  }
+
+  const marcaTiempos = {};
+  data.forEach(r => {
+    if (!r.estatus || !KPI_ESTATUS_CERRADOS.includes(r.estatus)) return;
+    const d = kpiCalcDias(r);
+    if (d === null) return;
+    const m = (r.marca || 'Sin marca').trim().toUpperCase();
+    if (!marcaTiempos[m]) marcaTiempos[m] = [];
+    marcaTiempos[m].push(d);
+  });
+  const tmEntries = Object.entries(marcaTiempos).map(([m, arr]) => [m, (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1)]).sort((a,b) => b[1] - a[1]).slice(0, 8);
+  const ctx4 = document.getElementById('kpi-chart-tiempo-marca');
+  if (ctx4) {
+    kpiCharts.tiempoMarca = new Chart(ctx4, {
+      type: 'bar',
+      data: { labels: tmEntries.map(e => e[0]), datasets: [{ label: 'Días promedio', data: tmEntries.map(e => parseFloat(e[1])), backgroundColor: 'rgba(124,58,237,.7)', borderRadius: 6, borderSkipped: false }] },
+      options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { font: { size: 11 } }, grid: { color: 'rgba(0,0,0,.05)' } }, y: { ticks: { font: { size: 11, weight: 600 } }, grid: { display: false } } } }
+    });
+  }
+}
+
+function kpiRenderTableMarcas(data) {
+  const tbody = document.getElementById('kpi-tabla-marcas-body');
+  const tfoot = document.getElementById('kpi-tabla-marcas-foot');
+  if (!tbody) return;
+
+  const byMarca = {};
+  data.forEach(r => {
+    const m = (r.marca || 'Sin marca').trim().toUpperCase();
+    if (!byMarca[m]) byMarca[m] = { total: 0, enProceso: 0, pendientes: 0, resueltos: 0, dias: [] };
+    const g = byMarca[m];
+    g.total++;
+    if (r.estatus && KPI_ESTATUS_CERRADOS.includes(r.estatus)) {
+      g.resueltos++;
+      const d = kpiCalcDias(r);
+      if (d !== null) g.dias.push(d);
+    } else if (r.estatus === 'en_proceso') g.enProceso++;
+    else g.pendientes++;
+  });
+
+  const rows = Object.entries(byMarca).sort((a,b) => b[1].total - a[1].total);
+  const maxTotal = rows.length ? rows[0][1].total : 1;
+
+  tbody.innerHTML = rows.map(([marca, g]) => {
+    const tasa = g.total ? ((g.resueltos/g.total)*100).toFixed(0) : 0;
+    const avg = g.dias.length ? (g.dias.reduce((a,b)=>a+b,0)/g.dias.length).toFixed(1) : '—';
+    const min = g.dias.length ? Math.min(...g.dias) : '—';
+    const max = g.dias.length ? Math.max(...g.dias) : '—';
+    const pct = ((g.total / maxTotal) * 100).toFixed(0);
+    const barColor = tasa >= 70 ? 'var(--green)' : tasa >= 40 ? 'var(--amber)' : 'var(--red)';
+    return '<tr>' +
+      '<td><strong>' + marca + '</strong></td>' +
+      '<td>' + g.total + ' <div class="kpi-bar"><div class="kpi-bar__fill" style="width:' + pct + '%;background:var(--blue);"></div></div></td>' +
+      '<td style="color:var(--amber);font-weight:600;">' + g.enProceso + '</td>' +
+      '<td style="color:var(--red);font-weight:600;">' + g.pendientes + '</td>' +
+      '<td style="color:var(--green);font-weight:600;">' + g.resueltos + '</td>' +
+      '<td>' + tasa + '% <div class="kpi-bar"><div class="kpi-bar__fill" style="width:' + tasa + '%;background:' + barColor + ';"></div></div></td>' +
+      '<td>' + avg + '</td><td>' + min + '</td><td>' + max + '</td></tr>';
+  }).join('');
+
+  if (tfoot) {
+    const totals = rows.reduce((acc, [,g]) => {
+      acc.total += g.total; acc.enProceso += g.enProceso; acc.pendientes += g.pendientes; acc.resueltos += g.resueltos; acc.dias = acc.dias.concat(g.dias);
+      return acc;
+    }, { total:0, enProceso:0, pendientes:0, resueltos:0, dias:[] });
+    const tTasa = totals.total ? ((totals.resueltos/totals.total)*100).toFixed(0) : 0;
+    const tAvg = totals.dias.length ? (totals.dias.reduce((a,b)=>a+b,0)/totals.dias.length).toFixed(1) : '—';
+    const tMin = totals.dias.length ? Math.min(...totals.dias) : '—';
+    const tMax = totals.dias.length ? Math.max(...totals.dias) : '—';
+    tfoot.innerHTML = '<tr><td>TOTAL</td><td>' + totals.total + '</td><td>' + totals.enProceso + '</td><td>' + totals.pendientes + '</td><td>' + totals.resueltos + '</td><td>' + tTasa + '%</td><td>' + tAvg + '</td><td>' + tMin + '</td><td>' + tMax + '</td></tr>';
+  }
+}
+
+function kpiRenderTableAbiertos(data) {
+  const tbody = document.getElementById('kpi-tabla-abiertos-body');
+  if (!tbody) return;
+  const abiertos = data.filter(r => !r.estatus || KPI_ESTATUS_ABIERTOS.includes(r.estatus)).map(r => ({ ...r, diasAbierto: kpiCalcDias(r) || 0 })).sort((a,b) => b.diasAbierto - a.diasAbierto);
+
+  if (!abiertos.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--ink-4);padding:2rem;">No hay casos abiertos en el período seleccionado</td></tr>';
+    return;
+  }
+  tbody.innerHTML = abiertos.map(r => {
+    const cls = r.diasAbierto > 30 ? 'critical' : r.diasAbierto > 14 ? 'warn' : 'ok';
+    const estatusLabel = KPI_ESTATUS_LABELS[r.estatus] || r.estatus || 'Sin estatus';
+    return '<tr>' +
+      '<td class="td-mono">' + (r.ticket || '—') + '</td>' +
+      '<td><strong>' + (r.nombre || '—') + '</strong></td>' +
+      '<td>' + (r.marca || '—') + '</td>' +
+      '<td class="td-mono">' + (r.ticket_rma || '—') + '</td>' +
+      '<td>' + estatusLabel + '</td>' +
+      '<td><span class="kpi-dias-badge ' + cls + '">' + r.diasAbierto + ' días</span></td>' +
+      '<td class="td-mono">' + (r.boleta || '—') + '</td></tr>';
+  }).join('');
+}
+
+async function kpiExportImage() {
+  const area = document.getElementById('kpi-capture-area');
+  if (!area) return;
+  showToast('Generando imagen…', 'info');
+  try {
+    const canvas = await html2canvas(area, { backgroundColor: '#F5F4F2', scale: 2, useCORS: true });
+    const link = document.createElement('a');
+    link.download = 'KPI_RMA_' + new Date().toISOString().slice(0,10) + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    showToast('Imagen descargada', 'success');
+  } catch (e) { showToast('Error al generar imagen', 'error', e.message); }
+}
+
+function kpiExportExcel() {
+  const data = kpiGetFilteredData();
+  if (!data.length) { showToast('No hay datos para exportar', 'info'); return; }
+
+  const resumenRows = [];
+  resumenRows.push(['ANÁLISIS DE PROCESOS RMA — ' + (document.getElementById('kpi-period-label')?.textContent || '')]);
+  resumenRows.push(['Generado:', new Date().toLocaleString('es-CR')]);
+  resumenRows.push([]);
+  resumenRows.push(['Métrica', 'Valor']);
+  resumenRows.push(['Total Trámites', data.length]);
+  const resueltos = data.filter(r => r.estatus && KPI_ESTATUS_CERRADOS.includes(r.estatus)).length;
+  const enProceso = data.filter(r => r.estatus === 'en_proceso').length;
+  const pendientes = data.filter(r => r.estatus === 'pendiente_tramite' || !r.estatus).length;
+  resumenRows.push(['Resueltos', resueltos]);
+  resumenRows.push(['En Proceso', enProceso]);
+  resumenRows.push(['Pendientes', pendientes]);
+  resumenRows.push(['Tasa de Resolución', data.length ? ((resueltos/data.length)*100).toFixed(1) + '%' : '0%']);
+  const diasR = data.filter(r => r.estatus && KPI_ESTATUS_CERRADOS.includes(r.estatus)).map(kpiCalcDias).filter(d => d !== null);
+  if (diasR.length) {
+    resumenRows.push(['Tiempo Prom. Resolución (días)', (diasR.reduce((a,b)=>a+b,0)/diasR.length).toFixed(1)]);
+    resumenRows.push(['Resolución Más Rápida (días)', Math.min(...diasR)]);
+    resumenRows.push(['Resolución Más Lenta (días)', Math.max(...diasR)]);
+  }
+
+  const detalleRows = data.map(r => ({
+    Ticket: r.ticket || '', Cliente: r.nombre || '', Marca: r.marca || '', 'Ticket RMA': r.ticket_rma || '',
+    Estatus: KPI_ESTATUS_LABELS[r.estatus] || r.estatus || 'Sin estatus',
+    'Fecha Creación': r.fecha_creacion ? fmtDate(r.fecha_creacion) : '',
+    'Días Transcurridos': kpiCalcDias(r) ?? '',
+    Boleta: r.boleta || '', Falla: r.falla || '', Observaciones: r.observaciones || '', Seguimiento: r.seguimiento || ''
+  }));
+
+  const byMarca = {};
+  data.forEach(r => {
+    const m = (r.marca || 'Sin marca').trim().toUpperCase();
+    if (!byMarca[m]) byMarca[m] = { total:0, enProceso:0, pendientes:0, resueltos:0, dias:[] };
+    const g = byMarca[m]; g.total++;
+    if (r.estatus && KPI_ESTATUS_CERRADOS.includes(r.estatus)) { g.resueltos++; const d = kpiCalcDias(r); if (d !== null) g.dias.push(d); }
+    else if (r.estatus === 'en_proceso') g.enProceso++; else g.pendientes++;
+  });
+  const marcaRows = Object.entries(byMarca).sort((a,b) => b[1].total - a[1].total).map(([m,g]) => ({
+    Marca: m, Total: g.total, 'En Proceso': g.enProceso, Pendientes: g.pendientes, Resueltos: g.resueltos,
+    'Tasa Resolución': g.total ? ((g.resueltos/g.total)*100).toFixed(1) + '%' : '0%',
+    'Tiempo Prom.': g.dias.length ? (g.dias.reduce((a,b)=>a+b,0)/g.dias.length).toFixed(1) : '—',
+    'Más Rápido': g.dias.length ? Math.min(...g.dias) : '—',
+    'Más Lento': g.dias.length ? Math.max(...g.dias) : '—'
+  }));
+
+  const wb = XLSX.utils.book_new();
+  const ws1 = XLSX.utils.aoa_to_sheet(resumenRows);
+  ws1['!cols'] = [{ wch: 35 }, { wch: 20 }];
+  XLSX.utils.book_append_sheet(wb, ws1, 'Resumen');
+  const ws2 = XLSX.utils.json_to_sheet(detalleRows);
+  XLSX.utils.book_append_sheet(wb, ws2, 'Detalle');
+  const ws3 = XLSX.utils.json_to_sheet(marcaRows);
+  XLSX.utils.book_append_sheet(wb, ws3, 'Por Marca');
+  XLSX.writeFile(wb, 'KPI_RMA_' + new Date().toISOString().slice(0,10) + '.xlsx');
+  showToast('Excel descargado', 'success');
+}
+
+async function kpiExportPDF() {
+  const area = document.getElementById('kpi-capture-area');
+  if (!area) return;
+  showToast('Generando PDF…', 'info');
+  try {
+    const canvas = await html2canvas(area, { backgroundColor: '#F5F4F2', scale: 2, useCORS: true });
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const pdfW = pdf.internal.pageSize.getWidth() - 20;
+    const pdfH = (canvas.height * pdfW) / canvas.width;
+    let y = 10;
+    const pageH = pdf.internal.pageSize.getHeight() - 20;
+    if (pdfH <= pageH) {
+      pdf.addImage(imgData, 'PNG', 10, y, pdfW, pdfH);
+    } else {
+      const pages = Math.ceil(pdfH / pageH);
+      for (let i = 0; i < pages; i++) {
+        if (i > 0) pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 10, y - (i * pageH), pdfW, pdfH);
+      }
+    }
+    pdf.save('KPI_RMA_' + new Date().toISOString().slice(0,10) + '.pdf');
+    showToast('PDF descargado', 'success');
+  } catch (e) { showToast('Error al generar PDF', 'error', e.message); }
 }
 
 function adminSwitchSection(sec) {
