@@ -2408,13 +2408,15 @@ async function loadRecords() {
     
     allRecords = all;
     // Obtener consecutivo desde BD, EXCEPTO si el admin lo ajustó manualmente
+    // Solo considerar registros con prefijo moderno (G/T/NC) para evitar que los viejos (202602, etc.) contaminen
     if (!consecutiveNumManual && allRecords.length > 0) {
-      const maxNum = Math.max(...allRecords.map(r => r.numero_consecutivo || 0));
-      if (maxNum >= 29179) {
+      const modernRecords = allRecords.filter(r => hasModernBoletaPrefix(r));
+      if (modernRecords.length > 0) {
+        const maxNum = Math.max(...modernRecords.map(r => r.numero_consecutivo || 0));
         consecutiveNum = maxNum;
-        console.log('consecutiveNum actualizado desde BD:', consecutiveNum);
+        console.log('consecutiveNum actualizado desde BD (solo modernos):', consecutiveNum);
       } else {
-        console.log('maxNum fuera de rango mínimo:', maxNum, '- manteniendo valor actual:', consecutiveNum);
+        console.log('No hay registros modernos, manteniendo valor actual:', consecutiveNum);
       }
     } else if (consecutiveNumManual) {
       console.log('consecutiveNum manual activo, no se sobreescribe:', consecutiveNum);
@@ -2446,13 +2448,21 @@ async function handleSubmit(e) {
   try {
     // Si el admin ajustó el consecutivo manualmente, usar ese valor
     // Si no, obtener el máximo fresco desde la BD para evitar duplicados
+    console.log('=== GUARDANDO ===');
+    console.log('consecutiveNumManual:', consecutiveNumManual, '| consecutiveNum ANTES:', consecutiveNum);
     if (consecutiveNumManual) {
       consecutiveNum = consecutiveNum + 1;
       consecutiveNumManual = false;
+      console.log('Usando consecutivo MANUAL:', consecutiveNum);
     } else {
-      const maxResponse = await sbFetch('GET', TABLE + '?order=numero_consecutivo.desc&limit=1', null);
-      const maxEnBD = (maxResponse && maxResponse[0]?.numero_consecutivo) || 29178;
+      // Buscar el max solo entre registros con prefijo moderno (G/T/NC)
+      const modernRecords = allRecords.filter(r => hasModernBoletaPrefix(r));
+      let maxEnBD = 29178;
+      if (modernRecords.length > 0) {
+        maxEnBD = Math.max(...modernRecords.map(r => r.numero_consecutivo || 0));
+      }
       consecutiveNum = maxEnBD + 1;
+      console.log('Usando consecutivo desde BD (solo modernos):', consecutiveNum, '(max en BD:', maxEnBD, ')');
     }
     
     const prefix=buildPrefix(), boleta=formatBoleta(consecutiveNum,prefix);
@@ -4215,13 +4225,15 @@ async function adminLoadAll() {
     if (all.length > allRecords.length) {
       allRecords = [...all];
       // Obtener consecutivo desde BD, EXCEPTO si el admin lo ajustó manualmente
+      // Solo registros con prefijo moderno (G/T/NC)
       if (!consecutiveNumManual && allRecords.length > 0) {
-        const mx = Math.max(...allRecords.map(r => r.numero_consecutivo || 0));
-        if (mx >= 29179) {
+        const modernRecords = allRecords.filter(r => hasModernBoletaPrefix(r));
+        if (modernRecords.length > 0) {
+          const mx = Math.max(...modernRecords.map(r => r.numero_consecutivo || 0));
           consecutiveNum = mx;
-          console.log('consecutiveNum actualizado desde adminLoadAll:', consecutiveNum);
+          console.log('consecutiveNum actualizado desde adminLoadAll (solo modernos):', consecutiveNum);
         } else {
-          console.log('maxNum fuera de rango mínimo en adminLoadAll:', mx, '- manteniendo valor actual:', consecutiveNum);
+          console.log('No hay registros modernos en adminLoadAll, manteniendo valor actual:', consecutiveNum);
         }
       }
       renderHeaderBoleta();
