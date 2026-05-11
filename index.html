@@ -3719,12 +3719,14 @@ function regRenderMisRMA() {
     const a = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
     return a ? n + ' ' + a : n;
   })();
-  // Mostrar todos los trámites RMA del usuario (categoría RMA)
+  // RMA comprobable: categoría RMA + ticket_rma real O fecha_rma real
+  const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
   const rmaData = allRecords.filter(r => {
     const cat = (r.categoria || '').toLowerCase();
-    const hasRMA = cat.includes('rma');
+    if (!cat.includes('rma')) return false;
     const esMio = r.registrado_por && myName && r.registrado_por.trim().toLowerCase() === myName.trim().toLowerCase();
-    return hasRMA && esMio;
+    const esReal = limpio(r.ticket_rma) !== '' || limpio(r.fecha_rma) !== '';
+    return esMio && esReal;
   });
   if (countEl) countEl.textContent = rmaData.length + ' registro' + (rmaData.length !== 1 ? 's' : '');
   if (!rmaData.length) {
@@ -4785,12 +4787,15 @@ async function adminLoadRMARecords() {
       await adminLoadAll();
     }
 
-    // Filtrar registros: SOLO categoría contiene "RMA"
-    // Se incluyen todos los registros RMA, con o sin datos de trámite aún asignados
-    rmaRawData = allRecords.filter(r => {
-      const categoria = (r.categoria || '').toLowerCase();
-      return categoria.includes('rma');
-    });
+    // RMA comprobable y auditable: categoría RMA + ticket_rma real O fecha_rma real
+    // Un guion, espacio o null NO cuenta como dato válido
+    const esRMAReal = r => {
+      const cat = (r.categoria || '').toLowerCase();
+      if (!cat.includes('rma')) return false;
+      const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
+      return limpio(r.ticket_rma) !== '' || limpio(r.fecha_rma) !== '';
+    };
+    rmaRawData = allRecords.filter(esRMAReal);
 
     // Cargar historial para cada registro RMA
     if (rmaRawData.length > 0) {
