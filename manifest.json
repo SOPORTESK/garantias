@@ -1,0 +1,44 @@
+{
+  "name": "Garantías · Sekunet / Tienda3D",
+  "short_name": "Garantías",
+  "description": "Sistema de gestión de garantías y RMA - Tienda3D Sekunet",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0D0F12",
+  "theme_color": "#D1411E",
+  "lang": "es-CR",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "logoTienda3D.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logoTienda3D.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nuevo Registro",
+      "short_name": "Nuevo",
+      "description": "Crear nuevo registro de garantía",
+      "url": "./#nuevo",
+      "icons": [{ "src": "logoTienda3D.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Inventario",
+      "short_name": "Inventario",
+      "description": "Ver inventario",
+      "url": "./#inventario",
+      "icons": [{ "src": "logoTienda3D.png", "sizes": "192x192" }]
+    }
+  ]
+}
