@@ -3719,14 +3719,14 @@ function regRenderMisRMA() {
     const a = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
     return a ? n + ' ' + a : n;
   })();
-  // RMA comprobable: categoría RMA + al menos uno de fecha_rma, serie_fabrica o estatus
+  // RMA comprobable: categoría RMA + TODOS obligatorios: fecha_rma, serie_fabrica, estatus
   const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
   const rmaData = allRecords.filter(r => {
     const cat = (r.categoria || '').toLowerCase();
     if (!cat.includes('rma')) return false;
     const esMio = r.registrado_por && myName && r.registrado_por.trim().toLowerCase() === myName.trim().toLowerCase();
-    const esReal = limpio(r.fecha_rma) !== '' ||
-                   limpio(r.serie_fabrica) !== '' ||
+    const esReal = limpio(r.fecha_rma) !== '' &&
+                   limpio(r.serie_fabrica) !== '' &&
                    limpio(r.estatus) !== '';
     return esMio && esReal;
   });
@@ -4789,14 +4789,14 @@ async function adminLoadRMARecords() {
       await adminLoadAll();
     }
 
-    // RMA comprobable: categoría RMA + al menos uno de fecha_rma, serie_fabrica o estatus
+    // RMA comprobable: categoría RMA + TODOS obligatorios: fecha_rma, serie_fabrica, estatus
     // Ignora: ticket_rma, observaciones, seguimiento
     const esRMAReal = r => {
       const cat = (r.categoria || '').toLowerCase();
       if (!cat.includes('rma')) return false;
       const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
-      return limpio(r.fecha_rma) !== '' ||
-             limpio(r.serie_fabrica) !== '' ||
+      return limpio(r.fecha_rma) !== '' &&
+             limpio(r.serie_fabrica) !== '' &&
              limpio(r.estatus) !== '';
     };
     rmaRawData = allRecords.filter(esRMAReal);
