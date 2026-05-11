@@ -2764,12 +2764,19 @@ async function loadRecords() {
     
     allRecords = all;
     // Obtener consecutivo desde BD, EXCEPTO si el admin lo ajustó manualmente
-    // Solo considerar registros con prefijo moderno (G/T/NC) para evitar que los viejos (202602, etc.) contaminen
+    // Extraer el número DIRECTAMENTE de la boleta (ej: GNC29184 -> 29184)
+    // Esto ignora valores corruptos de numero_consecutivo en registros importados
     if (!consecutiveNumManual && allRecords.length > 0) {
       const modernRecords = allRecords.filter(r => hasModernBoletaPrefix(r));
       if (modernRecords.length > 0) {
-        const maxNum = Math.max(...modernRecords.map(r => r.numero_consecutivo || 0));
-        consecutiveNum = maxNum;
+        // Extraer número de la boleta string, ignorando numero_consecutivo
+        const nums = modernRecords.map(r => {
+          const match = String(r.boleta || '').match(/(\d+)$/);
+          return match ? parseInt(match[1], 10) : 0;
+        }).filter(n => n > 0 && n < 200000); // Solo números razonables
+        if (nums.length > 0) {
+          consecutiveNum = Math.max(...nums);
+        }
       }
     }
     renderHeaderBoleta();
@@ -2804,12 +2811,37 @@ async function handleSubmit(e) {
       consecutiveNumManual = false;
     } else {
       // Buscar el max solo entre registros con prefijo moderno (G/T/NC)
+      // Extraer número de la boleta string, ignorando numero_consecutivo
       const modernRecords = allRecords.filter(r => hasModernBoletaPrefix(r));
       let maxEnBD = 29178;
       if (modernRecords.length > 0) {
-        maxEnBD = Math.max(...modernRecords.map(r => r.numero_consecutivo || 0));
+        const nums = modernRecords.map(r => {
+          const match = String(r.boleta || '').match(/(\d+)$/);
+          return match ? parseInt(match[1], 10) : 0;
+        }).filter(n => n > 0 && n < 200000);
+        if (nums.length > 0) {
+          maxEnBD = Math.max(...nums);
+        }
       }
       consecutiveNum = maxEnBD + 1;
+    }
+    
+    // PROTECCIÓN: Si el consecutivo calculado está contaminado (> 200000), forzar recálculo
+    if (consecutiveNum > 200000) {
+      console.warn('Consecutivo contaminado en handleSubmit:', consecutiveNum, '- Forzando recálculo');
+      const modernRecords = allRecords.filter(r => hasModernBoletaPrefix(r));
+      let maxEnBD = 29178;
+      if (modernRecords.length > 0) {
+        const nums = modernRecords.map(r => {
+          const match = String(r.boleta || '').match(/(\d+)$/);
+          return match ? parseInt(match[1], 10) : 0;
+        }).filter(n => n > 0 && n < 200000);
+        if (nums.length > 0) {
+          maxEnBD = Math.max(...nums);
+        }
+      }
+      consecutiveNum = maxEnBD + 1;
+      console.log('Consecutivo corregido a:', consecutiveNum);
     }
     
     const prefix=buildPrefix(), boleta=formatBoleta(consecutiveNum,prefix);
@@ -2862,6 +2894,23 @@ async function handleSubmit(e) {
       if (rec.tipo==='salida_definitiva') rawData.def.unshift(rec);
       else rawData.temp.unshift(rec);
       adminUpdateBadges(); adminApplyFilters('def'); adminApplyFilters('temp');
+      // Refresh RMA data if this is an RMA record
+      const isRMA = (rec.categoria || '').toLowerCase().includes('rma') &&
+                    (rec.ticket_rma || rec.ticketrma || rec.rma || '').trim() !== '';
+      if (isRMA) {
+        rmaRawData.unshift(rec);
+        // Refresh admin RMA panel if visible
+        const rmaPanel = document.getElementById('panel-tramites-marca');
+        if (rmaPanel && rmaPanel.style.display !== 'none') {
+          adminPopulateRMAFilters();
+          adminApplyRMAFilters();
+        }
+        // Refresh "Mis Trámites RMA" table in registros tab if visible
+        const regPanel = document.getElementById('panel-registros');
+        if (regPanel && regPanel.classList.contains('active')) {
+          regRenderMisRMA();
+        }
+      }
     }
     showToast('Registro guardado','success','Boleta '+boleta);
     lastSavedRecord = rec || payload;
@@ -2898,6 +2947,20 @@ async function handleSubmit(e) {
     console.error('Mensaje de error:', err.message);
     if (isUniqueConsecutiveError(err)) {
       await loadRecords();
+      // Recalcular consecutivo al máximo + 1 después de recargar
+      // Extraer número de la boleta string, ignorando numero_consecutivo
+      const modernRecords = allRecords.filter(r => hasModernBoletaPrefix(r));
+      let maxEnBD = 29178;
+      if (modernRecords.length > 0) {
+        const nums = modernRecords.map(r => {
+          const match = String(r.boleta || '').match(/(\d+)$/);
+          return match ? parseInt(match[1], 10) : 0;
+        }).filter(n => n > 0 && n < 200000);
+        if (nums.length > 0) {
+          maxEnBD = Math.max(...nums);
+        }
+      }
+      consecutiveNum = maxEnBD;
       renderHeaderBoleta();
       showToast('Conflicto de consecutivo', 'error', 'Otro usuario guardó primero. Intentá de nuevo.');
     } else {
@@ -4606,12 +4669,18 @@ async function adminLoadAll() {
     if (all.length > allRecords.length) {
       allRecords = [...all];
       // Obtener consecutivo desde BD, EXCEPTO si el admin lo ajustó manualmente
-      // Solo registros con prefijo moderno (G/T/NC)
+      // Extraer número DIRECTAMENTE de la boleta (ej: GNC29184 -> 29184)
+      // Esto ignora valores corruptos de numero_consecutivo en registros importados
       if (!consecutiveNumManual && allRecords.length > 0) {
         const modernRecords = allRecords.filter(r => hasModernBoletaPrefix(r));
         if (modernRecords.length > 0) {
-          const mx = Math.max(...modernRecords.map(r => r.numero_consecutivo || 0));
-          consecutiveNum = mx;
+          const nums = modernRecords.map(r => {
+            const match = String(r.boleta || '').match(/(\d+)$/);
+            return match ? parseInt(match[1], 10) : 0;
+          }).filter(n => n > 0 && n < 200000);
+          if (nums.length > 0) {
+            consecutiveNum = Math.max(...nums);
+          }
         }
       }
       renderHeaderBoleta();
@@ -6071,6 +6140,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('Cargando todos los registros para admin...');
     adminLoaded = true; // Marcar como cargado para evitar duplicados
     await adminLoadAll();
+    
+    // SANITY CHECK: Si el consecutivo está contaminado (> 200000), forzar recálculo
+    if (!consecutiveNumManual && consecutiveNum > 200000) {
+      console.warn('Consecutivo contaminado detectado:', consecutiveNum, '- Forzando recálculo desde boletas');
+      const modernRecords = allRecords.filter(r => hasModernBoletaPrefix(r));
+      if (modernRecords.length > 0) {
+        const nums = modernRecords.map(r => {
+          const match = String(r.boleta || '').match(/(\d+)$/);
+          return match ? parseInt(match[1], 10) : 0;
+        }).filter(n => n > 0 && n < 200000);
+        if (nums.length > 0) {
+          const maxValid = Math.max(...nums);
+          console.log('Recalculando consecutivo a:', maxValid);
+          consecutiveNum = maxValid;
+        } else {
+          // Fallback: usar valor base
+          consecutiveNum = 29178;
+        }
+      } else {
+        consecutiveNum = 29178;
+      }
+    }
+    
     console.log('Renderizando boleta...');
     renderHeaderBoleta();
     updateProgress();
@@ -6101,11 +6193,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   document.addEventListener('mouseout', function(e){
     if (e.target.closest('[data-tip]')) tip.style.display='none';
-  });
-})();
-</script>
-</body>
-</html>
   });
 })();
 </script>
