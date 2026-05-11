@@ -3719,16 +3719,12 @@ function regRenderMisRMA() {
     const a = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
     return a ? n + ' ' + a : n;
   })();
-  // RMA comprobable: categoría RMA + TODOS obligatorios: fecha_rma, serie_fabrica, estatus
-  const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
+  // Mostrar TODOS los trámites RMA del usuario (por categoria, sin filtro de completitud)
   const rmaData = allRecords.filter(r => {
     const cat = (r.categoria || '').toLowerCase();
     if (!cat.includes('rma')) return false;
     const esMio = r.registrado_por && myName && r.registrado_por.trim().toLowerCase() === myName.trim().toLowerCase();
-    const esReal = limpio(r.fecha_rma) !== '' &&
-                   limpio(r.serie_fabrica) !== '' &&
-                   limpio(r.estatus) !== '';
-    return esMio && esReal;
+    return esMio;
   });
   if (countEl) countEl.textContent = rmaData.length + ' registro' + (rmaData.length !== 1 ? 's' : '');
   if (!rmaData.length) {
@@ -4789,17 +4785,11 @@ async function adminLoadRMARecords() {
       await adminLoadAll();
     }
 
-    // RMA comprobable: categoría RMA + TODOS obligatorios: fecha_rma, serie_fabrica, estatus
-    // Ignora: ticket_rma, observaciones, seguimiento
-    const esRMAReal = r => {
+    // Mostrar TODOS los registros con categoría RMA en la tabla (para ver incompletos también)
+    rmaRawData = allRecords.filter(r => {
       const cat = (r.categoria || '').toLowerCase();
-      if (!cat.includes('rma')) return false;
-      const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
-      return limpio(r.fecha_rma) !== '' &&
-             limpio(r.serie_fabrica) !== '' &&
-             limpio(r.estatus) !== '';
-    };
-    rmaRawData = allRecords.filter(esRMAReal);
+      return cat.includes('rma');
+    });
 
     // Cargar historial para cada registro RMA
     if (rmaRawData.length > 0) {
@@ -5557,6 +5547,14 @@ const KPI_ESTATUS_LABELS = {
 const KPI_COLORS = ['#D1411E','#2563EB','#059669','#D97706','#7C3AED','#DC2626','#0891B2'];
 let kpiCharts = {};
 
+// RMA completo para analiticas: fecha_rma + serie_fabrica + estatus
+function esRMACompleto(r) {
+  const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
+  return limpio(r.fecha_rma) !== '' &&
+         limpio(r.serie_fabrica) !== '' &&
+         limpio(r.estatus) !== '';
+}
+
 function kpiGetFilteredData() {
   // Return all RMA records (comprobables) without period filtering
   const marcaFilter = document.getElementById('kpi-marca')?.value || '';
@@ -5587,7 +5585,7 @@ function kpiPopulateFilters() {
 
 function kpiRefresh() {
   kpiPopulateFilters();
-  const data = kpiGetFilteredData();
+  const data = kpiGetFilteredData().filter(esRMACompleto);
   const total = data.length;
   const enProceso = data.filter(r => r.estatus === 'en_proceso').length;
   const pendientes = data.filter(r => r.estatus === 'pendiente_tramite' || !r.estatus).length;
