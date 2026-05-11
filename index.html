@@ -29,6 +29,23 @@
       --shadow-brand:0 4px 16px var(--brand-glow);
       --transition:all .18s cubic-bezier(.4,0,.2,1);
     }
+    /* ── TEMA OSCURO PREMIUM ── */
+    html[data-theme="dark"] {
+      --brand:#E85A33;--brand-2:#FF7043;--brand-dim:rgba(232,90,51,.15);--brand-glow:rgba(232,90,51,.4);
+      --bg:#0D0F12;--bg-2:#121418;--bg-3:#1A1D23;
+      --surface:#1A1D23;--surface-2:#232830;--surface-3:#2D343C;
+      --border:rgba(255,255,255,.08);--border-2:rgba(255,255,255,.13);--border-3:rgba(255,255,255,.22);
+      --ink-1:#F0F2F5;--ink-2:#C8CDD4;--ink-3:#8B94A3;--ink-4:#5D6670;
+      --blue:#5B8AFF;--blue-dim:rgba(91,138,255,.15);
+      --amber:#FFB347;--amber-dim:rgba(255,179,71,.15);
+      --green:#34D399;--green-dim:rgba(52,211,153,.15);
+      --red:#FF6B6B;--red-dim:rgba(255,107,107,.15);
+      --purple:#A78BFA;--purple-dim:rgba(167,139,250,.15);
+      --shadow-sm:0 1px 3px rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.3);
+      --shadow-md:0 4px 16px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.4);
+      --shadow-lg:0 20px 50px rgba(0,0,0,.6),0 8px 20px rgba(0,0,0,.5);
+      --shadow-brand:0 4px 24px var(--brand-glow);
+    }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
     body{font-family:var(--font);background:var(--bg);color:var(--ink-1);min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased}
@@ -75,6 +92,16 @@
     .user-menu-item.danger{color:var(--red);}
     .user-menu-item.danger:hover{background:var(--red-dim);}
     .user-wrap{position:relative;}
+    .theme-toggle{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--ink-3);cursor:pointer;transition:var(--transition);}
+    .theme-toggle:hover{background:var(--surface-2);color:var(--ink-1);border-color:var(--brand);}
+    html[data-theme="dark"] .theme-toggle .sun-icon{display:none;}
+    html[data-theme="dark"] .theme-toggle .moon-icon{display:block !important;}
+    /* Ajustes específicos para tema oscuro */
+    html[data-theme="dark"] input,html[data-theme="dark"] select,html[data-theme="dark"] textarea{background:var(--bg-2);color:var(--ink-1);border-color:var(--border-2);}
+    html[data-theme="dark"] input::placeholder,html[data-theme="dark"] textarea::placeholder{color:var(--ink-4);}
+    html[data-theme="dark"] .data-table tbody tr:hover{background:var(--surface-2);}
+    html[data-theme="dark"] .empty-row{color:var(--ink-3);}
+    html[data-theme="dark"] .save-modal-backdrop{background:rgba(0,0,0,.75);}
 
     /* TOPBAR */
     .topbar{
@@ -499,6 +526,14 @@
       <span class="meta-chip-label">Número de Boleta</span>
       <span class="meta-chip-value" id="headerBoleta">—</span>
     </div>
+    <button type="button" class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Cambiar tema">
+      <svg class="sun-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+      </svg>
+      <svg class="moon-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;display:none;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+      </svg>
+    </button>
     <div class="user-wrap" id="userWrap" style="display:none">
       <div class="user-chip" onclick="toggleUserMenu()" id="userChipBtn" title="">
         <div class="user-avatar" id="userAvatar">?</div>
@@ -1743,6 +1778,24 @@ function authSignOut() {
   localStorage.removeItem('sb_session');
   toggleUserMenu(true);
   showLoginOverlay();
+}
+
+/* ── TEMA OSCURO ── */
+function initTheme() {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+}
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (isDark) {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('theme', 'light');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.setItem('theme', 'dark');
+  }
 }
 
 const SUPER_ADMIN_EMAIL = 'cbatista@sekunet.com';
@@ -6484,6 +6537,8 @@ async function restoreSession() {
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     console.log('Iniciando aplicación...');
+    initTheme();
+    console.log('Tema inicializado');
     renderHeaderDate();
     console.log('Fecha renderizada');
     dateInterval = setInterval(renderHeaderDate, 60000);
