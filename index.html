@@ -987,8 +987,11 @@
           <!-- Sub-panel: Registros RMA -->
           <div id="tramites-subtab-registros" style="display:block;padding:1.5rem;">
             <!-- RÓTULO 1: Identificador de Pestaña - Registros RMA -->
-            <div style="padding:0.75rem;background:var(--brand);color:white;font-weight:700;text-align:center;border-radius:var(--radius-sm);margin-bottom:1rem;">
-              REGISTROS RMA
+            <div style="padding:0.75rem;background:var(--brand);color:white;font-weight:700;text-align:center;border-radius:var(--radius-sm);margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;">
+              <span>REGISTROS RMA</span>
+              <button type="button" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.4);" onclick="testEnviarModal()">
+                🧪 Probar Modal Enviar
+              </button>
             </div>
             
             <!-- Filtros -->
@@ -3311,6 +3314,24 @@ async function doCopyImage() {
     console.error('Error en doCopyImage:', err);
     showToast('Error al copiar imagen','error',err.message); 
   }
+}
+
+/* MODAL ENVIAR TEST */
+function testEnviarModal() {
+  // Crear datos de prueba para verificar que el modal funciona
+  lastSavedRecord = {
+    boleta: 'TEST-00000',
+    nombre: 'Cliente de Prueba',
+    ticket: '12345',
+    tipo: 'garantia',
+    categoria: 'rma',
+    fecha_rma: '2026-05-11',
+    estatus: 'en_proceso',
+    marca: 'TEST',
+    modelo: 'Modelo Test'
+  };
+  console.log('[Test] Datos de prueba creados:', lastSavedRecord);
+  openEnviarModal();
 }
 
 /* MODAL ENVIAR */
