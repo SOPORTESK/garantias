@@ -3719,7 +3719,7 @@ function regRenderMisRMA() {
     const a = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
     return a ? n + ' ' + a : n;
   })();
-  // RMA comprobable: categoría RMA + al menos un dato real (ignorando ticket_rma)
+  // RMA comprobable: categoría RMA + al menos uno de fecha_rma, serie_fabrica o estatus
   const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
   const rmaData = allRecords.filter(r => {
     const cat = (r.categoria || '').toLowerCase();
@@ -3727,9 +3727,7 @@ function regRenderMisRMA() {
     const esMio = r.registrado_por && myName && r.registrado_por.trim().toLowerCase() === myName.trim().toLowerCase();
     const esReal = limpio(r.fecha_rma) !== '' ||
                    limpio(r.serie_fabrica) !== '' ||
-                   limpio(r.estatus) !== '' ||
-                   limpio(r.observaciones) !== '' ||
-                   limpio(r.seguimiento) !== '';
+                   limpio(r.estatus) !== '';
     return esMio && esReal;
   });
   if (countEl) countEl.textContent = rmaData.length + ' registro' + (rmaData.length !== 1 ? 's' : '');
@@ -4791,18 +4789,15 @@ async function adminLoadRMARecords() {
       await adminLoadAll();
     }
 
-    // RMA comprobable: categoría RMA + al menos un dato real (ignorando ticket_rma)
-    // Campos válidos: fecha_rma, serie_fabrica, estatus, observaciones, seguimiento
-    // Si todos están vacíos/guiones → incompleto, no se incluye en analíticas
+    // RMA comprobable: categoría RMA + al menos uno de fecha_rma, serie_fabrica o estatus
+    // Ignora: ticket_rma, observaciones, seguimiento
     const esRMAReal = r => {
       const cat = (r.categoria || '').toLowerCase();
       if (!cat.includes('rma')) return false;
       const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
       return limpio(r.fecha_rma) !== '' ||
              limpio(r.serie_fabrica) !== '' ||
-             limpio(r.estatus) !== '' ||
-             limpio(r.observaciones) !== '' ||
-             limpio(r.seguimiento) !== '';
+             limpio(r.estatus) !== '';
     };
     rmaRawData = allRecords.filter(esRMAReal);
 
