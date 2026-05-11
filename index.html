@@ -5555,10 +5555,10 @@ const KPI_ESTATUS_LABELS = {
 const KPI_COLORS = ['#D1411E','#2563EB','#059669','#D97706','#7C3AED','#DC2626','#0891B2'];
 let kpiCharts = {};
 
-// RMA valido para analiticas: fecha_rma + estatus (la serie se llena al final del proceso)
+// RMA valido para analiticas: solo fecha_rma (incluye todos los iniciados, con o sin estatus)
 function esRMACompleto(r) {
   const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
-  return limpio(r.fecha_rma) !== '' && limpio(r.estatus) !== '';
+  return limpio(r.fecha_rma) !== '';
 }
 
 function kpiGetFilteredData() {
