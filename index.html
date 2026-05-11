@@ -3720,12 +3720,12 @@ function regRenderMisRMA() {
     const a = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
     return a ? n + ' ' + a : n;
   })();
-  // Mostrar TODOS los trámites RMA del usuario (por categoria, sin filtro de completitud)
+  // RMA = cualquier registro con datos en campos RMA (sin importar categoría)
+  const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
+  const tieneDatosRMA = r => limpio(r.fecha_rma) !== '' || limpio(r.serie_fabrica) !== '' || limpio(r.estatus) !== '';
   const rmaData = allRecords.filter(r => {
-    const cat = (r.categoria || '').toLowerCase();
-    if (!cat.includes('rma')) return false;
     const esMio = r.registrado_por && myName && r.registrado_por.trim().toLowerCase() === myName.trim().toLowerCase();
-    return esMio;
+    return esMio && tieneDatosRMA(r);
   });
   if (countEl) countEl.textContent = rmaData.length + ' registro' + (rmaData.length !== 1 ? 's' : '');
   if (!rmaData.length) {
@@ -4786,11 +4786,10 @@ async function adminLoadRMARecords() {
       await adminLoadAll();
     }
 
-    // Mostrar TODOS los registros con categoría RMA en la tabla (para ver incompletos también)
-    rmaRawData = allRecords.filter(r => {
-      const cat = (r.categoria || '').toLowerCase();
-      return cat.includes('rma');
-    });
+    // RMA = cualquier registro con al menos un campo RMA con datos (sin importar categoría)
+    const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
+    const tieneDatosRMA = r => limpio(r.fecha_rma) !== '' || limpio(r.serie_fabrica) !== '' || limpio(r.estatus) !== '';
+    rmaRawData = allRecords.filter(tieneDatosRMA);
 
     // Cargar historial para cada registro RMA
     if (rmaRawData.length > 0) {
