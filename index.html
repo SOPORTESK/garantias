@@ -128,6 +128,7 @@
       padding:0 1.75rem;
       display:flex;align-items:center;justify-content:space-between;
       height:68px;gap:1rem;
+      /* Permitir que hijos con position:fixed salgan del stacking context */
     }
     .topbar-left{display:flex;align-items:center;gap:1rem;}
     .logo-mark{display:flex;align-items:center;gap:.75rem;text-decoration:none;padding:.25rem;border-radius:var(--radius-md);transition:var(--transition);}
@@ -137,6 +138,7 @@
     }
     .logo-img-wrap img{height:52px;width:auto;display:block;object-fit:contain;}
     .pill-nav{display:flex;align-items:center;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:3px;gap:2px;}
+    .pill-nav-mobile{display:none;}
     .pill-btn{font-family:var(--font);font-size:.8125rem;font-weight:600;color:var(--ink-3);background:none;border:none;padding:.375rem .9rem;border-radius:var(--radius-md);cursor:pointer;transition:var(--transition);display:flex;align-items:center;gap:.4rem;white-space:nowrap;}
     .pill-btn svg{width:14px;height:14px;}
     .pill-btn:hover{color:var(--ink-1);background:var(--surface);}
@@ -499,27 +501,61 @@
 
     /* ── TABLET PEQUEÑA / GRANDES MÓVILES (max-width: 768px) ── */
     @media(max-width:768px){
-      .topbar{height:60px;padding:0 1rem;}
+      /* Topbar: solo logo + user, más compacto */
+      .topbar{height:56px;padding:0 .75rem;flex-wrap:nowrap;}
       .topbar-left{gap:.5rem;}
-      .logo-img-wrap{height:40px;}
-      .logo-img-wrap img{height:40px;}
-      .pill-nav{position:fixed;bottom:0;left:0;right:0;top:auto;z-index:100;border-radius:0;border-left:none;border-right:none;border-bottom:none;background:var(--surface);padding:.5rem;gap:.25rem;box-shadow:0 -4px 20px rgba(0,0,0,.15);}
-      .pill-btn{flex:1;flex-direction:column;gap:.25rem;padding:.5rem .3rem;font-size:.65rem;}
-      .pill-btn svg{width:20px;height:20px;}
-      .pill-btn span.label{display:block;font-size:.6rem;}
-      .pill-btn.active{box-shadow:none;border-bottom:2px solid var(--brand);}
-      .form-shell{padding:0 .75rem 6rem;margin:.5rem auto;}
+      .logo-img-wrap{height:36px;}
+      .logo-img-wrap img{height:36px;}
+
+      /* Ocultar pill-nav del topbar en móvil, mostrar la externa */
+      .topbar .pill-nav{display:none !important;}
+      .pill-nav-mobile{
+        display:flex !important;
+        position:fixed !important;bottom:0 !important;left:0 !important;right:0 !important;top:auto !important;
+        z-index:9990 !important;
+        border-radius:0 !important;border:none !important;border-top:1px solid var(--border) !important;
+        background:var(--surface) !important;
+        padding:.4rem .5rem max(.4rem,env(safe-area-inset-bottom)) !important;
+        gap:.15rem !important;
+        box-shadow:0 -4px 20px rgba(0,0,0,.12) !important;
+        align-items:stretch !important;
+      }
+      .pill-btn{
+        flex:1;display:flex !important;flex-direction:column !important;
+        align-items:center !important;justify-content:center !important;
+        gap:.2rem !important;padding:.35rem .1rem !important;
+        font-size:.6rem !important;min-width:0;
+        border-radius:8px !important;
+        background:none !important;box-shadow:none !important;
+      }
+      .pill-btn svg{width:22px !important;height:22px !important;flex-shrink:0;}
+      .pill-btn span.label{display:block !important;font-size:.58rem !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px;text-align:center;}
+      .pill-btn .badge-count{position:absolute;top:2px;right:calc(50% - 18px);font-size:.55rem;padding:0 4px;min-width:14px;}
+      .pill-btn.active{
+        color:var(--brand) !important;
+        background:var(--brand-dim) !important;
+        box-shadow:none !important;border-bottom:none !important;
+      }
+
+      /* Espacio inferior para que el contenido no quede detrás de la nav */
+      body{padding-bottom:72px !important;}
+
+      .form-shell{padding:0 .75rem 2rem;margin:.5rem auto;}
       .form-grid{grid-template-columns:1fr;gap:.875rem;}
       .form-grid .span-2{grid-column:span 1;}
       .section-head{flex-direction:column;align-items:flex-start;gap:.5rem;padding:.75rem 1rem;}
       .progress-bar{margin-bottom:1.5rem;}
       .step-label{font-size:.55rem;}
-      .admin-rail{display:none;}
-      .admin-rail-mobile{display:flex;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:99;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:.5rem;gap:.5rem;box-shadow:var(--shadow-md);}
-      .admin-content{grid-template-columns:1fr;}
+
+      /* Admin rail: ocultar sidebar, mostrar nav flotante */
+      .admin-rail{display:none !important;}
+      .admin-rail-mobile{display:flex !important;position:fixed;bottom:76px;left:50%;transform:translateX(-50%);z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:.4rem;gap:.35rem;box-shadow:var(--shadow-md);}
+      .admin-content{grid-template-columns:1fr !important;padding:1rem !important;}
+      .admin-shell{flex-direction:column;}
       .rail-item{padding:.5rem;}
       .rail-item span{display:none;}
       .rail-item svg{width:20px;height:20px;}
+
       .kpi-cards-row{grid-template-columns:repeat(2,1fr);gap:.875rem;}
       .kpi-card{padding:1rem;}
       .kpi-value{font-size:1.75rem;}
@@ -536,7 +572,7 @@
       .form-actions{flex-direction:column;gap:.75rem;}
       .form-actions-right{flex-direction:column;width:100%;}
       .form-actions-right button{width:100%;}
-      .user-menu{position:fixed;top:auto;bottom:80px;right:1rem;left:1rem;min-width:auto;}
+      .user-menu{position:fixed;top:auto;bottom:80px;right:1rem;left:1rem;min-width:auto;z-index:9991;}
       .user-name{display:none;}
       .save-modal{max-width:90vw;padding:1.25rem;}
       .save-opt-btn{padding:.75rem;}
@@ -1021,6 +1057,26 @@
     </div>
   </div>
 </header>
+
+<!-- MOBILE BOTTOM NAV (duplicado fuera del topbar para que position:fixed funcione) -->
+<nav class="pill-nav pill-nav-mobile" role="tablist" aria-label="Navegación móvil">
+  <button class="pill-btn active" data-tab="formulario" role="tab">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+    <span class="label">Formulario</span>
+  </button>
+  <button class="pill-btn" data-tab="inventario" role="tab">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+    <span class="label">Inventario</span>
+  </button>
+  <button class="pill-btn" data-tab="registros" role="tab">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+    <span class="label">Registros</span>
+  </button>
+  <button class="pill-btn" data-tab="admin" role="tab" style="display:none" id="adminNavBtnMobile">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+    <span class="label">Admin</span>
+  </button>
+</nav>
 
 <div id="toastContainer"></div>
 
@@ -2646,7 +2702,9 @@ function verifyAdminPass() {
 
 function unlockAdminPanel() {
   const adminBtn = document.getElementById('adminNavBtn');
+  const adminBtnMobile = document.getElementById('adminNavBtnMobile');
   if (adminBtn) adminBtn.style.display = '';
+  if (adminBtnMobile) adminBtnMobile.style.display = '';
   switchTab('admin');
 }
 
@@ -2874,9 +2932,14 @@ function showToast(title, type, sub) {
 ═══════════════════════════════════════ */
 let adminLoaded = false;
 function switchTab(tab) {
-  // Mostrar el botón admin en nav solo si se activa por logo
+  // Mostrar el botón admin en ambas navs
   const adminBtn = document.getElementById('adminNavBtn');
-  if (tab === 'admin' && adminBtn) adminBtn.style.display = '';
+  const adminBtnMobile = document.getElementById('adminNavBtnMobile');
+  if (tab === 'admin') {
+    if (adminBtn) adminBtn.style.display = '';
+    if (adminBtnMobile) adminBtnMobile.style.display = '';
+  }
+  // Sincronizar active en TODAS las pill-btn de ambas navs
   document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
   document.getElementById('boletaChip').style.display = tab === 'formulario' ? '' : 'none';
