@@ -3719,17 +3719,12 @@ function regRenderMisRMA() {
     const a = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
     return a ? n + ' ' + a : n;
   })();
-  // Mostrar trámites RMA que tengan al menos un dato RMA registrado
-  // (ticket_rma, fecha_rma o estatus asignado), para evitar falsos positivos
+  // Mostrar todos los trámites RMA del usuario (categoría RMA)
   const rmaData = allRecords.filter(r => {
     const cat = (r.categoria || '').toLowerCase();
     const hasRMA = cat.includes('rma');
     const esMio = r.registrado_por && myName && r.registrado_por.trim().toLowerCase() === myName.trim().toLowerCase();
-    const cleanVal = v => v ? v.toString().trim().replace(/^[-\s]+$/, '') : '';
-    const tieneDatosRMA = cleanVal(r.ticket_rma) !== '' ||
-                          cleanVal(r.fecha_rma) !== '' ||
-                          cleanVal(r.estatus) !== '';
-    return hasRMA && esMio && tieneDatosRMA;
+    return hasRMA && esMio;
   });
   if (countEl) countEl.textContent = rmaData.length + ' registro' + (rmaData.length !== 1 ? 's' : '');
   if (!rmaData.length) {
@@ -4790,15 +4785,11 @@ async function adminLoadRMARecords() {
       await adminLoadAll();
     }
 
-    // Filtrar registros: categoría contiene "RMA" Y tienen al menos un dato RMA
-    // Esto evita incluir registros de categoría RMA sin ninguna información de trámite
+    // Filtrar registros: SOLO categoría contiene "RMA"
+    // Se incluyen todos los registros RMA, con o sin datos de trámite aún asignados
     rmaRawData = allRecords.filter(r => {
       const categoria = (r.categoria || '').toLowerCase();
-      const cleanVal = v => v ? v.toString().trim().replace(/^[-\s]+$/, '') : '';
-      const tieneDatosRMA = cleanVal(r.ticket_rma) !== '' ||
-                            cleanVal(r.fecha_rma) !== '' ||
-                            cleanVal(r.estatus) !== '';
-      return categoria.includes('rma') && tieneDatosRMA;
+      return categoria.includes('rma');
     });
 
     // Cargar historial para cada registro RMA
@@ -5586,7 +5577,11 @@ function kpiGetFilteredData() {
       data = data.filter(r => !r.fecha_creacion || new Date(r.fecha_creacion) <= hasta);
     }
   }
-  if (desde) data = data.filter(r => r.fecha_creacion && new Date(r.fecha_creacion) >= desde);
+  // Usar fecha_rma como referencia principal; si no existe, usar fecha_creacion
+  if (desde) data = data.filter(r => {
+    const fechaRef = r.fecha_rma || r.fecha_creacion;
+    return fechaRef && new Date(fechaRef) >= desde;
+  });
   if (marcaFilter) data = data.filter(r => (r.marca || '').toUpperCase() === marcaFilter.toUpperCase());
   return data;
 }
@@ -5645,10 +5640,11 @@ function kpiRefresh() {
     document.getElementById('kpi-tiempo-max-sub').textContent = '—';
   }
 
-  const periodo30 = data.filter(r => r.fecha_creacion && new Date(r.fecha_creacion) >= new Date(Date.now() - 30*864e5)).length;
+  const periodo30 = data.filter(r => { const f = r.fecha_rma || r.fecha_creacion; return f && new Date(f) >= new Date(Date.now() - 30*864e5); }).length;
   const periodoAnt = data.filter(r => {
-    if (!r.fecha_creacion) return false;
-    const d = new Date(r.fecha_creacion);
+    const f = r.fecha_rma || r.fecha_creacion;
+    if (!f) return false;
+    const d = new Date(f);
     return d >= new Date(Date.now() - 60*864e5) && d < new Date(Date.now() - 30*864e5);
   }).length;
   const trendEl = document.getElementById('kpi-total-trend');
