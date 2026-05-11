@@ -5563,29 +5563,34 @@ function kpiGetFilteredData() {
 
   let data = [...(rmaRawData || [])];
   const now = new Date();
-  let desde = null;
   const labels = { all:'Todo el historial','7d':'Últimos 7 días','30d':'Últimos 30 días','90d':'Últimos 90 días','6m':'Últimos 6 meses','1y':'Último año',custom:'Rango personalizado' };
   const el = document.getElementById('kpi-period-label');
   if (el) el.textContent = labels[periodo] || '';
 
-  if (periodo === '7d') desde = new Date(now - 7*864e5);
-  else if (periodo === '30d') desde = new Date(now - 30*864e5);
-  else if (periodo === '90d') desde = new Date(now - 90*864e5);
-  else if (periodo === '6m') desde = new Date(now - 180*864e5);
-  else if (periodo === '1y') desde = new Date(now - 365*864e5);
+  // Calcular fecha "desde" como string YYYY-MM-DD para evitar problemas de zona horaria
+  const toDateStr = d => d.toISOString().slice(0, 10);
+  let desdeStr = null;
+  let hastaStr = null;
+
+  if (periodo === '7d') desdeStr = toDateStr(new Date(now - 7*864e5));
+  else if (periodo === '30d') desdeStr = toDateStr(new Date(now - 30*864e5));
+  else if (periodo === '90d') desdeStr = toDateStr(new Date(now - 90*864e5));
+  else if (periodo === '6m') desdeStr = toDateStr(new Date(now - 180*864e5));
+  else if (periodo === '1y') desdeStr = toDateStr(new Date(now - 365*864e5));
   else if (periodo === 'custom') {
     const d = document.getElementById('kpi-fecha-desde')?.value;
     const h = document.getElementById('kpi-fecha-hasta')?.value;
-    if (d) desde = new Date(d);
-    if (h) {
-      const hasta = new Date(h); hasta.setHours(23,59,59,999);
-      data = data.filter(r => !r.fecha_creacion || new Date(r.fecha_creacion) <= hasta);
-    }
+    if (d) desdeStr = d;
+    if (h) hastaStr = h;
   }
-  // Usar fecha_rma como referencia principal; si no existe, usar fecha_creacion
-  if (desde) data = data.filter(r => {
-    const fechaRef = r.fecha_rma || r.fecha_creacion;
-    return fechaRef && new Date(fechaRef) >= desde;
+  // Usar fecha_rma como referencia principal; comparar como string YYYY-MM-DD
+  if (desdeStr) data = data.filter(r => {
+    const fechaRef = (r.fecha_rma || r.fecha_creacion || '').slice(0, 10);
+    return fechaRef >= desdeStr;
+  });
+  if (hastaStr) data = data.filter(r => {
+    const fechaRef = (r.fecha_rma || r.fecha_creacion || '').slice(0, 10);
+    return fechaRef <= hastaStr;
   });
   if (marcaFilter) data = data.filter(r => (r.marca || '').toUpperCase() === marcaFilter.toUpperCase());
   return data;
