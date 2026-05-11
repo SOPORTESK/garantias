@@ -3719,13 +3719,17 @@ function regRenderMisRMA() {
     const a = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
     return a ? n + ' ' + a : n;
   })();
-  // RMA comprobable: categoría RMA + ticket_rma real O fecha_rma real
+  // RMA comprobable: categoría RMA + al menos un dato real (ignorando ticket_rma)
   const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
   const rmaData = allRecords.filter(r => {
     const cat = (r.categoria || '').toLowerCase();
     if (!cat.includes('rma')) return false;
     const esMio = r.registrado_por && myName && r.registrado_por.trim().toLowerCase() === myName.trim().toLowerCase();
-    const esReal = limpio(r.ticket_rma) !== '' || limpio(r.fecha_rma) !== '';
+    const esReal = limpio(r.fecha_rma) !== '' ||
+                   limpio(r.serie_fabrica) !== '' ||
+                   limpio(r.estatus) !== '' ||
+                   limpio(r.observaciones) !== '' ||
+                   limpio(r.seguimiento) !== '';
     return esMio && esReal;
   });
   if (countEl) countEl.textContent = rmaData.length + ' registro' + (rmaData.length !== 1 ? 's' : '');
@@ -4787,13 +4791,18 @@ async function adminLoadRMARecords() {
       await adminLoadAll();
     }
 
-    // RMA comprobable y auditable: categoría RMA + ticket_rma real O fecha_rma real
-    // Un guion, espacio o null NO cuenta como dato válido
+    // RMA comprobable: categoría RMA + al menos un dato real (ignorando ticket_rma)
+    // Campos válidos: fecha_rma, serie_fabrica, estatus, observaciones, seguimiento
+    // Si todos están vacíos/guiones → incompleto, no se incluye en analíticas
     const esRMAReal = r => {
       const cat = (r.categoria || '').toLowerCase();
       if (!cat.includes('rma')) return false;
       const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
-      return limpio(r.ticket_rma) !== '' || limpio(r.fecha_rma) !== '';
+      return limpio(r.fecha_rma) !== '' ||
+             limpio(r.serie_fabrica) !== '' ||
+             limpio(r.estatus) !== '' ||
+             limpio(r.observaciones) !== '' ||
+             limpio(r.seguimiento) !== '';
     };
     rmaRawData = allRecords.filter(esRMAReal);
 
@@ -5554,45 +5563,13 @@ const KPI_COLORS = ['#D1411E','#2563EB','#059669','#D97706','#7C3AED','#DC2626',
 let kpiCharts = {};
 
 function kpiGetFilteredData() {
-  const periodo = document.getElementById('kpi-periodo')?.value || '30d';
+  // Return all RMA records (comprobables) without period filtering
   const marcaFilter = document.getElementById('kpi-marca')?.value || '';
-  const customRange = document.getElementById('kpi-custom-range');
-  const customRange2 = document.getElementById('kpi-custom-range-2');
-  if (customRange) customRange.style.display = periodo === 'custom' ? '' : 'none';
-  if (customRange2) customRange2.style.display = periodo === 'custom' ? '' : 'none';
-
   let data = [...(rmaRawData || [])];
-  const now = new Date();
-  const labels = { all:'Todo el historial','7d':'Últimos 7 días','30d':'Últimos 30 días','90d':'Últimos 90 días','6m':'Últimos 6 meses','1y':'Último año',custom:'Rango personalizado' };
-  const el = document.getElementById('kpi-period-label');
-  if (el) el.textContent = labels[periodo] || '';
-
-  // Calcular fecha "desde" como string YYYY-MM-DD para evitar problemas de zona horaria
-  const toDateStr = d => d.toISOString().slice(0, 10);
-  let desdeStr = null;
-  let hastaStr = null;
-
-  if (periodo === '7d') desdeStr = toDateStr(new Date(now - 7*864e5));
-  else if (periodo === '30d') desdeStr = toDateStr(new Date(now - 30*864e5));
-  else if (periodo === '90d') desdeStr = toDateStr(new Date(now - 90*864e5));
-  else if (periodo === '6m') desdeStr = toDateStr(new Date(now - 180*864e5));
-  else if (periodo === '1y') desdeStr = toDateStr(new Date(now - 365*864e5));
-  else if (periodo === 'custom') {
-    const d = document.getElementById('kpi-fecha-desde')?.value;
-    const h = document.getElementById('kpi-fecha-hasta')?.value;
-    if (d) desdeStr = d;
-    if (h) hastaStr = h;
+  // Apply brand filter if set
+  if (marcaFilter) {
+    data = data.filter(r => (r.marca || '').toUpperCase() === marcaFilter.toUpperCase());
   }
-  // Usar fecha_rma como referencia principal; comparar como string YYYY-MM-DD
-  if (desdeStr) data = data.filter(r => {
-    const fechaRef = (r.fecha_rma || r.fecha_creacion || '').slice(0, 10);
-    return fechaRef >= desdeStr;
-  });
-  if (hastaStr) data = data.filter(r => {
-    const fechaRef = (r.fecha_rma || r.fecha_creacion || '').slice(0, 10);
-    return fechaRef <= hastaStr;
-  });
-  if (marcaFilter) data = data.filter(r => (r.marca || '').toUpperCase() === marcaFilter.toUpperCase());
   return data;
 }
 
