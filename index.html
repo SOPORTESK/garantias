@@ -537,10 +537,10 @@
         box-shadow:none !important;border-bottom:none !important;
       }
 
-      /* Espacio inferior para que el contenido no quede detrás de la nav */
-      body{padding-bottom:72px !important;}
+      /* Espacio inferior = altura nav + safe-area */
+      body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px)) !important;}
 
-      .form-shell{padding:0 .75rem 2rem;margin:.5rem auto;}
+      .form-shell{padding:0 .75rem 1.5rem;margin:.5rem auto;}
       .form-grid{grid-template-columns:1fr;gap:.875rem;}
       .form-grid .span-2{grid-column:span 1;}
       .section-head{flex-direction:column;align-items:flex-start;gap:.5rem;padding:.75rem 1rem;}
@@ -549,7 +549,7 @@
 
       /* Admin rail: ocultar sidebar, mostrar nav flotante */
       .admin-rail{display:none !important;}
-      .admin-rail-mobile{display:flex !important;position:fixed;bottom:76px;left:50%;transform:translateX(-50%);z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:.4rem;gap:.35rem;box-shadow:var(--shadow-md);}
+      .admin-rail-mobile{display:flex !important;position:fixed;bottom:calc(72px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:.4rem;gap:.35rem;box-shadow:var(--shadow-md);}
       .admin-content{grid-template-columns:1fr !important;padding:1rem !important;}
       .admin-shell{flex-direction:column;}
       .rail-item{padding:.5rem;}
@@ -572,7 +572,7 @@
       .form-actions{flex-direction:column;gap:.75rem;}
       .form-actions-right{flex-direction:column;width:100%;}
       .form-actions-right button{width:100%;}
-      .user-menu{position:fixed;top:auto;bottom:80px;right:1rem;left:1rem;min-width:auto;z-index:9991;}
+      .user-menu{position:fixed;top:auto;bottom:calc(68px + env(safe-area-inset-bottom,0px));right:1rem;left:1rem;min-width:auto;z-index:9991;}
       .user-name{display:none;}
       .save-modal{max-width:90vw;padding:1.25rem;}
       .save-opt-btn{padding:.75rem;}
@@ -661,10 +661,18 @@
        PWA · MOBILE PREMIUM EXPERIENCE - World Class Design
     ═══════════════════════════════════════════════════════════════ */
 
-    /* SAFE AREAS para iOS notch */
+    /* SAFE AREAS para iOS notch/Dynamic Island */
     @supports(padding:max(0px)){
-      .topbar{padding-left:max(1.25rem,env(safe-area-inset-left));padding-right:max(1.25rem,env(safe-area-inset-right));}
-      .pwa-bottom-nav{padding-bottom:max(.5rem,env(safe-area-inset-bottom));}
+      .topbar{
+        padding-left:max(.75rem,env(safe-area-inset-left));
+        padding-right:max(.75rem,env(safe-area-inset-right));
+        padding-top:env(safe-area-inset-top);
+      }
+      .pill-nav-mobile{
+        padding-bottom:max(.5rem,env(safe-area-inset-bottom)) !important;
+        padding-left:max(.5rem,env(safe-area-inset-left)) !important;
+        padding-right:max(.5rem,env(safe-area-inset-right)) !important;
+      }
     }
 
     /* SPLASH SCREEN PREMIUM */
@@ -758,8 +766,8 @@
       }
       .pill-btn.active svg{color:var(--brand);transform:scale(1.1);}
       .pill-btn.active::before{
-        content:'';position:absolute;top:-.5rem;left:50%;transform:translateX(-50%);
-        width:24px;height:3px;border-radius:99px;background:var(--brand);
+        content:'';position:absolute;top:.2rem;left:50%;transform:translateX(-50%);
+        width:20px;height:2px;border-radius:99px;background:var(--brand);
       }
     }
 
@@ -779,13 +787,15 @@
         border-bottom:1px solid var(--border) !important;
       }
       .form-actions{
-        position:sticky !important;bottom:80px;z-index:50;
-        background:rgba(255,255,255,.95);backdrop-filter:blur(20px);
-        -webkit-backdrop-filter:blur(20px);
-        margin:1rem -.75rem 0 !important;padding:.75rem !important;
-        border-top:1px solid var(--border);
+        position:relative !important;
+        bottom:auto !important;
+        z-index:1;
+        background:transparent;
+        backdrop-filter:none;
+        -webkit-backdrop-filter:none;
+        margin:1rem 0 0 !important;padding:.5rem 0 !important;
+        border-top:none;
       }
-      html[data-theme="dark"] .form-actions{background:rgba(26,29,35,.95);}
     }
 
     /* BUTTONS PREMIUM EN MÓVIL */
@@ -874,7 +884,7 @@
     /* FAB (Floating Action Button) */
     .pwa-fab{
       display:none;
-      position:fixed;bottom:90px;right:1rem;z-index:90;
+      position:fixed;bottom:calc(68px + env(safe-area-inset-bottom,0px));right:1rem;z-index:90;
       width:56px;height:56px;border-radius:18px;
       background:linear-gradient(135deg,var(--brand),var(--brand-2));
       color:#fff;border:none;cursor:pointer;
