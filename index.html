@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover"/>
   <title>Garantías · Tienda3D</title>
 
-  <!-- PWA Manifest -->
-  <link rel="manifest" href="manifest.json"/>
+  <!-- PWA Manifest (solo en http/https, no en file://) -->
+  <script>if(location.protocol==='https:'||location.protocol==='http:'){var l=document.createElement('link');l.rel='manifest';l.href='manifest.json';document.head.appendChild(l);}</script>
   <meta name="theme-color" content="#D1411E" media="(prefers-color-scheme: light)"/>
   <meta name="theme-color" content="#0D0F12" media="(prefers-color-scheme: dark)"/>
 
@@ -2370,8 +2370,10 @@ function toggleTheme() {
 
 /* Registrar Service Worker */
 function initPWA() {
-  // Registrar SW
-  if ('serviceWorker' in navigator) {
+  const isServed = location.protocol === 'https:' || location.protocol === 'http:';
+
+  // SW y manifest solo funcionan en http/https (no en file://)
+  if ('serviceWorker' in navigator && isServed) {
     navigator.serviceWorker.register('./service-worker.js')
       .then(reg => console.log('[PWA] Service Worker registrado:', reg.scope))
       .catch(err => console.warn('[PWA] SW error:', err));
