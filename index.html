@@ -511,14 +511,22 @@
       .topbar .pill-nav{display:none !important;}
       .pill-nav-mobile{
         display:flex !important;
-        position:fixed !important;bottom:0 !important;left:0 !important;right:0 !important;top:auto !important;
+        position:fixed !important;
+        bottom:0 !important;
+        left:0 !important;
+        right:0 !important;
+        top:auto !important;
         z-index:9990 !important;
-        border-radius:0 !important;border:none !important;border-top:1px solid var(--border) !important;
+        border-radius:0 !important;
+        border:none !important;
+        border-top:1px solid var(--border) !important;
         background:var(--surface) !important;
-        padding:.4rem .5rem max(.4rem,env(safe-area-inset-bottom)) !important;
+        /* padding-bottom se sobreescribe por el bloque safe-area */
+        padding:.4rem .5rem .4rem !important;
+        padding-bottom:calc(.4rem + var(--safe-bottom)) !important;
         gap:.15rem !important;
         box-shadow:0 -4px 20px rgba(0,0,0,.12) !important;
-        align-items:stretch !important;
+        align-items:flex-start !important;
       }
       .pill-btn{
         flex:1;display:flex !important;flex-direction:column !important;
@@ -538,7 +546,7 @@
       }
 
       /* Espacio inferior = altura nav + safe-area */
-      body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px)) !important;}
+      body{padding-bottom:calc(var(--nav-height) + var(--safe-bottom) + 8px) !important;}
 
       .form-shell{padding:0 .75rem 1.5rem;margin:.5rem auto;}
       .form-grid{grid-template-columns:1fr;gap:.875rem;}
@@ -549,7 +557,7 @@
 
       /* Admin rail: ocultar sidebar, mostrar nav flotante */
       .admin-rail{display:none !important;}
-      .admin-rail-mobile{display:flex !important;position:fixed;bottom:calc(72px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:.4rem;gap:.35rem;box-shadow:var(--shadow-md);}
+      .admin-rail-mobile{display:flex !important;position:fixed;bottom:calc(var(--nav-height) + var(--safe-bottom) + 8px);left:50%;transform:translateX(-50%);z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:.4rem;gap:.35rem;box-shadow:var(--shadow-md);}
       .admin-content{grid-template-columns:1fr !important;padding:1rem !important;}
       .admin-shell{flex-direction:column;}
       .rail-item{padding:.5rem;}
@@ -572,7 +580,7 @@
       .form-actions{flex-direction:column;gap:.75rem;}
       .form-actions-right{flex-direction:column;width:100%;}
       .form-actions-right button{width:100%;}
-      .user-menu{position:fixed;top:auto;bottom:calc(68px + env(safe-area-inset-bottom,0px));right:1rem;left:1rem;min-width:auto;z-index:9991;}
+      .user-menu{position:fixed;top:auto;bottom:calc(var(--nav-height) + var(--safe-bottom) + 8px);right:1rem;left:1rem;min-width:auto;z-index:9991;}
       .user-name{display:none;}
       .save-modal{max-width:90vw;padding:1.25rem;}
       .save-opt-btn{padding:.75rem;}
@@ -615,9 +623,10 @@
 
     /* ── LANDSCAPE MÓVIL ── */
     @media(max-height:500px) and (orientation:landscape){
-      .pill-nav{position:relative;bottom:auto;left:auto;right:auto;top:auto;box-shadow:none;border:1px solid var(--border);border-radius:var(--radius-lg);}
+      .pill-nav-mobile{position:relative !important;bottom:auto !important;box-shadow:none !important;border:1px solid var(--border) !important;border-radius:var(--radius-lg) !important;}
       .form-shell{padding-bottom:2rem;}
       .admin-rail-mobile{bottom:20px;}
+      body{padding-bottom:0 !important;}
     }
 
     /* ── DESKTOP GRANDE (min-width: 1440px) ── */
@@ -661,17 +670,25 @@
        PWA · MOBILE PREMIUM EXPERIENCE - World Class Design
     ═══════════════════════════════════════════════════════════════ */
 
-    /* SAFE AREAS para iOS notch/Dynamic Island */
-    @supports(padding:max(0px)){
+    /* SAFE AREAS - iOS notch/Dynamic Island
+       Usamos variables CSS para calcular el espacio safe-area
+    */
+    :root{
+      --safe-top:    env(safe-area-inset-top,    0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left:   env(safe-area-inset-left,   0px);
+      --safe-right:  env(safe-area-inset-right,  0px);
+      --nav-height:  58px;
+    }
+    @media(max-width:768px){
       .topbar{
-        padding-left:max(.75rem,env(safe-area-inset-left));
-        padding-right:max(.75rem,env(safe-area-inset-right));
-        padding-top:env(safe-area-inset-top);
+        padding-top:var(--safe-top);
+        height:calc(56px + var(--safe-top)) !important;
       }
       .pill-nav-mobile{
-        padding-bottom:max(.5rem,env(safe-area-inset-bottom)) !important;
-        padding-left:max(.5rem,env(safe-area-inset-left)) !important;
-        padding-right:max(.5rem,env(safe-area-inset-right)) !important;
+        padding-bottom:var(--safe-bottom) !important;
+        padding-left:var(--safe-left) !important;
+        padding-right:var(--safe-right) !important;
       }
     }
 
@@ -747,27 +764,27 @@
 
     /* MOBILE BOTTOM NAV PREMIUM */
     @media(max-width:768px){
-      .pill-nav{
-        background:rgba(255,255,255,.85) !important;
-        backdrop-filter:blur(24px) saturate(180%);
-        -webkit-backdrop-filter:blur(24px) saturate(180%);
+      .pill-nav-mobile{
+        background:rgba(255,255,255,.92) !important;
+        backdrop-filter:blur(24px) saturate(180%) !important;
+        -webkit-backdrop-filter:blur(24px) saturate(180%) !important;
         border-top:1px solid rgba(0,0,0,.08) !important;
         box-shadow:0 -8px 32px rgba(0,0,0,.08) !important;
-        padding:.5rem .75rem max(.5rem,env(safe-area-inset-bottom)) !important;
       }
-      html[data-theme="dark"] .pill-nav{
-        background:rgba(26,29,35,.85) !important;
+      html[data-theme="dark"] .pill-nav-mobile{
+        background:rgba(26,29,35,.92) !important;
         border-top-color:rgba(255,255,255,.08) !important;
       }
-      .pill-btn{position:relative;border-radius:14px !important;transition:all .25s cubic-bezier(.16,1,.3,1) !important;}
+      .pill-btn{position:relative;border-radius:10px !important;transition:all .2s cubic-bezier(.16,1,.3,1) !important;}
       .pill-btn.active{
-        background:linear-gradient(135deg,var(--brand-dim),transparent) !important;
-        border-bottom:none !important;
+        color:var(--brand) !important;
+        background:var(--brand-dim) !important;
+        box-shadow:none !important;border-bottom:none !important;
       }
-      .pill-btn.active svg{color:var(--brand);transform:scale(1.1);}
+      .pill-btn.active svg{color:var(--brand);transform:scale(1.08);}
       .pill-btn.active::before{
-        content:'';position:absolute;top:.2rem;left:50%;transform:translateX(-50%);
-        width:20px;height:2px;border-radius:99px;background:var(--brand);
+        content:'';position:absolute;top:.15rem;left:50%;transform:translateX(-50%);
+        width:18px;height:2px;border-radius:99px;background:var(--brand);
       }
     }
 
@@ -884,7 +901,7 @@
     /* FAB (Floating Action Button) */
     .pwa-fab{
       display:none;
-      position:fixed;bottom:calc(68px + env(safe-area-inset-bottom,0px));right:1rem;z-index:90;
+      position:fixed;bottom:calc(var(--nav-height) + var(--safe-bottom) + 12px);right:1rem;z-index:90;
       width:56px;height:56px;border-radius:18px;
       background:linear-gradient(135deg,var(--brand),var(--brand-2));
       color:#fff;border:none;cursor:pointer;
