@@ -298,6 +298,17 @@
     tbody tr{animation:rowFade .25s ease both;}
     @keyframes rowFade{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}
 
+    /* PAGINATION */
+    .reg-pagination{display:flex;align-items:center;justify-content:space-between;padding:.5rem 1rem;border-top:1px solid var(--border);background:var(--surface-2);gap:.5rem;flex-wrap:wrap;}
+    .reg-pagination__info{font-size:.7rem;color:var(--ink-4);white-space:nowrap;}
+    .reg-pagination__info strong{color:var(--ink-2);}
+    .reg-pagination__pages{display:flex;align-items:center;gap:.25rem;}
+    .reg-pagination__btn{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:28px;padding:0 .4rem;border:1px solid var(--border);border-radius:var(--radius-xs);background:var(--surface);color:var(--ink-3);font-size:.7rem;font-weight:600;cursor:pointer;transition:var(--transition);}
+    .reg-pagination__btn:hover:not(:disabled){background:var(--bg-2);color:var(--ink-1);border-color:var(--border-2);}
+    .reg-pagination__btn:disabled{opacity:.35;cursor:default;}
+    .reg-pagination__btn.active{background:var(--brand);color:#fff;border-color:var(--brand);}
+    .reg-pagination__btn.page-num{min-width:28px;font-family:var(--mono);}
+
     /* BADGES */
     .badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.65rem;font-weight:700;padding:.2rem .5rem;border-radius:999px;letter-spacing:.04em;white-space:nowrap;}
     .badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;}
@@ -1326,24 +1337,23 @@
         </div>
       </div>
       <div class="table-wrap"><table style="table-layout:auto;width:auto;min-width:100%;"><thead><tr>
-        <th>Número de Boleta</th>
+        <th>Boleta</th>
         <th>Fecha</th>
         <th>Ticket</th>
-        <th>Categoría</th>
+        <th>Cat.</th>
         <th>Motivo</th>
         <th>Cliente</th>
         <th>Sede</th>
-        <th>Factura</th>
+        <th>Fact.</th>
         <th>Marca</th>
         <th>Artículo</th>
         <th>Serie</th>
         <th>Falla</th>
         <th>DEV</th>
-        <th>Aprobación</th>
-        <th>Registrado por</th>
-        <th>Modificado por</th>
+        <th>Registrado / Mod.</th>
         <th>Acciones</th>
-      </tr></thead><tbody id="reg-tbody-def"><tr class="empty-row"><td colspan="16"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
+      </tr></thead><tbody id="reg-tbody-def"><tr class="empty-row"><td colspan="15"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
+      <div id="reg-pagination-def" class="reg-pagination"></div>
     </div>
 
     <!-- Salidas Temporales -->
@@ -1366,24 +1376,23 @@
         </div>
       </div>
       <div class="table-wrap"><table style="table-layout:auto;width:auto;min-width:100%;"><thead><tr>
-        <th>Número de Boleta</th>
+        <th>Boleta</th>
         <th>Fecha</th>
         <th>Ticket</th>
-        <th>Categoría</th>
+        <th>Cat.</th>
         <th>Motivo</th>
         <th>Cliente</th>
         <th>Sede</th>
-        <th>Factura</th>
+        <th>Fact.</th>
         <th>Marca</th>
         <th>Artículo</th>
         <th>Serie</th>
         <th>Falla</th>
         <th>DEV</th>
-        <th>Aprobación</th>
-        <th>Registrado por</th>
-        <th>Modificado por</th>
+        <th>Registrado / Mod.</th>
         <th>Acciones</th>
-      </tr></thead><tbody id="reg-tbody-temp"><tr class="empty-row"><td colspan="16"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
+      </tr></thead><tbody id="reg-tbody-temp"><tr class="empty-row"><td colspan="15"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
+      <div id="reg-pagination-temp" class="reg-pagination"></div>
     </div>
 
     <!-- Mis Trámites RMA -->
@@ -1491,22 +1500,22 @@
           </div>
         </div>
         <div class="table-wrap"><table style="table-layout:auto;width:auto;min-width:100%;"><thead><tr>
-          <th class="sortable" data-sort-type="def" data-sort-col="boleta">Número de Boleta <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="def" data-sort-col="boleta">Boleta <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="fecha_creacion">Fecha <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="ticket">Ticket <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="def" data-sort-col="categoria">Categoría <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="def" data-sort-col="categoria">Cat. <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="motivo">Motivo <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="nombre">Cliente <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="sede">Sede <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="def" data-sort-col="factura">Factura <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="def" data-sort-col="factura">Fact. <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="marca">Marca <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="serie">Artículo <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="numero_serie">Serie <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="falla">Falla <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="def" data-sort-col="registrado_por">Registrado por <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="def" data-sort-col="modificado_por">Modificado por <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="def" data-sort-col="registrado_por">Registrado / Mod. <span class="sort-icon">↕</span></th>
           <th>Acciones</th>
-        </tr></thead><tbody id="tbody-def"><tr class="empty-row"><td colspan="16"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
+        </tr></thead><tbody id="tbody-def"><tr class="empty-row"><td colspan="14"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
+      <div id="admin-pagination-def" class="reg-pagination"></div>
       </div>
       <!-- Panel temp -->
       <div class="data-panel" id="panel-salidas-temporales" style="display:none">
@@ -1519,22 +1528,22 @@
           </div>
         </div>
         <div class="table-wrap"><table style="table-layout:auto;width:auto;min-width:100%;"><thead><tr>
-          <th class="sortable" data-sort-type="temp" data-sort-col="boleta">Número de Boleta <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="temp" data-sort-col="boleta">Boleta <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="fecha_creacion">Fecha <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="ticket">Ticket <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="temp" data-sort-col="categoria">Categoría <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="temp" data-sort-col="categoria">Cat. <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="motivo">Motivo <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="nombre">Cliente <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="sede">Sede <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="temp" data-sort-col="factura">Factura <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="temp" data-sort-col="factura">Fact. <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="marca">Marca <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="serie">Artículo <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="numero_serie">Serie <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="falla">Falla <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="temp" data-sort-col="registrado_por">Registrado por <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="temp" data-sort-col="modificado_por">Modificado por <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="temp" data-sort-col="registrado_por">Registrado / Mod. <span class="sort-icon">↕</span></th>
           <th>Acciones</th>
-        </tr></thead><tbody id="tbody-temp"><tr class="empty-row"><td colspan="16"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
+        </tr></thead><tbody id="tbody-temp"><tr class="empty-row"><td colspan="14"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
+      <div id="admin-pagination-temp" class="reg-pagination"></div>
       </div>
 
       <!-- PANEL USUARIOS -->
@@ -1628,15 +1637,16 @@
                   <tr>
                     <th>Ticket</th>
                     <th>Cliente</th>
+                    <th>Marca</th>
                     <th>Ticket RMA</th>
-                    <th>Fecha Ticket RMA</th>
+                    <th>Fecha RMA</th>
                     <th>Tiempo</th>
                     <th>Artículo</th>
                     <th>Serie</th>
                     <th>Falla</th>
-                    <th>Serie Equipo Nuevo</th>
+                    <th>Serie Nvo.</th>
                     <th>Estatus</th>
-                    <th>Número de Boleta</th>
+                    <th>Boleta</th>
                     <th>Observaciones</th>
                     <th>Seguimiento</th>
                     <th>Auditoría<br><span style="font-size:10px;font-weight:400;">(Cat/Completo)</span></th>
@@ -1645,13 +1655,14 @@
                 </thead>
                 <tbody id="rma-tbody">
                   <tr class="empty-row">
-                    <td colspan="14" style="text-align:center;padding:2rem;">
+                    <td colspan="16" style="text-align:center;padding:2rem;">
                       <span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
+            <div id="rma-pagination" class="reg-pagination"></div>
             
             <div style="margin-top:1rem;font-size:0.85rem;color:var(--ink-4);">
               Total: <span id="rma-total-count">0</span> registros
@@ -4300,26 +4311,43 @@ async function doCopyFormHTML() {
 ═══════════════════════════════════════ */
 let regLoaded = false;
 const regRecords = { def: [], temp: [] };
+const PAGE_SIZE = 20;
+const regPage = { def: 1, temp: 1 };
 
 function regRenderTable(type) {
   const tbody = document.getElementById('reg-tbody-' + type);
   const rows  = regRecords[type];
   const count = document.getElementById('reg-count-' + type);
-  if (count) count.textContent = rows.length + ' registro' + (rows.length !== 1 ? 's' : '');
-  if (!rows.length) {
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="16"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>';
+  const total = rows.length;
+  if (count) count.textContent = total + ' registro' + (total !== 1 ? 's' : '');
+
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  if (regPage[type] > totalPages) regPage[type] = totalPages;
+  const page = regPage[type];
+  const start = (page - 1) * PAGE_SIZE;
+  const pageRows = rows.slice(start, start + PAGE_SIZE);
+
+  if (!total) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="15"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>';
+    document.getElementById('reg-pagination-' + type).innerHTML = '';
     return;
   }
+
   const myName = (function(){
     const n = currentPerfil?.nombre || currentUser?.user_metadata?.nombre || '';
     const a = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
     return a ? n + ' ' + a : n;
   })();
-  tbody.innerHTML = rows.map((r, i) => {
+
+  tbody.innerHTML = pageRows.map((r, i) => {
     const canEdit = isAdmin() || (r.registrado_por && myName && r.registrado_por === myName);
     const modInfo = r.modificado_por
       ? `${r.modificado_por}${r.fecha_modificacion ? '<br><span style="font-size:.65rem;color:var(--ink-4)">' + fmtDate(r.fecha_modificacion) + '</span>' : ''}`
       : '—';
+    const regMod = r.registrado_por
+      ? `${r.registrado_por}${r.modificado_por ? '<br><span style="font-size:.65rem;color:var(--ink-4)">mod. ' + r.modificado_por + '</span>' : ''}`
+      : (r.modificado_por || '—');
     return `<tr style="animation-delay:${i*0.02}s">
     <td class="td-mono">${boletaBadge(r.boleta)}</td>
     <td>${fmtDate(r.fecha_creacion)}</td>
@@ -4334,20 +4362,56 @@ function regRenderTable(type) {
     <td class="td-mono">${r.numero_serie||'—'}</td>
     <td class="td-truncate" data-tip="${(r.falla||'—').replace(/"/g,'&quot;')}">${r.falla||'—'}</td>
     <td class="td-mono" style="color:var(--brand);font-weight:700;">${r.dev||'—'}</td>
-    <td style="font-size:.75rem;color:var(--ink-3);white-space:nowrap;">${r.fecha_aprobacion ? new Date(r.fecha_aprobacion).toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric'}) : '—'}</td>
-    <td style="font-size:.75rem;color:var(--ink-3)">${r.registrado_por||'—'}</td>
-    <td style="font-size:.75rem;color:var(--ink-3)">${modInfo}</td>
+    <td style="font-size:.75rem;color:var(--ink-3)">${regMod}</td>
     <td><div class="td-actions">${canEdit ? `<button class="btn btn-amber btn-sm" onclick="openEdit('${r.id}')">Editar</button>` : ''}</div></td>
   </tr>`;
   }).join('');
+
+  // Render pagination controls
+  regRenderPagination(type, page, totalPages, total, start, pageRows.length);
+}
+
+function regRenderPagination(type, page, totalPages, total, start, pageRowsLen) {
+  const container = document.getElementById('reg-pagination-' + type);
+  if (!container || totalPages <= 1) {
+    if (container) container.innerHTML = '';
+    return;
+  }
+
+  const end = start + pageRowsLen;
+  let html = '<span class="reg-pagination__info">Mostrando <strong>' + (start + 1) + '–' + end + '</strong> de <strong>' + total + '</strong></span>';
+  html += '<div class="reg-pagination__pages">';
+  html += '<button class="reg-pagination__btn" onclick="regGoPage(\'' + type + '\',' + (page - 1) + ')"' + (page <= 1 ? ' disabled' : '') + '>← Ant</button>';
+
+  // Page number buttons (show max 7)
+  let pStart = Math.max(1, page - 3);
+  let pEnd = Math.min(totalPages, page + 3);
+  if (pEnd - pStart < 6) {
+    if (pStart === 1) pEnd = Math.min(totalPages, pStart + 6);
+    else pStart = Math.max(1, pEnd - 6);
+  }
+  for (let p = pStart; p <= pEnd; p++) {
+    html += '<button class="reg-pagination__btn page-num' + (p === page ? ' active' : '') + '" onclick="regGoPage(\'' + type + '\',' + p + ')">' + p + '</button>';
+  }
+
+  html += '<button class="reg-pagination__btn" onclick="regGoPage(\'' + type + '\',' + (page + 1) + ')"' + (page >= totalPages ? ' disabled' : '') + '>Sig →</button>';
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function regGoPage(type, page) {
+  regPage[type] = page;
+  regRenderTable(type);
 }
 
 function regApplyFilters(type) {
   const q = (document.getElementById('reg-search-' + type)?.value || '').toLowerCase();
   let rows = rawData[type] || [];
   if (q) rows = rows.filter(r => [r.boleta,r.nombre,r.ticket,r.marca,r.factura,r.serie,r.sede].map(x=>(x||'').toLowerCase()).join(' ').includes(q));
-  rows = [...rows].sort(compareBoletaCustom);
+  const byDateDesc = (a, b) => (b.fecha_creacion || '').localeCompare(a.fecha_creacion || '');
+  rows = [...rows].sort(byDateDesc);
   regRecords[type] = rows;
+  regPage[type] = 1; // Reset to first page on search
   regRenderTable(type);
 }
 
@@ -4453,8 +4517,9 @@ function statsDownloadExcel() {
 
 function regLoadAll() {
   regLoaded = true;
-  regRecords.def  = [...(rawData.def  || [])].sort(compareBoletaCustom);
-  regRecords.temp = [...(rawData.temp || [])].sort(compareBoletaCustom);
+  const byDateDesc = (a, b) => (b.fecha_creacion || '').localeCompare(a.fecha_creacion || '');
+  regRecords.def  = [...(rawData.def  || [])].sort(byDateDesc);
+  regRecords.temp = [...(rawData.temp || [])].sort(byDateDesc);
   regRenderTable('def');
   regRenderTable('temp');
   regRenderMisRMA();
@@ -5459,7 +5524,9 @@ async function toggleUserRole(userId, currentRol, correo) {
 let records={def:[],temp:[]};
 let rawData={def:[],temp:[]};
 // FIX: sortState sin usar event implícito
-let sortState={def:{col:'boleta',dir:-1},temp:{col:'boleta',dir:-1}};
+let sortState={def:{col:'fecha_creacion',dir:-1},temp:{col:'fecha_creacion',dir:-1}};
+const ADMIN_PAGE_SIZE = 20;
+const adminPage = { def: 1, temp: 1 };
 
 async function adminLoadAll() {
   try {
@@ -5480,16 +5547,12 @@ async function adminLoadAll() {
       }
     }
 
-    // Orden personalizado: primero boletas con prefijo G/T/NC, luego boletas viejas
-    all.sort(compareBoletaCustom);
+    // Ordenar por fecha de creación descendente (más reciente primero)
+    const byDateDesc = (a, b) => (b.fecha_creacion || '').localeCompare(a.fecha_creacion || '');
+    all.sort(byDateDesc);
 
     rawData.def = all.filter(r => r.tipo === 'salida_definitiva');
     rawData.temp = all.filter(r => r.tipo === 'salida_temporal');
-
-    // Asegurar que ambos arrays mantengan el orden personalizado
-    const sortByBoletaDesc = (a, b) => compareBoletaCustom(a, b);
-    rawData.def.sort(sortByBoletaDesc);
-    rawData.temp.sort(sortByBoletaDesc);
     
     if (all.length > allRecords.length) {
       allRecords = [...all];
@@ -5540,6 +5603,13 @@ async function adminLoadRMARecords() {
     const tieneDatosRMA = r => limpio(r.fecha_rma) !== '' || limpio(r.serie_fabrica) !== '' || limpio(r.estatus) !== '';
     rmaRawData = allRecords.filter(tieneDatosRMA);
 
+    // Ordenar por fecha_rma (o fecha_creacion) descendente
+    rmaRawData.sort((a, b) => {
+      const fa = a.fecha_rma || a.fecha_creacion || '';
+      const fb = b.fecha_rma || b.fecha_creacion || '';
+      return fb.localeCompare(fa);
+    });
+
     // Cargar historial para cada registro RMA
     if (rmaRawData.length > 0) {
       try {
@@ -5550,7 +5620,6 @@ async function adminLoadRMARecords() {
         // Asociar historial a cada registro
         rmaRawData.forEach(r => {
           r.historial = (historial || []).filter(h => h.garantia_id === r.id);
-          console.log('Registro', r.boleta, 'historial:', r.historial);
         });
       } catch (e) {
         console.error('Error al cargar historial:', e);
@@ -5560,6 +5629,7 @@ async function adminLoadRMARecords() {
     rmaRecords = [...rmaRawData];
     adminPopulateRMAFilters();
     adminApplyRMAFilters();
+    kpiRefresh(); // Auto-actualizar KPIs
   } catch (e) {
     console.error('Error al cargar registros RMA:', e);
     showToast('Error al cargar registros RMA', 'error', e.message);
@@ -5567,36 +5637,38 @@ async function adminLoadRMARecords() {
 }
 
 function adminPopulateRMAFilters() {
-  // Llenar filtro de marcas
-  const marcas = [...new Set(rmaRawData.map(r => r.marca).filter(m => m))].sort();
+  // Llenar filtro de marcas (unificado: mayúsculas, sin espacios extra)
+  const marcas = [...new Set(rmaRawData.map(r => (r.marca || '').trim().toUpperCase()).filter(Boolean))].sort();
   const marcaSelect = document.getElementById('rma-filter-marca');
   if (marcaSelect) {
+    const cur = marcaSelect.value;
     marcaSelect.innerHTML = '<option value="">Todas</option>';
     marcas.forEach(m => {
-      marcaSelect.innerHTML += `<option value="${m}">${m}</option>`;
+      marcaSelect.innerHTML += `<option value="${m}"${m === cur ? ' selected' : ''}>${m}</option>`;
     });
   }
 
   // Llenar filtro de estatus
-  const estatus = [...new Set(rmaRawData.map(r => r.estatus).filter(e => e))].sort();
+  const estatus = [...new Set(rmaRawData.map(r => r.estatus).filter(Boolean))].sort();
   const estatusSelect = document.getElementById('rma-filter-estatus');
   if (estatusSelect) {
+    const curEst = estatusSelect.value;
     estatusSelect.innerHTML = '<option value="">Todos</option>';
     estatus.forEach(e => {
-      estatusSelect.innerHTML += `<option value="${e}">${e}</option>`;
+      estatusSelect.innerHTML += `<option value="${e}"${e === curEst ? ' selected' : ''}>${KPI_ESTATUS_LABELS[e] || e}</option>`;
     });
   }
 }
 
 function adminApplyRMAFilters() {
-  const marca = document.getElementById('rma-filter-marca').value.toLowerCase();
-  const estatus = document.getElementById('rma-filter-estatus').value.toLowerCase();
+  const marca = document.getElementById('rma-filter-marca').value.toUpperCase();
+  const estatus = document.getElementById('rma-filter-estatus').value;
   const fecha = document.getElementById('rma-filter-fecha').value;
   const search = document.getElementById('rma-filter-search').value.toLowerCase();
 
   rmaRecords = rmaRawData.filter(r => {
-    if (marca && r.marca && r.marca.toLowerCase() !== marca) return false;
-    if (estatus && r.estatus && r.estatus.toLowerCase() !== estatus) return false;
+    if (marca && (r.marca || '').trim().toUpperCase() !== marca) return false;
+    if (estatus && r.estatus !== estatus) return false;
     if (fecha && r.fecha_rma && r.fecha_rma.slice(0, 10) !== fecha) return false;
     if (search) {
       const hay = [
@@ -5605,13 +5677,15 @@ function adminApplyRMAFilters() {
         r.ticket_rma,
         r.serie,
         r.numero_serie,
-        r.boleta
+        r.boleta,
+        r.marca
       ].map(x => (x || '').toLowerCase()).join(' ');
       if (!hay.includes(search)) return false;
     }
     return true;
   });
 
+  rmaPage = 1; // Resetear página al filtrar
   adminRenderRMATable();
   document.getElementById('rma-total-count').textContent = rmaRecords.length;
 }
@@ -5857,16 +5931,27 @@ function calcularTiempoTranscurrido(fechaInicio, fechaFin, estatus) {
   return diffDias + 'd ' + diffHoras + 'h';
 }
 
+const RMA_PAGE_SIZE = 20;
+let rmaPage = 1;
+
 function adminRenderRMATable() {
   const tbody = document.getElementById('rma-tbody');
-  if (!rmaRecords.length) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="15" style="text-align:center;padding:2rem;">
+  const total = rmaRecords.length;
+
+  const totalPages = Math.max(1, Math.ceil(total / RMA_PAGE_SIZE));
+  if (rmaPage > totalPages) rmaPage = totalPages;
+  const start = (rmaPage - 1) * RMA_PAGE_SIZE;
+  const pageRows = rmaRecords.slice(start, start + RMA_PAGE_SIZE);
+
+  if (!total) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="16" style="text-align:center;padding:2rem;">
       <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros
     </td></tr>`;
+    document.getElementById('rma-pagination').innerHTML = '';
     return;
   }
 
-  tbody.innerHTML = rmaRecords.map((r, i) => {
+  tbody.innerHTML = pageRows.map((r, i) => {
     // Obtener fecha del historial más reciente si existe
     const fechaHistorial = r.historial && r.historial.length > 0 ? r.historial[0].fecha : null;
     const fechaMostrar = fechaHistorial || r.fecha_rma;
@@ -5882,17 +5967,17 @@ function adminRenderRMATable() {
     const esCerrado = r.estatus && estatusCerrados.includes(r.estatus);
     const tiempoStyle = esCerrado ? 'color:var(--green);font-weight:600;' : 'color:var(--ink-2);';
     
-    // Auditoría: verificar si es RMA completo
+    // Auditoría: verificar si es RMA completo (fecha + estatus)
     const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
-    const esCompleto = limpio(r.fecha_rma) !== '' && limpio(r.serie_fabrica) !== '' && limpio(r.estatus) !== '';
+    const esCompleto = limpio(r.fecha_rma) !== '' && limpio(r.estatus) !== '';
     const badgeAuditoria = esCompleto 
       ? '<span style="background:var(--green);color:white;padding:2px 6px;border-radius:4px;font-size:10px;">✓ COMPLETO</span>'
       : '<span style="background:var(--amber);color:white;padding:2px 6px;border-radius:4px;font-size:10px;">⚠ INCOMPLETO</span>';
     
-    console.log('Tooltip seguimiento:', r.boleta, 'fechaTooltip:', fechaTooltip, 'seguimiento:', r.seguimiento);
     return `<tr style="animation-delay:${i*0.02}s">
       <td class="td-mono">${r.ticket || '—'}</td>
       <td class="td-wrap"><strong>${r.nombre || '—'}</strong></td>
+      <td>${r.marca || '—'}</td>
       <td class="td-mono">${r.ticket_rma || '—'}</td>
       <td>${fechaCelda}</td>
       <td style="${tiempoStyle}">${tiempoTranscurrido}</td>
@@ -5904,7 +5989,7 @@ function adminRenderRMATable() {
       <td class="td-mono">${r.boleta || '—'}</td>
       <td class="td-truncate" data-tip="[${fechaTooltip}] ${(r.observaciones || '—').replace(/"/g, '&quot;')}">${r.observaciones || '—'}</td>
       <td class="td-truncate" data-tip="[${fechaTooltip}] ${(r.seguimiento || '—').replace(/"/g, '&quot;')}">${r.seguimiento || '—'}</td>
-      <td style="font-size:10px;">${badgeAuditoria}<br><span style="color:var(--ink-4);">${r.categoria || '—'}</span></td>
+      <td style="font-size:10px;">${badgeAuditoria}<br><span style="color:var(--ink-4);">${r.categoria || '—'}</span><br><span style="color:var(--ink-3);" title="Autor del ticket">${r.registrado_por || '—'}</span></td>
       <td>
         <button class="btn btn-sm" onclick="openEdit('${r.id}')" title="Editar">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -5915,6 +6000,37 @@ function adminRenderRMATable() {
       </td>
     </tr>`;
   }).join('');
+
+  adminRenderRMAPagination(totalPages, total, start, pageRows.length);
+}
+
+function adminRenderRMAPagination(totalPages, total, start, pageRowsLen) {
+  const container = document.getElementById('rma-pagination');
+  if (!container || totalPages <= 1) {
+    if (container) container.innerHTML = '';
+    return;
+  }
+  const end = start + pageRowsLen;
+  let html = '<span class="reg-pagination__info">Mostrando <strong>' + (start + 1) + '–' + end + '</strong> de <strong>' + total + '</strong></span>';
+  html += '<div class="reg-pagination__pages">';
+  html += '<button class="reg-pagination__btn" onclick="adminGoRMAPage(' + (rmaPage - 1) + ')"' + (rmaPage <= 1 ? ' disabled' : '') + '>← Ant</button>';
+  let pStart = Math.max(1, rmaPage - 3);
+  let pEnd = Math.min(totalPages, rmaPage + 3);
+  if (pEnd - pStart < 6) {
+    if (pStart === 1) pEnd = Math.min(totalPages, pStart + 6);
+    else pStart = Math.max(1, pEnd - 6);
+  }
+  for (let p = pStart; p <= pEnd; p++) {
+    html += '<button class="reg-pagination__btn page-num' + (p === rmaPage ? ' active' : '') + '" onclick="adminGoRMAPage(' + p + ')">' + p + '</button>';
+  }
+  html += '<button class="reg-pagination__btn" onclick="adminGoRMAPage(' + (rmaPage + 1) + ')"' + (rmaPage >= totalPages ? ' disabled' : '') + '>Sig →</button>';
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function adminGoRMAPage(page) {
+  rmaPage = page;
+  adminRenderRMATable();
 }
 
 function adminUpdateStats(all) {
@@ -6340,7 +6456,8 @@ function kpiPopulateFilters() {
 
 function kpiRefresh() {
   kpiPopulateFilters();
-  const data = kpiGetFilteredData().filter(esRMACompleto);
+  const allData = kpiGetFilteredData(); // Todos los RMA (sin exigir fecha_rma)
+  const data = allData.filter(esRMACompleto); // Solo con fecha_rma para métricas de tiempo
   const total = data.length;
   const enProceso = data.filter(r => r.estatus === 'en_proceso').length;
   const pendientes = data.filter(r => r.estatus === 'pendiente_tramite' || !r.estatus).length;
@@ -6396,8 +6513,8 @@ function kpiRefresh() {
   }
 
   kpiRenderCharts(data);
-  kpiRenderTableMarcas(data);
-  kpiRenderTableAbiertos(data);
+  kpiRenderTableMarcas(allData);
+  kpiRenderTableAbiertos(allData);
 }
 
 function kpiRenderCharts(data) {
@@ -6423,7 +6540,12 @@ function kpiRenderCharts(data) {
   }
 
   const meses = {};
-  data.forEach(r => { if (!r.fecha_creacion) return; const m = r.fecha_creacion.slice(0,7); meses[m] = (meses[m] || 0) + 1; });
+  data.forEach(r => { 
+    const f = r.fecha_rma || r.fecha_creacion;
+    if (!f) return; 
+    const m = f.slice(0,7); 
+    meses[m] = (meses[m] || 0) + 1; 
+  });
   const mKeys = Object.keys(meses).sort().slice(-12);
   const ctx2 = document.getElementById('kpi-chart-volumen');
   if (ctx2) {
@@ -6466,6 +6588,10 @@ function kpiRenderCharts(data) {
   }
 }
 
+const KPI_MARCAS_PAGE_SIZE = 10;
+let kpiMarcasPage = 1;
+let kpiMarcasDataStore = [];
+
 function kpiRenderTableMarcas(data) {
   const tbody = document.getElementById('kpi-tabla-marcas-body');
   const tfoot = document.getElementById('kpi-tabla-marcas-foot');
@@ -6485,10 +6611,41 @@ function kpiRenderTableMarcas(data) {
     else g.pendientes++;
   });
 
-  const rows = Object.entries(byMarca).sort((a,b) => b[1].total - a[1].total);
-  const maxTotal = rows.length ? rows[0][1].total : 1;
+  kpiMarcasDataStore = Object.entries(byMarca).sort((a,b) => b[1].total - a[1].total);
+  kpiRenderTableMarcasPage();
 
-  tbody.innerHTML = rows.map(([marca, g]) => {
+  if (tfoot) {
+    const totals = kpiMarcasDataStore.reduce((acc, [,g]) => {
+      acc.total += g.total; acc.enProceso += g.enProceso; acc.pendientes += g.pendientes; acc.resueltos += g.resueltos; acc.dias = acc.dias.concat(g.dias);
+      return acc;
+    }, { total:0, enProceso:0, pendientes:0, resueltos:0, dias:[] });
+    const tTasa = totals.total ? ((totals.resueltos/totals.total)*100).toFixed(0) : 0;
+    const tAvg = totals.dias.length ? (totals.dias.reduce((a,b)=>a+b,0)/totals.dias.length).toFixed(1) : '—';
+    const tMin = totals.dias.length ? Math.min(...totals.dias) : '—';
+    const tMax = totals.dias.length ? Math.max(...totals.dias) : '—';
+    tfoot.innerHTML = '<tr><td>TOTAL</td><td>' + totals.total + '</td><td>' + totals.enProceso + '</td><td>' + totals.pendientes + '</td><td>' + totals.resueltos + '</td><td>' + tTasa + '%</td><td>' + tAvg + '</td><td>' + tMin + '</td><td>' + tMax + '</td></tr>';
+  }
+}
+
+function kpiRenderTableMarcasPage() {
+  const tbody = document.getElementById('kpi-tabla-marcas-body');
+  if (!tbody) return;
+
+  const total = kpiMarcasDataStore.length;
+  const totalPages = Math.max(1, Math.ceil(total / KPI_MARCAS_PAGE_SIZE));
+  if (kpiMarcasPage > totalPages) kpiMarcasPage = totalPages;
+  const start = (kpiMarcasPage - 1) * KPI_MARCAS_PAGE_SIZE;
+  const pageRows = kpiMarcasDataStore.slice(start, start + KPI_MARCAS_PAGE_SIZE);
+
+  if (!total) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;">Sin datos para mostrar</td></tr>';
+    document.getElementById('kpi-marcas-pagination').innerHTML = '';
+    return;
+  }
+
+  const maxTotal = kpiMarcasDataStore.length ? kpiMarcasDataStore[0][1].total : 1;
+
+  tbody.innerHTML = pageRows.map(([marca, g]) => {
     const tasa = g.total ? ((g.resueltos/g.total)*100).toFixed(0) : 0;
     const avg = g.dias.length ? (g.dias.reduce((a,b)=>a+b,0)/g.dias.length).toFixed(1) : '—';
     const min = g.dias.length ? Math.min(...g.dias) : '—';
@@ -6505,17 +6662,43 @@ function kpiRenderTableMarcas(data) {
       '<td>' + avg + '</td><td>' + min + '</td><td>' + max + '</td></tr>';
   }).join('');
 
-  if (tfoot) {
-    const totals = rows.reduce((acc, [,g]) => {
-      acc.total += g.total; acc.enProceso += g.enProceso; acc.pendientes += g.pendientes; acc.resueltos += g.resueltos; acc.dias = acc.dias.concat(g.dias);
-      return acc;
-    }, { total:0, enProceso:0, pendientes:0, resueltos:0, dias:[] });
-    const tTasa = totals.total ? ((totals.resueltos/totals.total)*100).toFixed(0) : 0;
-    const tAvg = totals.dias.length ? (totals.dias.reduce((a,b)=>a+b,0)/totals.dias.length).toFixed(1) : '—';
-    const tMin = totals.dias.length ? Math.min(...totals.dias) : '—';
-    const tMax = totals.dias.length ? Math.max(...totals.dias) : '—';
-    tfoot.innerHTML = '<tr><td>TOTAL</td><td>' + totals.total + '</td><td>' + totals.enProceso + '</td><td>' + totals.pendientes + '</td><td>' + totals.resueltos + '</td><td>' + tTasa + '%</td><td>' + tAvg + '</td><td>' + tMin + '</td><td>' + tMax + '</td></tr>';
+  kpiRenderMarcasPagination(totalPages, total, start, pageRows.length);
+}
+
+function kpiRenderMarcasPagination(totalPages, total, start, pageRowsLen) {
+  let container = document.getElementById('kpi-marcas-pagination');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'kpi-marcas-pagination';
+    container.className = 'reg-pagination';
+    document.getElementById('kpi-tabla-marcas').parentElement.appendChild(container);
   }
+
+  if (totalPages <= 1) {
+    container.innerHTML = '';
+    return;
+  }
+  const end = start + pageRowsLen;
+  let html = '<span class="reg-pagination__info">Mostrando <strong>' + (start + 1) + '–' + end + '</strong> de <strong>' + total + '</strong></span>';
+  html += '<div class="reg-pagination__pages">';
+  html += '<button class="reg-pagination__btn" onclick="kpiGoMarcasPage(' + (kpiMarcasPage - 1) + ')"' + (kpiMarcasPage <= 1 ? ' disabled' : '') + '>← Ant</button>';
+  let pStart = Math.max(1, kpiMarcasPage - 3);
+  let pEnd = Math.min(totalPages, kpiMarcasPage + 3);
+  if (pEnd - pStart < 6) {
+    if (pStart === 1) pEnd = Math.min(totalPages, pStart + 6);
+    else pStart = Math.max(1, pEnd - 6);
+  }
+  for (let p = pStart; p <= pEnd; p++) {
+    html += '<button class="reg-pagination__btn page-num' + (p === kpiMarcasPage ? ' active' : '') + '" onclick="kpiGoMarcasPage(' + p + ')">' + p + '</button>';
+  }
+  html += '<button class="reg-pagination__btn" onclick="kpiGoMarcasPage(' + (kpiMarcasPage + 1) + ')"' + (kpiMarcasPage >= totalPages ? ' disabled' : '') + '>Sig →</button>';
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function kpiGoMarcasPage(page) {
+  kpiMarcasPage = page;
+  kpiRenderTableMarcasPage();
 }
 
 function kpiRenderTableAbiertos(data) {
@@ -6691,7 +6874,9 @@ function adminApplyFilters(type) {
     const av=a[col]||'',bv=b[col]||'';
     return av<bv?-dir:av>bv?dir:0;
   });
-  records[type]=rows; adminRenderTable(type);
+  records[type]=rows;
+  adminPage[type] = 1; // Reset to first page on filter
+  adminRenderTable(type);
   document.getElementById('count-'+type).textContent=rows.length+' de '+rawData[type].length;
 }
 
@@ -6712,8 +6897,17 @@ function fmtDate(iso){if(!iso)return'—';return new Date(iso).toLocaleDateStrin
 
 function adminRenderTable(type){
   const tbody=document.getElementById('tbody-'+type), rows=records[type];
-  if(!rows.length){tbody.innerHTML=`<tr class="empty-row"><td colspan="16"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;return;}
-  tbody.innerHTML=rows.map((r,i)=>{
+  const total = rows.length;
+
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE));
+  if (adminPage[type] > totalPages) adminPage[type] = totalPages;
+  const page = adminPage[type];
+  const start = (page - 1) * ADMIN_PAGE_SIZE;
+  const pageRows = rows.slice(start, start + ADMIN_PAGE_SIZE);
+
+  if(!total){tbody.innerHTML=`<tr class="empty-row"><td colspan="14"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;document.getElementById('admin-pagination-'+type).innerHTML='';return;}
+  tbody.innerHTML=pageRows.map((r,i)=>{
     const regPor = r.registrado_por || '—';
     const modPor = r.modificado_por ? ` <span style="font-size:.65rem;color:var(--ink-4)" title="Modificado por ${r.modificado_por}">(mod.)</span>` : '';
     return `<tr style="animation-delay:${i*0.02}s">
@@ -6729,14 +6923,45 @@ function adminRenderTable(type){
     <td class="td-mono">${r.serie||'—'}</td>
     <td class="td-mono">${r.numero_serie||'—'}</td>
     <td class="td-truncate" data-tip="${(r.falla||'—').replace(/"/g,'&quot;')}">${r.falla||'—'}</td>
-    <td style="font-size:.75rem;color:var(--ink-3)">${regPor}</td>
-    <td style="font-size:.75rem;color:var(--ink-3)">${r.modificado_por||'—'}</td>
+    <td style="font-size:.75rem;color:var(--ink-3)">${regPor}${modPor}</td>
     <td><div class="td-actions">
       <button class="btn btn-amber btn-sm" onclick="openEdit('${r.id}')">Editar</button>
       <button class="btn btn-danger btn-sm" onclick="askDelete('${r.id}','${r.boleta||''}')">Eliminar</button>
     </div></td>
   </tr>`;
   }).join('');
+
+  // Render pagination controls
+  adminRenderPagination(type, page, totalPages, total, start, pageRows.length);
+}
+
+function adminRenderPagination(type, page, totalPages, total, start, pageRowsLen) {
+  const container = document.getElementById('admin-pagination-' + type);
+  if (!container || totalPages <= 1) {
+    if (container) container.innerHTML = '';
+    return;
+  }
+  const end = start + pageRowsLen;
+  let html = '<span class="reg-pagination__info">Mostrando <strong>' + (start + 1) + '–' + end + '</strong> de <strong>' + total + '</strong></span>';
+  html += '<div class="reg-pagination__pages">';
+  html += '<button class="reg-pagination__btn" onclick="adminGoPage(\'' + type + '\',' + (page - 1) + ')"' + (page <= 1 ? ' disabled' : '') + '>← Ant</button>';
+  let pStart = Math.max(1, page - 3);
+  let pEnd = Math.min(totalPages, page + 3);
+  if (pEnd - pStart < 6) {
+    if (pStart === 1) pEnd = Math.min(totalPages, pStart + 6);
+    else pStart = Math.max(1, pEnd - 6);
+  }
+  for (let p = pStart; p <= pEnd; p++) {
+    html += '<button class="reg-pagination__btn page-num' + (p === page ? ' active' : '') + '" onclick="adminGoPage(\'' + type + '\',' + p + ')">' + p + '</button>';
+  }
+  html += '<button class="reg-pagination__btn" onclick="adminGoPage(\'' + type + '\',' + (page + 1) + ')"' + (page >= totalPages ? ' disabled' : '') + '>Sig →</button>';
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function adminGoPage(type, page) {
+  adminPage[type] = page;
+  adminRenderTable(type);
 }
 
 function exportExcel(type){
@@ -6766,7 +6991,7 @@ const EDIT_FIELDS=[
   {key:'dev',label:'Nota de Crédito',type:'text',dev:true},
   {key:'factura_salida',label:'Factura de Salida',type:'text'},
   {key:'ticket_rma',label:'Ticket RMA',type:'text'},
-  {key:'fecha_rma',label:'Fecha',type:'date'},
+  {key:'fecha_rma',label:'Fecha RMA *',type:'date'},
   {key:'serie_fabrica',label:'Serie Equipo Nuevo',type:'text'},
   {key:'estatus',label:'Estatus',type:'select',opts:[['reemplazo_total','REEMPLAZO TOTAL'],['repuesto_ingresado','REPUESTO INGRESADO'],['nota_credito_marca','NOTA DE CRÉDITO MARCA'],['en_proceso','EN PROCESO'],['pendiente_tramite','PENDIENTE DE TRÁMITE'],['fuera_garantia','FUERA DE GARANTÍA'],['compra_repuesto','COMPRA DE REPUESTO']]},
   {key:'observaciones',label:'Observaciones',type:'textarea'},{key:'seguimiento',label:'Seguimiento',type:'textarea'},
@@ -7025,6 +7250,18 @@ async function saveEdit(){
       }
     }
   }
+  // Validar: si hay datos RMA, fecha_rma es obligatoria
+  const tieneRMA = (payload.ticket_rma && payload.ticket_rma.trim()) || 
+                   (payload.serie_fabrica && payload.serie_fabrica.trim()) || 
+                   (payload.estatus && payload.estatus.trim());
+  const faltaFecha = !payload.fecha_rma || !payload.fecha_rma.trim();
+  if (tieneRMA && faltaFecha) {
+    showToast('Fecha RMA requerida', 'error', 'Si hay ticket RMA, serie nueva o estatus, la fecha es obligatoria');
+    btn.disabled = false;
+    btn.textContent = 'Guardar Cambios';
+    return;
+  }
+
   try{
     // Guardar el registro editado primero
     await sbFetch('PATCH',TABLE+'?id=eq.'+editingId,payload);
@@ -7350,6 +7587,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('Cargando todos los registros para admin...');
     adminLoaded = true; // Marcar como cargado para evitar duplicados
     await adminLoadAll();
+    regLoadAll(); // Cargar panel público de registros
     
     // SANITY CHECK: Si el consecutivo está contaminado (> 200000), forzar recálculo
     if (!consecutiveNumManual && consecutiveNum > 200000) {
