@@ -6063,10 +6063,10 @@ function adminUpdateStats(all) {
   // Las categorías en BD son: 'rma', 'garantia_1', 'nota_credito', 'rma_nota_credito', 'garantia_1_nota_credito', etc.
   const ncSinDev = all.filter(r => {
     const cat = (r.categoria || '').toLowerCase();
-    // Buscar categorías que incluyan: nc, nota_credito, nota de credito
     const esNC = cat.includes('nc') || cat.includes('nota') || cat.includes('credito');
     const tieneDev = r.dev && r.dev.toString().trim() !== '' && r.dev !== null;
-    return esNC && !tieneDev;
+    const tieneFacturaSalida = r.factura_salida && r.factura_salida.toString().trim() !== '' && r.factura_salida !== null;
+    return esNC && !tieneDev && !tieneFacturaSalida;
   });
   console.log('Total NC sin DEV:', ncSinDev.length, 'de', all.length, 'registros');
   document.getElementById('st-pendientes').textContent = ncSinDev.length;
@@ -6158,9 +6158,10 @@ function statsAuditDetail(tipo) {
         const cat = (r.categoria || '').toLowerCase();
         const esNC = cat.includes('nc') || cat.includes('nota') || cat.includes('credito');
         const tieneDev = r.dev && r.dev.toString().trim() !== '' && r.dev !== null;
-        return esNC && !tieneDev;
+        const tieneFacturaSalida = r.factura_salida && r.factura_salida.toString().trim() !== '' && r.factura_salida !== null;
+        return esNC && !tieneDev && !tieneFacturaSalida;
       });
-      titulo = `AUDITORÍA: Por Aprobar - NC sin DEV (${filtrados.length})`;
+      titulo = `AUDITORÍA: Por Aprobar - NC sin DEV ni Factura de Salida (${filtrados.length})`;
       break;
     case 'este_mes':
       const esteMes = new Date().toISOString().slice(0,7);
@@ -6269,7 +6270,10 @@ function statsExportAuditCSV(tipo) {
     case 'por_aprobar':
       filtrados = all.filter(r => {
         const cat = (r.categoria || '').toLowerCase();
-        return (cat.includes('nc') || cat.includes('nota') || cat.includes('credito')) && !(r.dev && r.dev.toString().trim() !== '');
+        const esNC = cat.includes('nc') || cat.includes('nota') || cat.includes('credito');
+        const tieneDev = r.dev && r.dev.toString().trim() !== '' && r.dev !== null;
+        const tieneFacturaSalida = r.factura_salida && r.factura_salida.toString().trim() !== '' && r.factura_salida !== null;
+        return esNC && !tieneDev && !tieneFacturaSalida;
       });
       break;
     case 'este_mes':
@@ -6339,8 +6343,11 @@ function statsAuditFull() {
   // Hoja 3: Por Aprobar (NC sin DEV)
   const porAprobar = all.filter(r => {
     const cat = (r.categoria || '').toLowerCase();
-    return (cat.includes('nc') || cat.includes('nota') || cat.includes('credito')) && !(r.dev && r.dev.toString().trim() !== '');
-  }).map(r => ({ Boleta: r.boleta, Cliente: r.nombre, Categoria: r.categoria, Sede: r.sede, 'Fecha Creación': r.fecha_creacion, DEV: r.dev||'PENDIENTE' }));
+    const esNC = cat.includes('nc') || cat.includes('nota') || cat.includes('credito');
+    const tieneDev = r.dev && r.dev.toString().trim() !== '' && r.dev !== null;
+    const tieneFacturaSalida = r.factura_salida && r.factura_salida.toString().trim() !== '' && r.factura_salida !== null;
+    return esNC && !tieneDev && !tieneFacturaSalida;
+  }).map(r => ({ Boleta: r.boleta, Cliente: r.nombre, Categoria: r.categoria, Sede: r.sede, 'Fecha Creación': r.fecha_creacion, DEV: r.dev||'PENDIENTE', 'Factura Salida': r.factura_salida||'PENDIENTE' }));
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(porAprobar), 'Por Aprobar');
 
   // Hoja 4: Registros con tiempo de aprobación calculado
