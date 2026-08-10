@@ -6193,6 +6193,7 @@ function statsShowAuditModal(titulo, registros, tipo) {
     return `<tr>
       <td class="td-mono">${r.boleta||'—'}</td>
       <td>${r.nombre||'—'}</td>
+      <td class="td-mono">${r.ticket||'—'}</td>
       <td>${r.tipo||'—'}</td>
       <td>${r.categoria||'—'}</td>
       <td>${r.sede||'—'}</td>
@@ -6200,6 +6201,7 @@ function statsShowAuditModal(titulo, registros, tipo) {
       <td class="td-mono">${r.fecha_aprobacion?r.fecha_aprobacion.slice(0,10):'—'}</td>
       <td>${dias||'—'}</td>
       <td>${r.dev||'—'}</td>
+      <td style="font-size:.7rem;color:var(--ink-3)">${r.registrado_por||'—'}</td>
     </tr>`;
   }).join('');
 
@@ -6231,6 +6233,7 @@ function statsShowAuditModal(titulo, registros, tipo) {
             <tr>
               <th>Boleta</th>
               <th>Cliente</th>
+              <th>Ticket</th>
               <th>Tipo</th>
               <th>Categoría</th>
               <th>Sede</th>
@@ -6238,9 +6241,10 @@ function statsShowAuditModal(titulo, registros, tipo) {
               <th>Fecha Aprobación</th>
               <th>Días</th>
               <th>DEV</th>
+              <th>Registrado Por</th>
             </tr>
           </thead>
-          <tbody>${rows||'<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--ink-4)">Sin registros</td></tr>'}</tbody>
+          <tbody>${rows||'<tr><td colspan="11" style="text-align:center;padding:2rem;color:var(--ink-4)">Sin registros</td></tr>'}</tbody>
         </table>
         ${registros.length > 100 ? `<div style="margin-top:1rem;text-align:center;color:var(--ink-4);font-size:.75rem;">Mostrando primeros 100 de ${registros.length} registros. Use Exportar CSV para ver todos.</div>` : ''}
       </div>
