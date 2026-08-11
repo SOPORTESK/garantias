@@ -5673,6 +5673,20 @@ async function adminLoadRMARecords() {
     console.log('Pool total:', pool.length, '| RMA encontrados:', rmaRawData.length, '| Excluidos:', excluidos.length);
     console.log('Temp en pool:', pool.filter(r=>r.tipo==='salida_temporal').length, '| Def en pool:', pool.filter(r=>r.tipo==='salida_definitiva').length);
     console.log('Temp RMA:', rmaRawData.filter(r=>r.tipo==='salida_temporal').length, '| Def RMA:', rmaRawData.filter(r=>r.tipo==='salida_definitiva').length);
+
+    // Verificar categorías únicas en temporales
+    const catsTemp = {};
+    pool.filter(r=>r.tipo==='salida_temporal').forEach(r => {
+      const c = CAT_LABELS[r.categoria] || r.categoria || '(vacío)';
+      catsTemp[c] = (catsTemp[c]||0) + 1;
+    });
+    console.log('Categorías en Temporales:', catsTemp);
+
+    // Verificar duplicados por boleta
+    const boletasTemp = pool.filter(r=>r.tipo==='salida_temporal').map(r=>r.boleta);
+    const dupTemp = boletasTemp.filter((b,i)=>boletasTemp.indexOf(b)!==i);
+    if (dupTemp.length) console.log('⚠ Boletas duplicadas en Temporales:', dupTemp);
+
     if (excluidos.length) {
       console.log('Excluidos del RMA:');
       excluidos.forEach(r => {
@@ -7378,9 +7392,14 @@ function exportExcel(type){
   const rows=rawData[type]||[];
   if(!rows.length){showToast('No hay registros','info','Nada para exportar');return;}
   const headers=['Consecutivo','Fecha','Tipo','Categoría','Motivo','Ticket','Cliente','Sede','Factura','Cantidad','Fecha Compra','Marca','Serie','Descripción','Falla'];
-  const data=rows.map(r=>[r.boleta||'',r.fecha_creacion?new Date(r.fecha_creacion).toLocaleDateString('es-CR'):'',r.tipo==='salida_definitiva'?'Salida Definitiva':'Salida Temporal',CAT_LABELS[r.categoria]||r.categoria||'',MOT_LABELS[r.motivo]||r.motivo||'',r.ticket||'',r.nombre||'',r.sede||'',r.factura||'',r.cantidad||'',r.fecha_compra||'',r.marca||'',r.serie||'',r.descripcion||'',r.falla||'']);
+  const data=rows.map(r=>{
+    const catLabel=CAT_LABELS[r.categoria]||r.categoria||'';
+    return [String(r.boleta||''),r.fecha_creacion?new Date(r.fecha_creacion).toLocaleDateString('es-CR'):'',r.tipo==='salida_definitiva'?'Salida Definitiva':'Salida Temporal',String(catLabel).trim(),MOT_LABELS[r.motivo]||r.motivo||'',r.ticket||'',r.nombre||'',r.sede||'',r.factura||'',r.cantidad||'',r.fecha_compra||'',r.marca||'',r.serie||'',r.descripcion||'',r.falla||''];
+  });
   const ws=XLSX.utils.aoa_to_sheet([headers,...data]);
   ws['!cols']=[12,12,18,18,18,10,22,14,12,8,12,14,14,30,30].map(w=>({wch:w}));
+  ws['!autofilter']={ref:'A1:O'+(data.length+1)};
+  ws['!freeze']={xSplit:0,ySplit:1};
   const wb=XLSX.utils.book_new(), sn=type==='def'?'Salidas Definitivas':'Salidas Temporales';
   XLSX.utils.book_append_sheet(wb,ws,sn);
   xlsxDownload(wb,`Sekunet_${sn.replace(/ /g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
