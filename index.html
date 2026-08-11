@@ -1496,7 +1496,8 @@
           <div class="data-panel-actions">
             <div class="date-filter"><label>Desde</label><input type="date" class="date-input" id="def-from" onchange="adminApplyFilters('def')"><label>Hasta</label><input type="date" class="date-input" id="def-to" onchange="adminApplyFilters('def')"></div>
             <div class="search-box" style="padding:.3rem .625rem;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg><input type="text" id="search-def" placeholder="Buscar…" oninput="adminApplyFilters('def')" style="width:140px;"></div>
-            <button class="btn btn-success btn-sm" onclick="exportExcel('def')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Excel</button>
+            <button class="btn btn-success btn-sm" onclick="exportExcel('def')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Excel Def</button>
+            <button class="btn btn-success btn-sm" onclick="exportAllExcel()" style="background:var(--brand);color:#fff;font-weight:700;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Exportar TODO</button>
           </div>
         </div>
         <div class="table-wrap"><table style="table-layout:auto;width:auto;min-width:100%;"><thead><tr>
@@ -1627,35 +1628,61 @@
                 <button onclick="adminClearRMAFilters()" style="padding:0.5rem 1rem;background:var(--ink-4);color:var(--ink-1);border:none;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;">Limpiar</button>
                 <button class="btn btn-success btn-sm" onclick="exportRMAExcel()" style="padding:0.5rem 1rem;font-weight:600;" title="Descargar todos los RMA visibles"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> Excel (Todo)</button>
                 <button class="btn btn-sm" onclick="exportMisRMAExcel()" style="padding:0.5rem 1rem;font-weight:600;background:var(--blue);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;" title="Descargar solo mis RMAs"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg> Mis RMAs</button>
+                <button class="btn btn-sm" onclick="rmaShowPendientesModal()" style="padding:0.5rem 1rem;font-weight:600;background:var(--amber,#D97706);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;" title="Ver RMA con campos pendientes"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Pendientes</button>
+                <label style="padding:0.5rem 1rem;font-weight:600;background:var(--ink-1);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;display:inline-flex;align-items:center;gap:4px;" title="Subir Excel para comparar">
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg> Comparar Excel
+                  <input type="file" accept=".xlsx,.xls" style="display:none;" onchange="rmaCompareExcel(event)">
+                </label>
               </div>
             </div>
 
-            <!-- Tabla -->
-            <div class="table-wrap">
-              <table style="table-layout:auto;width:auto;min-width:100%;">
+            <!-- Tabla RMA Premium -->
+            <style>
+              #rma-table{width:100%;border-collapse:separate;border-spacing:0;font-size:.78rem;table-layout:fixed;}
+              #rma-table thead th{position:sticky;top:0;z-index:2;background:var(--surface-2,#f4f4f5);
+                text-align:left;padding:.45rem .5rem;font-size:.6rem;font-weight:700;letter-spacing:.05em;
+                text-transform:uppercase;color:var(--ink-3);border-bottom:2px solid var(--border);white-space:nowrap;}
+              #rma-table tbody td{padding:.4rem .5rem;border-bottom:1px solid var(--border);vertical-align:middle;
+                overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+              #rma-table tbody tr:hover{background:var(--surface-2,rgba(0,0,0,.03));}
+              #rma-table .rma-pend{color:var(--red);font-weight:700;font-size:.62rem;letter-spacing:.03em;}
+              #rma-table .rma-val{color:var(--ink-1);font-weight:500;}
+              #rma-table .rma-mono{font-family:ui-monospace,monospace;font-size:.72rem;}
+              #rma-table .rma-badge{display:inline-block;padding:1px 6px;border-radius:4px;font-size:.58rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;}
+              #rma-table .rma-badge-ok{background:rgba(22,163,74,.12);color:var(--green);}
+              #rma-table .rma-badge-warn{background:rgba(217,119,6,.12);color:var(--amber,#D97706);}
+              #rma-table .rma-badge-cat{background:rgba(209,65,30,.08);color:var(--brand);}
+              #rma-table .rma-est{display:inline-block;padding:2px 7px;border-radius:4px;font-size:.62rem;font-weight:600;}
+              #rma-table .rma-est-closed{background:rgba(22,163,74,.1);color:var(--green);}
+              #rma-table .rma-est-open{background:rgba(59,130,246,.1);color:var(--blue);}
+              #rma-table .rma-est-pend{background:rgba(217,119,6,.1);color:var(--amber,#D97706);}
+              #rma-table .rma-actions{display:flex;gap:.25rem;}
+              #rma-table .rma-actions button{padding:.2rem .35rem;border:1px solid var(--border);border-radius:5px;
+                background:var(--surface);cursor:pointer;color:var(--ink-3);display:flex;align-items:center;justify-content:center;}
+              #rma-table .rma-actions button:hover{background:var(--surface-2);color:var(--ink-1);}
+              #rma-table .rma-actions button.del:hover{color:var(--red);border-color:var(--red);}
+              #rma-table col.c-tk{width:6%;} #rma-table col.c-cli{width:13%;} #rma-table col.c-mar{width:7%;}
+              #rma-table col.c-trma{width:7%;} #rma-table col.c-frma{width:7%;} #rma-table col.c-tiempo{width:6%;}
+              #rma-table col.c-ser{width:6%;} #rma-table col.c-snvo{width:6%;} #rma-table col.c-est{width:8%;}
+              #rma-table col.c-bol{width:6%;} #rma-table col.c-reg{width:10%;} #rma-table col.c-aud{width:10%;} #rma-table col.c-act{width:8%;}
+            </style>
+            <div class="table-wrap" style="border-radius:var(--radius-sm);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04);">
+              <table id="rma-table">
+                <colgroup>
+                  <col class="c-tk"><col class="c-cli"><col class="c-mar"><col class="c-trma">
+                  <col class="c-frma"><col class="c-tiempo"><col class="c-ser"><col class="c-snvo">
+                  <col class="c-est"><col class="c-bol"><col class="c-reg"><col class="c-aud"><col class="c-act">
+                </colgroup>
                 <thead>
                   <tr>
-                    <th>Ticket</th>
-                    <th>Cliente</th>
-                    <th>Marca</th>
-                    <th>Ticket RMA</th>
-                    <th>Fecha RMA</th>
-                    <th>Tiempo</th>
-                    <th>Artículo</th>
-                    <th>Serie</th>
-                    <th>Falla</th>
-                    <th>Serie Nvo.</th>
-                    <th>Estatus</th>
-                    <th>Boleta</th>
-                    <th>Observaciones</th>
-                    <th>Seguimiento</th>
-                    <th>Auditoría<br><span style="font-size:10px;font-weight:400;">(Cat/Completo)</span></th>
-                    <th>Acciones</th>
+                    <th>Ticket</th><th>Cliente</th><th>Marca</th><th>Ticket RMA</th>
+                    <th>Fecha RMA</th><th>Tiempo</th><th>Serie</th><th>Serie Nvo.</th>
+                    <th>Estatus</th><th>Boleta</th><th>Registró</th><th>Auditoría</th><th>Acc.</th>
                   </tr>
                 </thead>
                 <tbody id="rma-tbody">
                   <tr class="empty-row">
-                    <td colspan="16" style="text-align:center;padding:2rem;">
+                    <td colspan="13" style="text-align:center;padding:2rem;">
                       <span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…
                     </td>
                   </tr>
@@ -1664,8 +1691,12 @@
             </div>
             <div id="rma-pagination" class="reg-pagination"></div>
             
-            <div style="margin-top:1rem;font-size:0.85rem;color:var(--ink-4);">
-              Total: <span id="rma-total-count">0</span> registros
+            <div style="margin-top:.75rem;font-size:0.78rem;color:var(--ink-4);display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+              <span class="rma-badge rma-badge-cat" style="font-size:.6rem;">Total</span>
+              <span id="rma-total-count" style="font-weight:700;color:var(--ink-1);">0</span>
+              <span>registros</span>
+              <span id="rma-desglose" style="margin-left:.5rem;font-size:.7rem;color:var(--ink-3);"></span>
+              <span id="rma-bd-check" style="margin-left:auto;font-size:.7rem;color:var(--ink-4);">Verificando BD...</span>
             </div>
           </div>
           
@@ -4511,7 +4542,7 @@ function statsDownloadExcel() {
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Sede','Cantidad'],...Object.entries(sedes)]), 'Por Sede');
   const meses={};all.forEach(r=>{if(!r.fecha_creacion)return;const m=r.fecha_creacion.slice(0,7);meses[m]=(meses[m]||0)+1;});
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Mes','Cantidad'],...Object.entries(meses).sort()]), 'Por Mes');
-  XLSX.writeFile(wb, 'Sekunet_Control de Calidad_'+today+'.xlsx');
+  xlsxDownload(wb, 'Sekunet_Control de Calidad_'+today+'.xlsx');
   showToast('Excel descargado','success');
 }
 
@@ -4564,8 +4595,27 @@ function regRenderMisRMA() {
   }).join('');
 }
 
+function xlsxDownload(wb, filename) {
+  const arr = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  const blob = new Blob([arr], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = URL.createObjectURL(blob);
+
+  // Crear modal con botón de descarga manual
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:99999;';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:12px;padding:2rem;max-width:400px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.2);">
+      <div style="font-size:2rem;margin-bottom:.5rem;">📄</div>
+      <h3 style="margin:0 0 .5rem;color:#1A1108;">Excel listo</h3>
+      <p style="color:#7A6E62;font-size:.85rem;margin:0 0 1.5rem;">${filename}</p>
+      <a href="${url}" download="${filename}" style="display:block;padding:.75rem 1.5rem;background:#D1411E;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;margin-bottom:.75rem;">⬇ Descargar Excel</a>
+      <button onclick="this.closest('div[style*=fixed]').remove();URL.revokeObjectURL('${url}')" style="padding:.5rem 1rem;background:#E8E5E0;border:none;border-radius:8px;cursor:pointer;color:#7A6E62;">Cancelar</button>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
 function regExportExcel(type) {
-  const rows = regRecords[type];
+  const rows = rawData[type] || [];
   if (!rows.length) { showToast('No hay registros', 'info'); return; }
   const headers = ['Consecutivo','Fecha','Tipo','Categoría','Motivo','Ticket','Cliente','Sede','Factura','Cantidad','Fecha Compra','Marca','Serie','Falla','Registrado por'];
   const data = rows.map(r => [
@@ -4580,7 +4630,7 @@ function regExportExcel(type) {
   const wb = XLSX.utils.book_new();
   const sn = type==='def' ? 'Salidas Definitivas' : 'Salidas Temporales';
   XLSX.utils.book_append_sheet(wb, ws, sn);
-  XLSX.writeFile(wb, `Sekunet_${sn.replace(/ /g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  xlsxDownload(wb, `Sekunet_${sn.replace(/ /g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
   showToast('Excel exportado', 'success');
 }
 
@@ -5553,26 +5603,25 @@ async function adminLoadAll() {
 
     rawData.def = all.filter(r => r.tipo === 'salida_definitiva');
     rawData.temp = all.filter(r => r.tipo === 'salida_temporal');
-    
-    if (all.length > allRecords.length) {
-      allRecords = [...all];
-      // Obtener consecutivo desde BD, EXCEPTO si el admin lo ajustó manualmente
-      // Extraer número DIRECTAMENTE de la boleta (ej: GNC29184 -> 29184)
-      // Esto ignora valores corruptos de numero_consecutivo en registros importados
-      if (!consecutiveNumManual && allRecords.length > 0) {
-        const modernRecords = allRecords.filter(r => hasModernBoletaPrefix(r));
-        if (modernRecords.length > 0) {
-          const nums = modernRecords.map(r => {
-            const match = String(r.boleta || '').match(/(\d+)$/);
-            return match ? parseInt(match[1], 10) : 0;
-          }).filter(n => n > 0 && n < 200000);
-          if (nums.length > 0) {
-            consecutiveNum = Math.max(...nums);
-          }
+
+    // Actualizar siempre allRecords para evitar datos desfasados
+    allRecords = [...all];
+    // Obtener consecutivo desde BD, EXCEPTO si el admin lo ajustó manualmente
+    // Extraer número DIRECTAMENTE de la boleta (ej: GNC29184 -> 29184)
+    // Esto ignora valores corruptos de numero_consecutivo en registros importados
+    if (!consecutiveNumManual && allRecords.length > 0) {
+      const modernRecords = allRecords.filter(r => hasModernBoletaPrefix(r));
+      if (modernRecords.length > 0) {
+        const nums = modernRecords.map(r => {
+          const match = String(r.boleta || '').match(/(\d+)$/);
+          return match ? parseInt(match[1], 10) : 0;
+        }).filter(n => n > 0 && n < 200000);
+        if (nums.length > 0) {
+          consecutiveNum = Math.max(...nums);
         }
       }
-      renderHeaderBoleta();
     }
+    renderHeaderBoleta();
     
     adminUpdateStats(all);
     adminUpdateBadges();
@@ -5594,14 +5643,54 @@ let rmaRawData = [];
 
 async function adminLoadRMARecords() {
   try {
-    if (!allRecords.length) {
-      await adminLoadAll();
+    // Siempre recargar para tener datos frescos
+    await adminLoadAll();
+
+    const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
+    const tieneDatosRMA = r => limpio(r.ticket_rma) !== '' || limpio(r.fecha_rma) !== '' || limpio(r.serie_fabrica) !== '' || limpio(r.estatus) !== '';
+    const esCatRMA = r => {
+      const cat = (r.categoria || '').toLowerCase();
+      return cat.includes('rma');
+    };
+
+    // Usar el mismo origen que el Excel de Registros: rawData
+    const pool = [...(rawData.temp || []), ...(rawData.def || [])];
+    rmaRawData = pool.filter(r => esCatRMA(r) || tieneDatosRMA(r));
+
+    // Desglose simple
+    const desgEl = document.getElementById('rma-desglose');
+    if (desgEl) {
+      const tempRMA = rmaRawData.filter(r => r.tipo === 'salida_temporal').length;
+      const defRMA  = rmaRawData.filter(r => r.tipo === 'salida_definitiva').length;
+      desgEl.innerHTML = `· <strong>${tempRMA}</strong> temporales · <strong>${defRMA}</strong> definitivas`;
+    }
+    const bdCheckEl = document.getElementById('rma-bd-check');
+    if (bdCheckEl) bdCheckEl.innerHTML = '';
+
+    // Comparación: cuántos por label "RMA" vs cuántos por valor crudo
+    const porLabel = pool.filter(r => {
+      const label = CAT_LABELS[r.categoria] || r.categoria || '';
+      return label.toUpperCase().includes('RMA');
+    });
+    const porValor = pool.filter(esCatRMA);
+    console.log('Por label con "RMA":', porLabel.length, '| Por valor crudo con "rma":', porValor.length);
+    if (desgEl && porLabel.length !== porValor.length) {
+      desgEl.innerHTML += `<br><span style="color:var(--red);font-size:.65rem;">⚠ Label dice ${porLabel.length}, valor dice ${porValor.length}</span>`;
     }
 
-    // RMA = cualquier registro con al menos un campo RMA con datos (sin importar categoría)
-    const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
-    const tieneDatosRMA = r => limpio(r.fecha_rma) !== '' || limpio(r.serie_fabrica) !== '' || limpio(r.estatus) !== '';
-    rmaRawData = allRecords.filter(tieneDatosRMA);
+    // Buscar las 6 boletas del Excel en TODOS los registros y mostrar qué categoría tienen ahora
+    const numsFaltantes = ['29236','29220','29223','29209','29180','202602-013'];
+    const encontradas = [];
+    for (const num of numsFaltantes) {
+      const r = (allRecords || []).find(x => String(x.boleta || '').includes(num));
+      if (r) encontradas.push({ boleta: r.boleta, cat: r.categoria, tipo: r.tipo, id: r.id });
+    }
+    if (encontradas.length && desgEl) {
+      const msg = encontradas.map(r => `${r.boleta} → cat=${r.cat||'vacío'}`).join(' · ');
+      desgEl.innerHTML += `<br><span style="color:var(--red);font-size:.65rem;">Del Excel: ${msg}</span>`;
+    } else if (numsFaltantes.length && desgEl) {
+      desgEl.innerHTML += `<br><span style="color:var(--red);font-size:.65rem;">Del Excel: las 6 boletas no existen en la BD</span>`;
+    }
 
     // Ordenar por fecha_rma (o fecha_creacion) descendente
     rmaRawData.sort((a, b) => {
@@ -5625,8 +5714,9 @@ async function adminLoadRMARecords() {
         console.error('Error al cargar historial:', e);
       }
     }
-    
+
     rmaRecords = [...rmaRawData];
+    document.getElementById('rma-total-count').textContent = rmaRawData.length;
     adminPopulateRMAFilters();
     adminApplyRMAFilters();
     kpiRefresh(); // Auto-actualizar KPIs
@@ -5687,7 +5777,7 @@ function adminApplyRMAFilters() {
 
   rmaPage = 1; // Resetear página al filtrar
   adminRenderRMATable();
-  document.getElementById('rma-total-count').textContent = rmaRecords.length;
+  document.getElementById('rma-total-count').textContent = rmaRawData.length;
 }
 
 function adminClearRMAFilters() {
@@ -5699,7 +5789,7 @@ function adminClearRMAFilters() {
 }
 
 function exportRMAExcel() {
-  const data = rmaRecords;
+  const data = rmaRawData;
   if (!data.length) { showToast('No hay registros para exportar', 'info'); return; }
   const rows = data.map(r => {
     const dias = r.fecha_rma || r.fecha_creacion
@@ -5718,7 +5808,7 @@ function exportRMAExcel() {
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.json_to_sheet(rows);
   XLSX.utils.book_append_sheet(wb, ws, 'Registros RMA');
-  XLSX.writeFile(wb, 'Registros_RMA_' + new Date().toISOString().slice(0,10) + '.xlsx');
+  xlsxDownload(wb, 'Registros_RMA_' + new Date().toISOString().slice(0,10) + '.xlsx');
   showToast('Excel descargado', 'success', data.length + ' registros');
 }
 
@@ -5748,7 +5838,7 @@ function exportMisRMAExcel() {
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.json_to_sheet(rows);
   XLSX.utils.book_append_sheet(wb, ws, 'Mis RMAs');
-  XLSX.writeFile(wb, 'Mis_RMA_' + myName.replace(/\s+/g, '_') + '_' + new Date().toISOString().slice(0, 10) + '.xlsx');
+  xlsxDownload(wb, 'Mis_RMA_' + myName.replace(/\s+/g, '_') + '_' + new Date().toISOString().slice(0, 10) + '.xlsx');
   showToast('Excel descargado', 'success', misRMA.length + ' registros de ' + myName);
 }
 
@@ -5944,59 +6034,70 @@ function adminRenderRMATable() {
   const pageRows = rmaRecords.slice(start, start + RMA_PAGE_SIZE);
 
   if (!total) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="16" style="text-align:center;padding:2rem;">
-      <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="13" style="text-align:center;padding:2rem;">
+      <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg><div style="margin-top:.5rem;color:var(--ink-4);">Sin registros</div>
     </td></tr>`;
     document.getElementById('rma-pagination').innerHTML = '';
     return;
   }
 
+  const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
+  const valOrPend = (v, esReq=true) => {
+    if (limpio(v) !== '') return `<span class="rma-val">${v}</span>`;
+    return esReq ? '<span class="rma-pend">PENDIENTE</span>' : '<span style="color:var(--ink-4);">—</span>';
+  };
+
+  const estatusCerrados = ['reemplazo_total', 'repuesto_ingresado', 'nota_credito_marca', 'fuera_garantia', 'compra_repuesto'];
+  const estatusAbiertos = ['en_proceso', 'pendiente_tramite'];
+
   tbody.innerHTML = pageRows.map((r, i) => {
-    // Obtener fecha del historial más reciente si existe
     const fechaHistorial = r.historial && r.historial.length > 0 ? r.historial[0].fecha : null;
     const fechaMostrar = fechaHistorial || r.fecha_rma;
-    const fechaCelda = fechaMostrar ? fmtDate(fechaMostrar) : '—';
-    const fechaTooltip = fechaMostrar ? fmtDate(fechaMostrar) : 'Sin fecha';
-    
-    // Calcular tiempo transcurrido usando fecha_rma (inicio real del proceso) con fallback a fecha_creacion
+    const fechaCelda = fechaMostrar ? fmtDate(fechaMostrar) : null;
+
     const tiempoTranscurrido = calcularTiempoTranscurrido(r.fecha_rma || r.fecha_creacion, r.fecha_modificacion, r.estatus);
-    
-    // Determinar color según estatus
-    const estatusCerrados = ['reemplazo_total', 'repuesto_ingresado', 'nota_credito_marca', 'fuera_garantia', 'compra_repuesto'];
-    const estatusAbiertos = ['en_proceso', 'pendiente_tramite'];
     const esCerrado = r.estatus && estatusCerrados.includes(r.estatus);
+    const esAbierto = r.estatus && estatusAbiertos.includes(r.estatus);
     const tiempoStyle = esCerrado ? 'color:var(--green);font-weight:600;' : 'color:var(--ink-2);';
-    
-    // Auditoría: verificar si es RMA completo (fecha + estatus)
-    const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
-    const esCompleto = limpio(r.fecha_rma) !== '' && limpio(r.estatus) !== '';
-    const badgeAuditoria = esCompleto 
-      ? '<span style="background:var(--green);color:white;padding:2px 6px;border-radius:4px;font-size:10px;">✓ COMPLETO</span>'
-      : '<span style="background:var(--amber);color:white;padding:2px 6px;border-radius:4px;font-size:10px;">⚠ INCOMPLETO</span>';
-    
+
+    // Estatus badge
+    let estatusHtml;
+    if (r.estatus && KPI_ESTATUS_LABELS[r.estatus]) {
+      const cls = esCerrado ? 'rma-est-closed' : esAbierto ? 'rma-est-open' : 'rma-est-pend';
+      estatusHtml = `<span class="rma-est ${cls}">${KPI_ESTATUS_LABELS[r.estatus]}</span>`;
+    } else {
+      estatusHtml = '<span class="rma-pend">PENDIENTE</span>';
+    }
+
+    // Auditoría: completitud
+    const camposReq = ['ticket_rma', 'fecha_rma', 'serie_fabrica', 'estatus'];
+    const faltan = camposReq.filter(f => !limpio(r[f]));
+    const catLabel = CAT_LABELS[r.categoria] || r.categoria || '—';
+    let audHtml;
+    if (faltan.length === 0) {
+      audHtml = `<span class="rma-badge rma-badge-ok">✓ Completo</span><br><span class="rma-badge rma-badge-cat" style="margin-top:2px;">${catLabel}</span>`;
+    } else {
+      audHtml = `<span class="rma-badge rma-badge-warn">⚠ ${faltan.length} pend</span><br><span class="rma-badge rma-badge-cat" style="margin-top:2px;">${catLabel}</span>`;
+    }
+
     return `<tr style="animation-delay:${i*0.02}s">
-      <td class="td-mono">${r.ticket || '—'}</td>
-      <td class="td-wrap"><strong>${r.nombre || '—'}</strong></td>
-      <td>${r.marca || '—'}</td>
-      <td class="td-mono">${r.ticket_rma || '—'}</td>
-      <td>${fechaCelda}</td>
+      <td class="rma-mono">${r.ticket || '<span style="color:var(--ink-4);">—</span>'}</td>
+      <td style="font-weight:600;color:var(--ink-1);">${r.nombre || '<span style="color:var(--ink-4);">—</span>'}</td>
+      <td>${r.marca || '<span style="color:var(--ink-4);">—</span>'}</td>
+      <td class="rma-mono">${valOrPend(r.ticket_rma)}</td>
+      <td>${fechaCelda ? `<span class="rma-val">${fechaCelda}</span>` : '<span class="rma-pend">PENDIENTE</span>'}</td>
       <td style="${tiempoStyle}">${tiempoTranscurrido}</td>
-      <td class="td-mono">${r.serie || '—'}</td>
-      <td class="td-mono">${r.numero_serie || '—'}</td>
-      <td class="td-truncate" data-tip="${(r.falla || '—').replace(/"/g, '&quot;')}">${r.falla || '—'}</td>
-      <td class="td-mono">${r.serie_fabrica || '—'}</td>
-      <td>${r.estatus || '—'}</td>
-      <td class="td-mono">${r.boleta || '—'}</td>
-      <td class="td-truncate" data-tip="[${fechaTooltip}] ${(r.observaciones || '—').replace(/"/g, '&quot;')}">${r.observaciones || '—'}</td>
-      <td class="td-truncate" data-tip="[${fechaTooltip}] ${(r.seguimiento || '—').replace(/"/g, '&quot;')}">${r.seguimiento || '—'}</td>
-      <td style="font-size:10px;">${badgeAuditoria}<br><span style="color:var(--ink-4);">${r.categoria || '—'}</span><br><span style="color:var(--ink-3);" title="Autor del ticket">${r.registrado_por || '—'}</span></td>
+      <td class="rma-mono">${r.serie || '<span style="color:var(--ink-4);">—</span>'}</td>
+      <td class="rma-mono">${valOrPend(r.serie_fabrica)}</td>
+      <td>${estatusHtml}</td>
+      <td class="rma-mono">${r.boleta || '<span style="color:var(--ink-4);">—</span>'}</td>
+      <td style="font-size:.68rem;color:var(--ink-2);word-break:break-word;line-height:1.3;">${r.registrado_por || '<span style="color:var(--ink-4);">—</span>'}</td>
+      <td style="line-height:1.5;">${audHtml}</td>
       <td>
-        <button class="btn btn-sm" onclick="openEdit('${r.id}')" title="Editar">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-        </button>
-        <button class="btn btn-sm btn-danger" onclick="askDelete('${r.id}','${r.ticket||''}')" title="Eliminar">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-        </button>
+        <div class="rma-actions">
+          <button onclick="openEdit('${r.id}')" title="Editar"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+          <button class="del" onclick="askDelete('${r.id}','${r.ticket||''}')" title="Eliminar"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+        </div>
       </td>
     </tr>`;
   }).join('');
@@ -6219,6 +6320,241 @@ function celdaRequisito(r, campo) {
   return '<span style="color:var(--ink-4);font-size:.7rem;">N/A</span>';
 }
 
+/* ═══════════════════════════════════════
+   REQUISITOS RMA — campos que debe tener todo RMA
+═══════════════════════════════════════ */
+const RMA_FIELDS = [
+  { key: 'ticket_rma',     label: 'Ticket RMA' },
+  { key: 'fecha_rma',      label: 'Fecha RMA' },
+  { key: 'serie_fabrica',  label: 'Serie Equipo Nuevo' },
+  { key: 'estatus',        label: 'Estatus' }
+];
+
+function esRegistroRMA(r) {
+  const cat = (r.categoria || '').toLowerCase();
+  return cat.includes('rma');
+}
+
+function faltantesRMA(r) {
+  if (!esRegistroRMA(r)) return [];
+  return RMA_FIELDS.filter(f => !reqLleno(r[f.key])).map(f => f.label);
+}
+
+function celdaRequisitoRMA(r, campo) {
+  if (reqLleno(r[campo])) {
+    if (campo === 'estatus') {
+      const labels = { reemplazo_total:'Reemplazo Total', repuesto_ingresado:'Repuesto Ingresado', nota_credito_marca:'NC Marca', en_proceso:'En Proceso', pendiente_tramite:'Pendiente Trámite', fuera_garantia:'Fuera de Garantía', compra_repuesto:'Compra Repuesto' };
+      return labels[r[campo]] || r[campo];
+    }
+    if (campo === 'fecha_rma') return r[campo].slice(0,10);
+    return r[campo];
+  }
+  return '<span style="color:var(--red);font-weight:700;font-size:.7rem;">PENDIENTE</span>';
+}
+
+async function rmaCompareExcel(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  event.target.value = '';
+  try {
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, { type: 'array' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+    if (!rows.length) { showToast('Excel vacío', 'error'); return; }
+
+    // Buscar columna de Boleta (header)
+    const header = rows[0].map(h => String(h || '').toLowerCase());
+    let bolCol = header.findIndex(h => h.includes('boleta') || h.includes('consecutivo'));
+    if (bolCol === -1) bolCol = 0;
+
+    // Normalizar: extraer solo la parte numérica final para comparar
+    const norm = v => {
+      const s = String(v || '').trim();
+      const m = s.match(/(\d[\d\-]*\d|\d+)/);
+      return m ? m[1].replace(/-/g, '') : s.replace(/[^0-9]/g, '');
+    };
+
+    const excelBoletas = rows.slice(1)
+      .map(r => String(r[bolCol] || '').trim())
+      .filter(v => v && v !== '—' && v !== '-')
+      .map(v => ({ orig: v, norm: norm(v) }))
+      .filter(v => v.norm);
+
+    const sisRMA = (allRecords || [])
+      .filter(r => { const cat = (r.categoria || '').toLowerCase(); return cat.includes('rma'); })
+      .map(r => ({ orig: r.boleta || '', norm: norm(r.boleta), cat: r.categoria, tipo: r.tipo, id: r.id }));
+
+    const excelNorms = excelBoletas.map(b => b.norm);
+    const sisNorms = sisRMA.map(b => b.norm);
+
+    const noEnSistema = excelBoletas.filter(b => !sisNorms.includes(b.norm));
+    const noEnExcel = sisRMA.filter(b => !excelNorms.includes(b.norm));
+
+    // Para las que no están en sistema RMA, buscar en todos los registros
+    const allNorms = (allRecords || []).map(r => ({ orig: r.boleta || '', norm: norm(r.boleta), cat: r.categoria, tipo: r.tipo }));
+    const detalleNoSistema = noEnSistema.map(b => {
+      const found = allNorms.find(r => r.norm === b.norm);
+      return { excel: b.orig, norm: b.norm, enBD: !!found, cat: found?.cat || 'NO EXISTE', tipo: found?.tipo || '' };
+    });
+
+    let html = `<div class="modal-overlay" id="rmaCompareModal" onclick="if(event.target===this)this.remove()">
+      <style>
+        #rmaCompareModal .cmp-tbl{width:100%;border-collapse:collapse;font-size:.75rem;}
+        #rmaCompareModal .cmp-tbl th{background:var(--surface-2);padding:.5rem;text-align:left;font-size:.62rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);border-bottom:1px solid var(--border);}
+        #rmaCompareModal .cmp-tbl td{padding:.4rem .5rem;border-bottom:1px solid var(--border);}
+      </style>
+      <div class="modal" style="max-width:600px;width:92vw;max-height:80vh;" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-row">
+            <span class="modal-title">Comparación Excel vs Sistema</span>
+            <button class="modal-close" onclick="document.getElementById('rmaCompareModal').remove()">✕</button>
+          </div>
+        </div>
+        <div class="modal-body" style="overflow:auto;max-height:65vh;padding:1rem;">
+          <div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+            <div style="flex:1;min-width:140px;padding:.75rem;border-radius:8px;background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.2);">
+              <div style="font-size:.7rem;color:var(--ink-4);">En ambos</div>
+              <div style="font-size:1.5rem;font-weight:700;color:var(--green);">${excelBoletas.length - noEnSistema.length}</div>
+            </div>
+            <div style="flex:1;min-width:140px;padding:.75rem;border-radius:8px;background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.2);">
+              <div style="font-size:.7rem;color:var(--ink-4);">En Excel, NO en sistema</div>
+              <div style="font-size:1.5rem;font-weight:700;color:var(--amber,#D97706);">${noEnSistema.length}</div>
+            </div>
+            <div style="flex:1;min-width:140px;padding:.75rem;border-radius:8px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);">
+              <div style="font-size:.7rem;color:var(--ink-4);">En sistema, NO en Excel</div>
+              <div style="font-size:1.5rem;font-weight:700;color:var(--blue);">${noEnExcel.length}</div>
+            </div>
+          </div>
+          <div style="margin-bottom:.5rem;font-size:.8rem;font-weight:600;color:var(--ink-2);">Excel: ${excelBoletas.length} · Sistema: ${sisRMA.length}</div>`;
+
+    if (noEnSistema.length) {
+      html += `<div style="margin-bottom:1rem;"><div style="font-size:.75rem;font-weight:700;color:var(--amber,#D97706);margin-bottom:.4rem;">Boletas en su Excel pero NO en sistema RMA (${noEnSistema.length}):</div>
+        <table class="cmp-tbl"><thead><tr><th>#</th><th>Boleta Excel</th><th>Existe en BD</th><th>Categoría real</th><th>Tipo</th></tr></thead><tbody>
+        ${detalleNoSistema.map((d,i) => `<tr><td>${i+1}</td><td style="font-family:ui-monospace,monospace;font-weight:600;">${d.excel}</td><td>${d.enBD ? '<span style="color:var(--red);font-weight:700;">SÍ pero...</span>' : '<span style="color:var(--red);font-weight:700;">NO</span>'}</td><td style="font-weight:600;color:${d.enBD ? 'var(--red)' : 'var(--ink-4)'};">${d.cat}</td><td>${d.tipo ? d.tipo.replace('salida_','') : '—'}</td></tr>`).join('')}
+        </tbody></table></div>`;
+    }
+    if (noEnExcel.length) {
+      html += `<div><div style="font-size:.75rem;font-weight:700;color:var(--blue);margin-bottom:.4rem;">Boletas en sistema RMA pero NO en su Excel (${noEnExcel.length}):</div>
+        <table class="cmp-tbl"><thead><tr><th>#</th><th>Boleta Sistema</th><th>Categoría</th></tr></thead><tbody>
+        ${noEnExcel.map((b,i) => `<tr><td>${i+1}</td><td style="font-family:ui-monospace,monospace;font-weight:600;">${b.orig}</td><td>${b.cat || '—'}</td></tr>`).join('')}
+        </tbody></table></div>`;
+    }
+    if (!noEnSistema.length && !noEnExcel.length) {
+      html += '<div style="text-align:center;padding:1.5rem;color:var(--green);font-weight:600;">✓ Los datos coinciden perfectamente</div>';
+    }
+
+    html += `</div>
+      </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+  } catch (e) {
+    showToast('Error al leer Excel', 'error', e.message);
+  }
+}
+
+function rmaExportCurrentList() {
+  const all = allRecords || [];
+  const rma = all.filter(r => {
+    const cat = (r.categoria || '').toLowerCase();
+    return cat.includes('rma');
+  });
+  if (!rma.length) { showToast('No hay registros RMA', 'info'); return; }
+  const headers = ['Boleta','Fecha Creación','Tipo','Categoría','Ticket','Cliente','Marca','Ticket RMA','Fecha RMA','Serie Nuevo','Estatus','Registrado Por'];
+  const data = rma.map(r => [
+    r.boleta || '', r.fecha_creacion || '', TIPO_LABELS[r.tipo] || r.tipo || '',
+    CAT_LABELS[r.categoria] || r.categoria || '', r.ticket || '', r.nombre || '', r.marca || '',
+    r.ticket_rma || '', r.fecha_rma || '', r.serie_fabrica || '',
+    KPI_ESTATUS_LABELS[r.estatus] || r.estatus || '', r.registrado_por || ''
+  ]);
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+  ws['!cols'] = [14,14,16,16,10,24,14,12,12,14,16,20].map(w => ({wch:w}));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'RMA_Sistema');
+  xlsxDownload(wb, 'RMA_Lista_Sistema_' + new Date().toISOString().slice(0,10) + '.xlsx');
+  showToast('Excel exportado', 'success', rma.length + ' registros');
+}
+
+function rmaShowPendientesModal() {
+  const all = allRecords || [];
+  const rmaPendientes = all.filter(r => esRegistroRMA(r));
+  if (!rmaPendientes.length) { showToast('No hay registros RMA', 'info'); return; }
+
+  const rows = rmaPendientes.slice(0, 100).map(r => {
+    const falta = faltantesRMA(r);
+    return `<tr>
+      <td><div class="au-b">${r.boleta||'—'}</div><div class="au-s">${r.ticket?'#'+r.ticket:'—'}</div></td>
+      <td><div class="au-n">${r.nombre||'—'}</div><div class="au-s">${r.sede||'—'}</div></td>
+      <td><div class="au-s">${r.marca||'—'}</div><div class="au-s">${(r.tipo||'').replace('salida_','')==='definitiva'?'DEF':'TEMP'}</div></td>
+      <td>${celdaRequisitoRMA(r,'ticket_rma')}</td>
+      <td>${celdaRequisitoRMA(r,'fecha_rma')}</td>
+      <td>${celdaRequisitoRMA(r,'serie_fabrica')}</td>
+      <td>${celdaRequisitoRMA(r,'estatus')}</td>
+      <td style="font-size:.64rem;color:var(--ink-3);word-break:break-word;line-height:1.3;">${r.registrado_por||'—'}</td>
+    </tr>`;
+  }).join('');
+
+  const totalFaltan = rmaPendientes.filter(r => faltantesRMA(r).length > 0).length;
+
+  let modal = document.getElementById('auditModal');
+  if (modal) modal.remove();
+
+  const html = `<div class="modal-backdrop open" id="auditModal" style="z-index:500;" onclick="if(event.target===this)document.getElementById('auditModal').remove()">
+    <style>
+      #auditModal .au-tbl{width:100%;border-collapse:collapse;font-size:.75rem;table-layout:fixed;}
+      #auditModal .au-tbl th{position:sticky;top:0;z-index:2;background:var(--surface-2,#f4f4f5);text-align:left;
+        padding:.5rem .6rem;font-size:.62rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+        color:var(--ink-3);border-bottom:1px solid var(--border);}
+      #auditModal .au-tbl td{padding:.5rem .6rem;border-bottom:1px solid var(--border);vertical-align:middle;overflow:hidden;}
+      #auditModal .au-tbl tbody tr:hover{background:var(--surface-2,rgba(0,0,0,.03));}
+      #auditModal .au-tbl col.c-bol{width:14%;} #auditModal .au-tbl col.c-cli{width:18%;}
+      #auditModal .au-tbl col.c-mar{width:10%;} #auditModal .au-tbl col.c-trma{width:11%;}
+      #auditModal .au-tbl col.c-frma{width:11%;} #auditModal .au-tbl col.c-ser{width:12%;}
+      #auditModal .au-tbl col.c-est{width:11%;} #auditModal .au-tbl col.c-reg{width:13%;}
+      #auditModal .au-b{font-family:ui-monospace,monospace;font-weight:700;font-size:.76rem;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+      #auditModal .au-n{font-weight:600;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+      #auditModal .au-s{font-size:.64rem;color:var(--ink-4);line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+      #auditModal .au-meta{display:flex;gap:1rem;flex-wrap:wrap;font-size:.68rem;color:var(--ink-4);
+        padding:.55rem .7rem;background:var(--surface-2,rgba(0,0,0,.02));border-radius:6px;margin-bottom:.75rem;}
+    </style>
+    <div class="modal" style="max-width:92vw;max-height:88vh;width:920px;" onclick="event.stopPropagation()">
+      <div class="modal-header" style="padding:.75rem 1rem;">
+        <div class="modal-title-row" style="gap:.5rem;">
+          <div class="modal-icon" style="background:var(--amber-dim,#fef3c7);color:var(--amber,#D97706);width:28px;height:28px;">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <span class="modal-title" style="font-size:.85rem;">RMA: Campos Pendientes (${totalFaltan} de ${rmaPendientes.length})</span>
+          <button class="btn btn-sm" onclick="rmaExportCurrentList()" style="margin-left:auto;padding:.35rem .7rem;font-weight:600;background:var(--green,#16a34a);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;" title="Descargar lista actual del sistema"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> Exportar lista sistema</button>
+        </div>
+        <button class="modal-close" onclick="document.getElementById('auditModal').remove()">✕</button>
+      </div>
+      <div class="modal-body" style="overflow:auto;max-height:72vh;padding:.85rem 1rem;">
+        <div class="au-meta">
+          <span><strong>${rmaPendientes.length}</strong> registros RMA</span>
+          <span><strong style="color:var(--red)">${totalFaltan}</strong> con campos pendientes</span>
+          <span>${new Date().toLocaleString('es-CR')}</span>
+        </div>
+        <table class="au-tbl">
+          <colgroup>
+            <col class="c-bol"><col class="c-cli"><col class="c-mar"><col class="c-trma">
+            <col class="c-frma"><col class="c-ser"><col class="c-est"><col class="c-reg">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Boleta</th><th>Cliente</th><th>Marca/Tipo</th><th>Ticket RMA</th>
+              <th>Fecha RMA</th><th>Serie Nuevo</th><th>Estatus</th><th>Registró</th>
+            </tr>
+          </thead>
+          <tbody>${rows||'<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--ink-4)">Sin registros</td></tr>'}</tbody>
+        </table>
+        ${rmaPendientes.length > 100 ? `<div style="margin-top:.6rem;text-align:center;color:var(--ink-4);font-size:.65rem;">Mostrando 100 de ${rmaPendientes.length}.</div>` : ''}
+      </div>
+    </div>
+  </div>`;
+
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
 const AUDIT_TIPO_ABBR = { salida_definitiva: 'DEF', salida_temporal: 'TEMP' };
 const AUDIT_CAT_ABBR  = {
   nota_credito: 'NC', garantia_1: '1%', rma: 'RMA', reparacion: 'REP',
@@ -6420,7 +6756,7 @@ function statsAuditFull() {
   }));
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(conTiempo), 'Tiempos Aprobación');
 
-  XLSX.writeFile(wb, `AUDITORIA_COMPLETA_${today}.xlsx`);
+  xlsxDownload(wb, `AUDITORIA_COMPLETA_${today}.xlsx`);
   showToast('Auditoría completa exportada','success', `${all.length} registros incluidos`);
 }
 
@@ -6868,7 +7204,7 @@ function kpiExportExcel() {
   XLSX.utils.book_append_sheet(wb, ws2, 'Detalle');
   const ws3 = XLSX.utils.json_to_sheet(marcaRows);
   XLSX.utils.book_append_sheet(wb, ws3, 'Por Marca');
-  XLSX.writeFile(wb, 'KPI_RMA_' + new Date().toISOString().slice(0,10) + '.xlsx');
+  xlsxDownload(wb, 'KPI_RMA_' + new Date().toISOString().slice(0,10) + '.xlsx');
   showToast('Excel descargado', 'success');
 }
 
@@ -7039,7 +7375,7 @@ function adminGoPage(type, page) {
 }
 
 function exportExcel(type){
-  const rows=records[type];
+  const rows=rawData[type]||[];
   if(!rows.length){showToast('No hay registros','info','Nada para exportar');return;}
   const headers=['Consecutivo','Fecha','Tipo','Categoría','Motivo','Ticket','Cliente','Sede','Factura','Cantidad','Fecha Compra','Marca','Serie','Descripción','Falla'];
   const data=rows.map(r=>[r.boleta||'',r.fecha_creacion?new Date(r.fecha_creacion).toLocaleDateString('es-CR'):'',r.tipo==='salida_definitiva'?'Salida Definitiva':'Salida Temporal',CAT_LABELS[r.categoria]||r.categoria||'',MOT_LABELS[r.motivo]||r.motivo||'',r.ticket||'',r.nombre||'',r.sede||'',r.factura||'',r.cantidad||'',r.fecha_compra||'',r.marca||'',r.serie||'',r.descripcion||'',r.falla||'']);
@@ -7047,8 +7383,21 @@ function exportExcel(type){
   ws['!cols']=[12,12,18,18,18,10,22,14,12,8,12,14,14,30,30].map(w=>({wch:w}));
   const wb=XLSX.utils.book_new(), sn=type==='def'?'Salidas Definitivas':'Salidas Temporales';
   XLSX.utils.book_append_sheet(wb,ws,sn);
-  XLSX.writeFile(wb,`Sekunet_${sn.replace(/ /g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  xlsxDownload(wb,`Sekunet_${sn.replace(/ /g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
   showToast('Excel exportado','success');
+}
+
+function exportAllExcel(){
+  const all=[...(rawData.def||[]),...(rawData.temp||[])];
+  if(!all.length){showToast('No hay registros','info');return;}
+  const headers=['Consecutivo','Fecha','Tipo','Categoría','Motivo','Ticket','Cliente','Sede','Factura','Cantidad','Fecha Compra','Marca','Serie','Descripción','Falla','Registrado por'];
+  const data=all.map(r=>[r.boleta||'',r.fecha_creacion?new Date(r.fecha_creacion).toLocaleDateString('es-CR'):'',r.tipo==='salida_definitiva'?'Salida Definitiva':'Salida Temporal',CAT_LABELS[r.categoria]||r.categoria||'',MOT_LABELS[r.motivo]||r.motivo||'',r.ticket||'',r.nombre||'',r.sede||'',r.factura||'',r.cantidad||'',r.fecha_compra||'',r.marca||'',r.serie||'',r.descripcion||'',r.falla||'',r.registrado_por||'']);
+  const ws=XLSX.utils.aoa_to_sheet([headers,...data]);
+  ws['!cols']=[12,12,18,18,18,10,22,14,12,8,12,14,14,30,30,18].map(w=>({wch:w}));
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Todos los Registros');
+  xlsxDownload(wb,`Sekunet_Todos_Los_Registros_${new Date().toISOString().slice(0,10)}.xlsx`);
+  showToast('Excel exportado','success',all.length+' registros');
 }
 
 /* EDIT MODAL */
