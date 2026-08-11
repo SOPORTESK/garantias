@@ -5654,8 +5654,9 @@ async function adminLoadRMARecords() {
     };
 
     // Usar el mismo origen que el Excel de Registros: rawData
+    // Todas las salidas temporales van a RMA; las definitivas solo si son RMA o tienen campos RMA
     const pool = [...(rawData.temp || []), ...(rawData.def || [])];
-    rmaRawData = pool.filter(r => esCatRMA(r) || tieneDatosRMA(r));
+    rmaRawData = pool.filter(r => r.tipo === 'salida_temporal' || esCatRMA(r) || tieneDatosRMA(r));
 
     // Desglose simple
     const desgEl = document.getElementById('rma-desglose');
@@ -5667,44 +5668,9 @@ async function adminLoadRMARecords() {
     const bdCheckEl = document.getElementById('rma-bd-check');
     if (bdCheckEl) bdCheckEl.innerHTML = '';
 
-    // AUDITORÍA PROFUNDA: mostrar qué registros del pool NO entraron en rmaRawData y por qué
-    const excluidos = pool.filter(r => !esCatRMA(r) && !tieneDatosRMA(r));
-    console.log('=== AUDITORÍA RMA ===');
-    console.log('Pool total:', pool.length, '| RMA encontrados:', rmaRawData.length, '| Excluidos:', excluidos.length);
-    console.log('Temp en pool:', pool.filter(r=>r.tipo==='salida_temporal').length, '| Def en pool:', pool.filter(r=>r.tipo==='salida_definitiva').length);
-    console.log('Temp RMA:', rmaRawData.filter(r=>r.tipo==='salida_temporal').length, '| Def RMA:', rmaRawData.filter(r=>r.tipo==='salida_definitiva').length);
-
-    // Verificar categorías únicas en temporales
-    const catsTemp = {};
-    pool.filter(r=>r.tipo==='salida_temporal').forEach(r => {
-      const c = CAT_LABELS[r.categoria] || r.categoria || '(vacío)';
-      catsTemp[c] = (catsTemp[c]||0) + 1;
-    });
-    console.log('Categorías en Temporales:', catsTemp);
-
-    // Verificar duplicados por boleta
-    const boletasTemp = pool.filter(r=>r.tipo==='salida_temporal').map(r=>r.boleta);
-    const dupTemp = boletasTemp.filter((b,i)=>boletasTemp.indexOf(b)!==i);
-    if (dupTemp.length) console.log('⚠ Boletas duplicadas en Temporales:', dupTemp);
-
-    if (excluidos.length) {
-      console.log('Excluidos del RMA:');
-      excluidos.forEach(r => {
-        console.log(`  ${r.boleta} | cat=${r.categoria} | ticket_rma=${r.ticket_rma||'(vacío)'} | fecha_rma=${r.fecha_rma||'(vacío)'} | serie_fabrica=${r.serie_fabrica||'(vacío)'} | estatus=${r.estatus||'(vacío)'}`);
-      });
-    }
-
-    // Mostrar en el panel los excluidos que podrían ser RMA
-    if (desgEl && excluidos.length) {
-      const noRMA = excluidos.filter(r => {
-        const cat = (r.categoria || '').toLowerCase();
-        return !cat.includes('rma');
-      });
-      if (noRMA.length) {
-        const lista = noRMA.slice(0, 10).map(r => `${r.boleta}(${r.categoria||'s/cat'})`).join(', ');
-        desgEl.innerHTML += `<br><span style="color:var(--ink-4);font-size:.65rem;">No RMA: ${lista}${noRMA.length>10?` +${noRMA.length-10} más`:''}</span>`;
-      }
-    }
+    // Log simple
+    console.log('=== RMA ===');
+    console.log('Temp RMA:', rmaRawData.filter(r=>r.tipo==='salida_temporal').length, '| Def RMA:', rmaRawData.filter(r=>r.tipo==='salida_definitiva').length, '| Total:', rmaRawData.length);
 
     // Ordenar por fecha_rma (o fecha_creacion) descendente
     rmaRawData.sort((a, b) => {
