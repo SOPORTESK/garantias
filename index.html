@@ -1542,8 +1542,9 @@
           <th class="sortable" data-sort-type="temp" data-sort-col="numero_serie">Serie <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="falla">Falla <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="registrado_por">Registrado / Mod. <span class="sort-icon">↕</span></th>
+          <th>Excl. RMA</th>
           <th>Acciones</th>
-        </tr></thead><tbody id="tbody-temp"><tr class="empty-row"><td colspan="14"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
+        </tr></thead><tbody id="tbody-temp"><tr class="empty-row"><td colspan="15"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
       <div id="admin-pagination-temp" class="reg-pagination"></div>
       </div>
 
@@ -5653,10 +5654,12 @@ async function adminLoadRMARecords() {
       return cat.includes('rma');
     };
 
-    // Usar el mismo origen que el Excel de Registros: rawData
-    // Todas las salidas temporales van a RMA; las definitivas solo si son RMA o tienen campos RMA
+    // Todas las salidas temporales van a RMA (excepto las marcadas como excluir_rma); las definitivas solo si son RMA o tienen campos RMA
     const pool = [...(rawData.temp || []), ...(rawData.def || [])];
-    rmaRawData = pool.filter(r => r.tipo === 'salida_temporal' || esCatRMA(r) || tieneDatosRMA(r));
+    rmaRawData = pool.filter(r => {
+      if (r.excluir_rma) return false;
+      return r.tipo === 'salida_temporal' || esCatRMA(r) || tieneDatosRMA(r);
+    });
 
     // Desglose simple
     const desgEl = document.getElementById('rma-desglose');
@@ -7296,7 +7299,7 @@ function adminRenderTable(type){
   const start = (page - 1) * ADMIN_PAGE_SIZE;
   const pageRows = rows.slice(start, start + ADMIN_PAGE_SIZE);
 
-  if(!total){tbody.innerHTML=`<tr class="empty-row"><td colspan="14"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;document.getElementById('admin-pagination-'+type).innerHTML='';return;}
+  if(!total){tbody.innerHTML=`<tr class="empty-row"><td colspan="${type==='temp'?15:14}"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;document.getElementById('admin-pagination-'+type).innerHTML='';return;}
   tbody.innerHTML=pageRows.map((r,i)=>{
     const regPor = r.registrado_por || '—';
     const modPor = r.modificado_por ? ` <span style="font-size:.65rem;color:var(--ink-4)" title="Modificado por ${r.modificado_por}">(mod.)</span>` : '';
@@ -7314,6 +7317,7 @@ function adminRenderTable(type){
     <td class="td-mono">${r.numero_serie||'—'}</td>
     <td class="td-truncate" data-tip="${(r.falla||'—').replace(/"/g,'&quot;')}">${r.falla||'—'}</td>
     <td style="font-size:.75rem;color:var(--ink-3)">${regPor}${modPor}</td>
+    ${type==='temp' ? `<td style="text-align:center"><input type="checkbox" ${r.excluir_rma ? 'checked' : ''} onchange="toggleExcluirRMA('${r.id}', this.checked)" title="Excluir de RMA" style="cursor:pointer;width:18px;height:18px;"></td>` : ''}
     <td><div class="td-actions">
       <button class="btn btn-amber btn-sm" onclick="openEdit('${r.id}')">Editar</button>
       <button class="btn btn-danger btn-sm" onclick="askDelete('${r.id}','${r.boleta||''}')">Eliminar</button>
@@ -7352,6 +7356,26 @@ function adminRenderPagination(type, page, totalPages, total, start, pageRowsLen
 function adminGoPage(type, page) {
   adminPage[type] = page;
   adminRenderTable(type);
+}
+
+async function toggleExcluirRMA(id, checked) {
+  try {
+    await sbFetch('PATCH', TABLE + '?id=eq.' + id, {
+      excluir_rma: checked,
+      fecha_modificacion: new Date().toISOString()
+    });
+    // Actualizar en rawData para que el filtro RMA lo refleje inmediatamente
+    const r = (rawData.temp || []).find(x => x.id === id);
+    if (r) r.excluir_rma = checked;
+    showToast(checked ? 'Excluido de RMA' : 'Incluido en RMA', 'success');
+    // Recargar panel RMA si está visible
+    if (document.getElementById('panel-rma') && document.getElementById('panel-rma').style.display !== 'none') {
+      adminLoadRMARecords();
+    }
+  } catch (e) {
+    console.error('Error toggling excluir_rma:', e);
+    showToast('Error al actualizar', 'error');
+  }
 }
 
 function exportExcel(type){
