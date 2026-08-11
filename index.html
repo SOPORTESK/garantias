@@ -5662,34 +5662,34 @@ async function adminLoadRMARecords() {
     if (desgEl) {
       const tempRMA = rmaRawData.filter(r => r.tipo === 'salida_temporal').length;
       const defRMA  = rmaRawData.filter(r => r.tipo === 'salida_definitiva').length;
-      desgEl.innerHTML = `· <strong>${tempRMA}</strong> temporales · <strong>${defRMA}</strong> definitivas`;
+      desgEl.innerHTML = `· <strong>${tempRMA}</strong> temporales · <strong>${defRMA}</strong> definitivas · <strong>${rmaRawData.length}</strong> total`;
     }
     const bdCheckEl = document.getElementById('rma-bd-check');
     if (bdCheckEl) bdCheckEl.innerHTML = '';
 
-    // Comparación: cuántos por label "RMA" vs cuántos por valor crudo
-    const porLabel = pool.filter(r => {
-      const label = CAT_LABELS[r.categoria] || r.categoria || '';
-      return label.toUpperCase().includes('RMA');
-    });
-    const porValor = pool.filter(esCatRMA);
-    console.log('Por label con "RMA":', porLabel.length, '| Por valor crudo con "rma":', porValor.length);
-    if (desgEl && porLabel.length !== porValor.length) {
-      desgEl.innerHTML += `<br><span style="color:var(--red);font-size:.65rem;">⚠ Label dice ${porLabel.length}, valor dice ${porValor.length}</span>`;
+    // AUDITORÍA PROFUNDA: mostrar qué registros del pool NO entraron en rmaRawData y por qué
+    const excluidos = pool.filter(r => !esCatRMA(r) && !tieneDatosRMA(r));
+    console.log('=== AUDITORÍA RMA ===');
+    console.log('Pool total:', pool.length, '| RMA encontrados:', rmaRawData.length, '| Excluidos:', excluidos.length);
+    console.log('Temp en pool:', pool.filter(r=>r.tipo==='salida_temporal').length, '| Def en pool:', pool.filter(r=>r.tipo==='salida_definitiva').length);
+    console.log('Temp RMA:', rmaRawData.filter(r=>r.tipo==='salida_temporal').length, '| Def RMA:', rmaRawData.filter(r=>r.tipo==='salida_definitiva').length);
+    if (excluidos.length) {
+      console.log('Excluidos del RMA:');
+      excluidos.forEach(r => {
+        console.log(`  ${r.boleta} | cat=${r.categoria} | ticket_rma=${r.ticket_rma||'(vacío)'} | fecha_rma=${r.fecha_rma||'(vacío)'} | serie_fabrica=${r.serie_fabrica||'(vacío)'} | estatus=${r.estatus||'(vacío)'}`);
+      });
     }
 
-    // Buscar las 6 boletas del Excel en TODOS los registros y mostrar qué categoría tienen ahora
-    const numsFaltantes = ['29236','29220','29223','29209','29180','202602-013'];
-    const encontradas = [];
-    for (const num of numsFaltantes) {
-      const r = (allRecords || []).find(x => String(x.boleta || '').includes(num));
-      if (r) encontradas.push({ boleta: r.boleta, cat: r.categoria, tipo: r.tipo, id: r.id });
-    }
-    if (encontradas.length && desgEl) {
-      const msg = encontradas.map(r => `${r.boleta} → cat=${r.cat||'vacío'}`).join(' · ');
-      desgEl.innerHTML += `<br><span style="color:var(--red);font-size:.65rem;">Del Excel: ${msg}</span>`;
-    } else if (numsFaltantes.length && desgEl) {
-      desgEl.innerHTML += `<br><span style="color:var(--red);font-size:.65rem;">Del Excel: las 6 boletas no existen en la BD</span>`;
+    // Mostrar en el panel los excluidos que podrían ser RMA
+    if (desgEl && excluidos.length) {
+      const noRMA = excluidos.filter(r => {
+        const cat = (r.categoria || '').toLowerCase();
+        return !cat.includes('rma');
+      });
+      if (noRMA.length) {
+        const lista = noRMA.slice(0, 10).map(r => `${r.boleta}(${r.categoria||'s/cat'})`).join(', ');
+        desgEl.innerHTML += `<br><span style="color:var(--ink-4);font-size:.65rem;">No RMA: ${lista}${noRMA.length>10?` +${noRMA.length-10} más`:''}</span>`;
+      }
     }
 
     // Ordenar por fecha_rma (o fecha_creacion) descendente
