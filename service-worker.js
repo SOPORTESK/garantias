@@ -2,7 +2,7 @@
    Service Worker - Garantías Tienda3D
    Premium PWA con cache inteligente
 ═══════════════════════════════════════════════ */
-const CACHE_VERSION = 'garantias-v1.0.0';
+const CACHE_VERSION = 'garantias-v1.0.1';
 const CACHE_STATIC = `${CACHE_VERSION}-static`;
 const CACHE_RUNTIME = `${CACHE_VERSION}-runtime`;
 
@@ -49,10 +49,18 @@ self.addEventListener('fetch', event => {
   // Skip chrome-extension
   if (url.protocol.startsWith('chrome-extension')) return;
 
-  // Cache-first for static assets
+  // Network-first for static assets (always get latest version)
   if (STATIC_ASSETS.some(a => request.url.endsWith(a.replace('./', '')))) {
     event.respondWith(
-      caches.match(request).then(cached => cached || fetch(request))
+      fetch(request)
+        .then(response => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_STATIC).then(cache => cache.put(request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request).then(c => c || caches.match('./index.html')))
     );
     return;
   }
