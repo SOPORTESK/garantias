@@ -2575,6 +2575,55 @@ function showLoginTab(mode) {
   renderLoginForm();
 }
 
+function showChangePasswordForm(email) {
+  document.getElementById('loginError').classList.remove('show');
+  document.getElementById('loginSub').textContent = 'Debés crear una nueva contraseña';
+  const f = document.getElementById('loginForm');
+  f.innerHTML = `
+    <div class="login-field">
+      <label class="login-label">Correo electrónico</label>
+      <input id="li-email" type="email" class="login-input" value="${email}" disabled>
+    </div>
+    <div class="login-field">
+      <label class="login-label">Nueva contraseña</label>
+      <input id="li-newpass" type="password" class="login-input" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+    </div>
+    <div class="login-field">
+      <label class="login-label">Confirmar contraseña</label>
+      <input id="li-confirmpass" type="password" class="login-input" placeholder="Repetí la contraseña" autocomplete="new-password">
+    </div>
+    <button class="login-btn" id="loginSubmitBtn" onclick="doChangePassword()">Guardar contraseña</button>`;
+}
+
+async function doChangePassword() {
+  const newPass = document.getElementById('li-newpass')?.value;
+  const confirmPass = document.getElementById('li-confirmpass')?.value;
+  const btn = document.getElementById('loginSubmitBtn');
+  if (!newPass || !confirmPass) { showLoginError('Completá todos los campos'); return; }
+  if (newPass.length < 8) { showLoginError('La contraseña debe tener al menos 8 caracteres'); return; }
+  if (newPass !== confirmPass) { showLoginError('Las contraseñas no coinciden'); return; }
+  btn.disabled = true; btn.textContent = 'Guardando…';
+  try {
+    const res = await fetch(SB_URL + '/auth/v1/user', {
+      method: 'PUT',
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + authToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: newPass, data: { must_set_password: false } })
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.msg || 'Error al cambiar contraseña');
+    }
+    const data = await res.json();
+    currentUser = data;
+    localStorage.setItem('sb_session', JSON.stringify({ access_token: authToken, refresh_token: localStorage.getItem('sb_session') ? JSON.parse(localStorage.getItem('sb_session')).refresh_token : null, user: currentUser }));
+    hideLoginOverlay();
+    showToast('Contraseña actualizada · Bienvenido/a ' + (currentPerfil?.nombre || currentUser.email.split('@')[0]), 'success');
+  } catch(e) {
+    showLoginError(e.message || 'Error al cambiar contraseña');
+    btn.disabled = false; btn.textContent = 'Guardar contraseña';
+  }
+}
+
 function renderLoginForm() {
   const f = document.getElementById('loginForm');
   if (loginMode === 'login') {
@@ -2626,6 +2675,10 @@ async function doLogin() {
   btn.disabled = true; btn.textContent = 'Ingresando…';
   try {
     await authSignIn(email, pass);
+    if (currentUser?.user_metadata?.must_set_password) {
+      showChangePasswordForm(email);
+      return;
+    }
     hideLoginOverlay();
     showToast('Bienvenido/a ' + (currentPerfil?.nombre || email.split('@')[0]), 'success');
   } catch(e) {
