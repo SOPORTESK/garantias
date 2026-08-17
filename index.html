@@ -4748,12 +4748,18 @@ function regRenderMisRMA() {
     const a = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
     return a ? n + ' ' + a : n;
   })();
-  // RMA = cualquier registro con datos en campos RMA (sin importar categoría)
+  // RMA = todas las temporales + definitivas con datos RMA (excluyendo excluir_rma)
   const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
-  const tieneDatosRMA = r => limpio(r.fecha_rma) !== '' || limpio(r.serie_fabrica) !== '' || limpio(r.estatus) !== '';
+  const tieneDatosRMA = r => limpio(r.ticket_rma) !== '' || limpio(r.fecha_rma) !== '' || limpio(r.serie_fabrica) !== '' || limpio(r.estatus) !== '';
+  const esCatRMA = r => {
+    const cat = (r.categoria || '').toLowerCase();
+    return cat.includes('rma');
+  };
   const rmaData = allRecords.filter(r => {
+    if (r.excluir_rma) return false;
     const esMio = r.registrado_por && myName && r.registrado_por.trim().toLowerCase() === myName.trim().toLowerCase();
-    return esMio && tieneDatosRMA(r);
+    if (!esMio) return false;
+    return r.tipo === 'salida_temporal' || esCatRMA(r) || tieneDatosRMA(r);
   });
   if (countEl) countEl.textContent = rmaData.length + ' registro' + (rmaData.length !== 1 ? 's' : '');
   if (!rmaData.length) {
