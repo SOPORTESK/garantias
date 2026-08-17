@@ -4730,6 +4730,7 @@ function statsDownloadExcel() {
 }
 
 function regLoadAll() {
+  console.log('=== regLoadAll llamada ===');
   regLoaded = true;
   const byDateDesc = (a, b) => (b.fecha_creacion || '').localeCompare(a.fecha_creacion || '');
   regRecords.def  = [...(rawData.def  || [])].sort(byDateDesc);
@@ -4749,6 +4750,7 @@ function regRenderMisRMA() {
     const a = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
     return a ? n + ' ' + a : n;
   })();
+  const myEmail = currentUser?.email || '';
   // RMA = todas las temporales + definitivas con datos RMA (excluyendo excluir_rma)
   const limpio = v => v ? v.toString().trim().replace(/^[\-\s—–]+$/, '') : '';
   const tieneDatosRMA = r => limpio(r.ticket_rma) !== '' || limpio(r.fecha_rma) !== '' || limpio(r.serie_fabrica) !== '' || limpio(r.estatus) !== '';
@@ -4758,7 +4760,20 @@ function regRenderMisRMA() {
   };
   const rmaData = allRecords.filter(r => {
     if (r.excluir_rma) return false;
-    const esMio = r.registrado_por && myName && r.registrado_por.trim().toLowerCase() === myName.trim().toLowerCase();
+    if (!r.registrado_por) return false;
+    const reg = r.registrado_por.trim().toLowerCase();
+    const me = myName.trim().toLowerCase();
+    // Match exacto, inclusión parcial, o por nombre+apellido del perfil
+    const emailUser = myEmail.split('@')[0].toLowerCase();
+    const emailParts = emailUser.match(/[a-z]+/g) || [];
+    const esMio = (me && (reg === me || reg.includes(me) || me.includes(reg))) ||
+      (currentPerfil?.nombre && currentPerfil?.apellido &&
+       reg.includes(currentPerfil.nombre.trim().toLowerCase()) &&
+       reg.includes(currentPerfil.apellido.trim().toLowerCase())) ||
+      // Fallback por email: buscar si todas las partes del email están en registrado_por
+      (emailParts.length >= 2 && emailParts.every(p => reg.includes(p))) ||
+      // Fallback por email: si el email tiene un apellido (ej. cbatista -> batista)
+      (emailUser.length > 3 && reg.includes(emailUser.slice(1)));
     if (!esMio) return false;
     return r.tipo === 'salida_temporal' || esCatRMA(r) || tieneDatosRMA(r);
   });
