@@ -1087,6 +1087,10 @@
           <div style="font-size:.7rem;color:var(--ink-4)" id="menuEmail">—</div>
         </div>
 
+        <button class="user-menu-item" onclick="showChangeMyPasswordModal()">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-4.07a1 1 0 01.3-.7l6.07-6.07A6 6 0 1121 9z"/></svg>
+          Cambiar contraseña
+        </button>
         <button class="user-menu-item danger" onclick="authSignOut()">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
           Cerrar sesión
@@ -2166,6 +2170,45 @@
   </div>
 </div>
 
+<!-- MODAL CAMBIAR CONTRASEÑA -->
+<div class="modal-backdrop" id="changePassModal" style="display:none;">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <div class="modal-title-row">
+        <div class="modal-icon" style="background:var(--amber-dim);color:var(--amber);">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-4.07a1 1 0 01.3-.7l6.07-6.07A6 6 0 1121 9z"/></svg>
+        </div>
+        <span class="modal-title">Cambiar contraseña</span>
+      </div>
+      <button class="modal-close" onclick="closeChangePassModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:.75rem;">
+        <div class="field">
+          <label class="field-label">Contraseña actual</label>
+          <input type="password" id="cpCurrent" class="field-input" placeholder="Tu contraseña actual" autocomplete="current-password">
+        </div>
+        <div class="field">
+          <label class="field-label">Nueva contraseña</label>
+          <input type="password" id="cpNew" class="field-input" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+        </div>
+        <div class="field">
+          <label class="field-label">Confirmar nueva contraseña</label>
+          <input type="password" id="cpConfirm" class="field-input" placeholder="Repetí la nueva contraseña" autocomplete="new-password">
+        </div>
+      </div>
+      <div id="changePassError" style="display:none;margin-top:.75rem;font-size:.78rem;color:var(--red);background:var(--red-dim);border:1px solid rgba(220,38,38,.2);border-radius:var(--radius-sm);padding:.5rem .75rem;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeChangePassModal()">Cancelar</button>
+      <button class="btn btn-primary" id="changePassSaveBtn" onclick="doChangeMyPassword()">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- EDIT MODAL -->
 <div class="modal-backdrop" id="editModal">
   <div class="modal">
@@ -2621,6 +2664,56 @@ async function doChangePassword() {
   } catch(e) {
     showLoginError(e.message || 'Error al cambiar contraseña');
     btn.disabled = false; btn.textContent = 'Guardar contraseña';
+  }
+}
+
+function showChangeMyPasswordModal() {
+  toggleUserMenu();
+  document.getElementById('cpCurrent').value = '';
+  document.getElementById('cpNew').value = '';
+  document.getElementById('cpConfirm').value = '';
+  document.getElementById('changePassError').style.display = 'none';
+  document.getElementById('changePassModal').style.display = 'flex';
+}
+function closeChangePassModal() {
+  document.getElementById('changePassModal').style.display = 'none';
+}
+async function doChangeMyPassword() {
+  const current = document.getElementById('cpCurrent')?.value;
+  const newPass = document.getElementById('cpNew')?.value;
+  const confirmPass = document.getElementById('cpConfirm')?.value;
+  const btn = document.getElementById('changePassSaveBtn');
+  const errBox = document.getElementById('changePassError');
+  if (!current || !newPass || !confirmPass) { errBox.textContent = 'Completá todos los campos'; errBox.style.display = 'block'; return; }
+  if (newPass.length < 8) { errBox.textContent = 'La contraseña debe tener al menos 8 caracteres'; errBox.style.display = 'block'; return; }
+  if (newPass !== confirmPass) { errBox.textContent = 'Las contraseñas no coinciden'; errBox.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = 'Guardando…';
+  errBox.style.display = 'none';
+  try {
+    const verifyRes = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: currentUser.email, password: current })
+    });
+    if (!verifyRes.ok) throw new Error('Contraseña actual incorrecta');
+    const res = await fetch(SB_URL + '/auth/v1/user', {
+      method: 'PUT',
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + authToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: newPass, data: { must_set_password: false } })
+    });
+    if (!res.ok) { const err = await res.json(); throw new Error(err.msg || 'Error al cambiar contraseña'); }
+    const data = await res.json();
+    currentUser = data;
+    const sb = localStorage.getItem('sb_session');
+    if (sb) { const s = JSON.parse(sb); s.user = currentUser; localStorage.setItem('sb_session', JSON.stringify(s)); }
+    closeChangePassModal();
+    showToast('Contraseña actualizada correctamente', 'success');
+  } catch(e) {
+    errBox.textContent = e.message || 'Error al cambiar contraseña';
+    errBox.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Guardar';
   }
 }
 
