@@ -4761,6 +4761,13 @@ function regRenderMisRMA() {
     if (!esMio) return false;
     return r.tipo === 'salida_temporal' || esCatRMA(r) || tieneDatosRMA(r);
   });
+  console.log('=== MIS RMA DEBUG ===');
+  console.log('myName:', JSON.stringify(myName));
+  console.log('allRecords total:', allRecords.length);
+  console.log('registrado_por únicos:', [...new Set(allRecords.map(r=>r.registrado_por))].slice(0,10));
+  const mios = allRecords.filter(r => r.registrado_por && myName && r.registrado_por.trim().toLowerCase() === myName.trim().toLowerCase());
+  console.log('Mis registros totales:', mios.length, '| Temporales:', mios.filter(r=>r.tipo==='salida_temporal').length);
+  console.log('Cumplen RMA:', rmaData.length);
   if (countEl) countEl.textContent = rmaData.length + ' registro' + (rmaData.length !== 1 ? 's' : '');
   if (!rmaData.length) {
     tbody.innerHTML = '<tr class="empty-row"><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--ink-4);">No tenés trámites RMA registrados</td></tr>';
