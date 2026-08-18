@@ -2449,6 +2449,34 @@ const SB_URL = 'https://syngvbgelcfyunjggpwo.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5bmd2YmdlbGNmeXVuamdncHdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MDkyNDIsImV4cCI6MjEwMjI4NTI0Mn0.4_w_wLY1O-PSik2HfbiStDhLG_JFszZEwLgpXQ3GlVw';
 const TABLE     = 'garantias';
 const INV_TABLE = 'inventario';
+
+async function fixOwnerNames() {
+  const fixes = {
+    'Matthew Bermúdez': 'Matthew Bermudez',
+    'mbermudez': 'Matthew Bermudez',
+    'inunez': 'Isaac Nuñez',
+    'sbolsios': 'Josseph Bolsios',
+    'Joshua Valverde A': 'Joshua Valverde',
+    'César Andrés Batista': 'César Batista'
+  };
+  const headers = {
+    'apikey': SB_KEY,
+    'Authorization': 'Bearer ' + (authToken || SB_KEY),
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
+  };
+  for (const [oldName, newName] of Object.entries(fixes)) {
+    const url = SB_URL + '/rest/v1/' + TABLE + '?registrado_por=eq.' + encodeURIComponent(oldName) + '&select=id,registrado_por';
+    const res = await fetch(url, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ registrado_por: newName })
+    });
+    const data = await res.json();
+    console.log(oldName + ' -> ' + newName + ': ' + (res.ok ? data.length + ' registros actualizados' : 'ERROR ' + res.status));
+  }
+  console.log('=== fixOwnerNames completado. Recargá la página. ===');
+}
 const LOGO_SRC  = document.querySelector('#printForm .pf-logo')?.src || '';
 
 
@@ -4729,7 +4757,7 @@ function regRenderTable(type) {
   })();
 
   tbody.innerHTML = pageRows.map((r, i) => {
-    const canEdit = isAdmin() || (r.registrado_por && myName && r.registrado_por === myName);
+    const canEdit = isAdmin() || (r.registrado_por && myName && ownerRawKey(ownerCanonical(r.registrado_por)) === ownerRawKey(ownerCanonical(myName)));
     const rid = r.id || ('row-' + type + '-' + i);
     const detailId = 'detail-' + type + '-' + rid;
     return `<tr class="row-clickable" style="animation-delay:${i*0.02}s" onclick="toggleRow('${detailId}',this)">
@@ -5098,7 +5126,7 @@ function regRenderMisRMA() {
   console.log('myName:', JSON.stringify(myName));
   console.log('allRecords total:', allRecords.length);
   console.log('registrado_por únicos:', [...new Set(allRecords.map(r=>r.registrado_por))].slice(0,10));
-  const mios = allRecords.filter(r => r.registrado_por && myName && r.registrado_por.trim().toLowerCase() === myName.trim().toLowerCase());
+  const mios = allRecords.filter(r => r.registrado_por && myName && ownerRawKey(ownerCanonical(r.registrado_por)) === ownerRawKey(ownerCanonical(myName)));
   console.log('Mis registros totales:', mios.length, '| Temporales:', mios.filter(r=>r.tipo==='salida_temporal').length);
   console.log('Cumplen RMA:', rmaData.length);
   if (countEl) countEl.textContent = rmaData.length + ' registro' + (rmaData.length !== 1 ? 's' : '');
@@ -6332,7 +6360,7 @@ function exportMisRMAExcel() {
     return a ? n + ' ' + a : n;
   })();
   if (!myName) { showToast('No se pudo determinar el usuario actual', 'error'); return; }
-  const misRMA = (rmaRawData || []).filter(r => r.registrado_por && r.registrado_por.trim().toLowerCase() === myName.trim().toLowerCase());
+  const misRMA = (rmaRawData || []).filter(r => r.registrado_por && myName && ownerRawKey(ownerCanonical(r.registrado_por)) === ownerRawKey(ownerCanonical(myName)));
   if (!misRMA.length) { showToast('No tenés RMAs registrados a tu nombre', 'info', 'Usuario: ' + myName); return; }
   const rows = misRMA.map(r => {
     const dias = r.fecha_rma || r.fecha_creacion
@@ -6362,7 +6390,7 @@ function exportMisRMACSV() {
     return a ? n + ' ' + a : n;
   })();
   if (!myName) { showToast('No se pudo determinar el usuario actual', 'error'); return; }
-  const misRMA = (rmaRawData || []).filter(r => r.registrado_por && r.registrado_por.trim().toLowerCase() === myName.trim().toLowerCase());
+  const misRMA = (rmaRawData || []).filter(r => r.registrado_por && myName && ownerRawKey(ownerCanonical(r.registrado_por)) === ownerRawKey(ownerCanonical(myName)));
   if (!misRMA.length) { showToast('No tenés RMAs registrados a tu nombre', 'info', 'Usuario: ' + myName); return; }
   
   const headers = ['Ticket','Cliente','Marca','Ticket RMA','Fecha RMA','Días Transcurridos','Artículo','Serie','Falla','Serie Equipo Nuevo','Estatus','Boleta','Observaciones','Seguimiento'];
@@ -6396,7 +6424,7 @@ function exportMisRMAJSON() {
     return a ? n + ' ' + a : n;
   })();
   if (!myName) { showToast('No se pudo determinar el usuario actual', 'error'); return; }
-  const misRMA = (rmaRawData || []).filter(r => r.registrado_por && r.registrado_por.trim().toLowerCase() === myName.trim().toLowerCase());
+  const misRMA = (rmaRawData || []).filter(r => r.registrado_por && myName && ownerRawKey(ownerCanonical(r.registrado_por)) === ownerRawKey(ownerCanonical(myName)));
   if (!misRMA.length) { showToast('No tenés RMAs registrados a tu nombre', 'info', 'Usuario: ' + myName); return; }
   
   const data = misRMA.map(r => {
@@ -6430,7 +6458,7 @@ async function exportMisRMAPDF() {
     return a ? n + ' ' + a : n;
   })();
   if (!myName) { showToast('No se pudo determinar el usuario actual', 'error'); return; }
-  const misRMA = (rmaRawData || []).filter(r => r.registrado_por && r.registrado_por.trim().toLowerCase() === myName.trim().toLowerCase());
+  const misRMA = (rmaRawData || []).filter(r => r.registrado_por && myName && ownerRawKey(ownerCanonical(r.registrado_por)) === ownerRawKey(ownerCanonical(myName)));
   if (!misRMA.length) { showToast('No tenés RMAs registrados a tu nombre', 'info', 'Usuario: ' + myName); return; }
   
   showToast('Generando PDF...', 'info');
@@ -7997,7 +8025,7 @@ function openEdit(id){
     const a = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
     return a ? n + ' ' + a : n;
   })();
-  const canEditDev = isAdmin() || (r.registrado_por && myName && r.registrado_por === myName);
+  const canEditDev = isAdmin() || (r.registrado_por && myName && ownerRawKey(ownerCanonical(r.registrado_por)) === ownerRawKey(ownerCanonical(myName)));
   let html='';
   let rmaStarted=false;
   EDIT_FIELDS.forEach(f=>{
