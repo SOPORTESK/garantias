@@ -302,6 +302,42 @@
     tbody tr{animation:rowFade .25s ease both;}
     @keyframes rowFade{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}
 
+    /* FILAS EXPANDIBLES */
+    .row-clickable{cursor:pointer;transition:background .15s;}
+    .row-clickable:hover{background:rgba(209,65,30,.04);}
+    .row-expanded{background:rgba(209,65,30,.06)!important;}
+    .row-chevron{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;transition:transform .2s ease;color:var(--ink-4);font-size:.7rem;}
+    .row-chevron.open{transform:rotate(90deg);color:var(--brand);}
+    .row-detail{display:none;}
+    .row-detail.open{display:table-row;}
+    .row-detail td{padding:0!important;border:none!important;}
+    .row-detail-inner{padding:0 1.25rem 1.25rem;background:linear-gradient(180deg,rgba(209,65,30,.035),transparent 90px),var(--surface);white-space:normal;}
+    .row-detail-inner *{white-space:normal;}
+    .row-detail-card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden;}
+    .row-detail-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--brand),var(--brand-2,var(--brand)) 60%,transparent);}
+    .dg-sections{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));}
+    .dg-section{padding:1rem 1.25rem;border-right:1px solid var(--border);min-width:0;}
+    .dg-section:last-child{border-right:none;}
+    .dg-section__title{display:flex;align-items:center;gap:.4rem;font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--brand);margin-bottom:.75rem;}
+    .dg-section__title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+    .dg-rows{display:flex;flex-direction:column;gap:.55rem;}
+    .dg-row{display:grid;grid-template-columns:88px minmax(0,1fr);align-items:baseline;gap:.75rem;}
+    .dg-row dt{font-size:.63rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-4);line-height:1.5;}
+    .dg-row dd{margin:0;min-width:0;font-size:.8rem;font-weight:600;color:var(--ink-1);line-height:1.5;overflow-wrap:anywhere;}
+    .dg-row dd.is-empty{color:var(--ink-4);font-weight:500;}
+    .dg-chip{display:inline-block;max-width:100%;font-family:var(--mono);font-size:.72rem;font-weight:600;line-height:1.5;color:var(--ink-2);background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-xs);padding:.1rem .4rem;overflow-wrap:anywhere;word-break:break-word;}
+    .dg-notes{border-top:1px solid var(--border);background:var(--surface-2);padding:1rem 1.25rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem 1.75rem;}
+    .dg-notes>div{min-width:0;}
+    .dg-note__title{font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4);margin-bottom:.35rem;}
+    .dg-note__body{font-size:.8rem;line-height:1.6;color:var(--ink-2);overflow-wrap:anywhere;}
+    .dg-meta{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem .75rem;border-top:1px solid var(--border);padding:.6rem 1.25rem;font-size:.7rem;color:var(--ink-4);}
+    .dg-meta strong{color:var(--ink-2);font-weight:600;}
+    @media(max-width:640px){
+      .dg-section{border-right:none;border-bottom:1px solid var(--border);}
+      .dg-section:last-child{border-bottom:none;}
+      .dg-row{grid-template-columns:1fr;gap:.1rem;}
+    }
+
     /* PAGINATION */
     .reg-pagination{display:flex;align-items:center;justify-content:space-between;padding:.5rem 1rem;border-top:1px solid var(--border);background:var(--surface-2);gap:.5rem;flex-wrap:wrap;}
     .reg-pagination__info{font-size:.7rem;color:var(--ink-4);white-space:nowrap;}
@@ -1325,7 +1361,24 @@
 <div class="panel" id="panel-registros">
   <div class="admin-content" style="max-width:1400px;margin:0 auto;padding:1.75rem;">
 
-    <!-- Salidas Definitivas -->
+    <!-- Tabs internos de Registros -->
+    <nav class="pill-nav" role="tablist" id="regTabsNav" style="margin-bottom:1.25rem;">
+      <button class="pill-btn active" data-rtab="def" role="tab" onclick="regSwitchSubtab('def')">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="label">Definitivas</span>
+      </button>
+      <button class="pill-btn" data-rtab="temp" role="tab" onclick="regSwitchSubtab('temp')">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="label">Temporales</span>
+      </button>
+      <button class="pill-btn" data-rtab="misrma" role="tab" onclick="regSwitchSubtab('misrma')">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <span class="label">Mis Trámites RMA</span>
+      </button>
+    </nav>
+
+    <!-- Contenedor: Salidas Definitivas -->
+    <div class="reg-subtab" id="reg-subtab-def">
     <div class="data-panel" style="margin-bottom:1.5rem;">
       <div class="data-panel-header">
         <div class="data-panel-title">
@@ -1334,36 +1387,55 @@
           <span style="font-size:.75rem;color:var(--ink-4)" id="reg-count-def"></span>
         </div>
         <div class="data-panel-actions">
-          <div class="search-box" style="padding:.3rem .625rem;">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
-            <input type="text" id="reg-search-def" placeholder="Buscar…" oninput="regApplyFilters('def')" style="width:140px;">
-          </div>
           <button class="btn btn-success btn-sm" onclick="regExportExcel('def')">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             Excel
           </button>
         </div>
       </div>
-      <div class="table-wrap"><table style="table-layout:auto;width:auto;min-width:100%;"><thead><tr>
+      <!-- Barra de filtros unificada -->
+      <div class="filter-bar" style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;padding:.6rem .75rem;border-bottom:1px solid var(--border);background:var(--bg-2,#f8f7f5);">
+        <div class="search-box" style="padding:.3rem .625rem;flex:1;min-width:140px;">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" id="reg-search-def" placeholder="Buscar…" oninput="regApplyFilters('def')" style="width:100%;border:none;outline:none;background:transparent;">
+        </div>
+        <select id="reg-cat-def" onchange="regApplyFilters('def')" class="filter-select" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;background:#fff;cursor:pointer;">
+          <option value="">Todas las categorías</option>
+          <option value="rma">RMA</option>
+          <option value="rma_nota_credito">RMA - NC</option>
+          <option value="nota_credito">Nota de Crédito</option>
+          <option value="garantia_1">Garantía 1%</option>
+          <option value="garantia_1_nota_credito">Garantía 1% + NC</option>
+          <option value="reparacion">Reparación</option>
+        </select>
+        <select id="reg-dev-def" onchange="regApplyFilters('def')" class="filter-select" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;background:#fff;cursor:pointer;">
+          <option value="">DEV: Todos</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="aprobado">Aprobado</option>
+          <option value="sin_dev">Sin DEV</option>
+        </select>
+        <select id="reg-owner-def" onchange="regApplyFilters('def')" class="filter-select" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;background:#fff;cursor:pointer;"><option value="">Propietario: Todos</option></select>
+        <input type="date" class="date-input" id="reg-def-from" onchange="regApplyFilters('def')" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;" title="Desde">
+        <input type="date" class="date-input" id="reg-def-to" onchange="regApplyFilters('def')" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;" title="Hasta">
+        <button class="btn btn-ghost btn-sm" onclick="regClearFilters('def')" style="font-size:.75rem;padding:.3rem .6rem;">Limpiar</button>
+      </div>
+      <div id="reg-chips-def" style="display:flex;gap:.4rem;flex-wrap:wrap;padding:.4rem .75rem;border-bottom:1px solid var(--border);"></div>
+      <div class="table-wrap"><table style="table-layout:auto;width:100%;"><thead><tr>
+        <th style="width:28px"></th>
         <th>Boleta</th>
         <th>Fecha</th>
         <th>Ticket</th>
         <th>Cat.</th>
-        <th>Motivo</th>
         <th>Cliente</th>
-        <th>Sede</th>
-        <th>Fact.</th>
-        <th>Marca</th>
-        <th>Artículo</th>
-        <th>Serie</th>
-        <th>Falla</th>
         <th>DEV</th>
-        <th>Registrado / Mod.</th>
         <th>Acciones</th>
-      </tr></thead><tbody id="reg-tbody-def"><tr class="empty-row"><td colspan="15"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
+      </tr></thead><tbody id="reg-tbody-def"><tr class="empty-row"><td colspan="8"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
       <div id="reg-pagination-def" class="reg-pagination"></div>
     </div>
+    </div><!-- /reg-subtab-def -->
 
+    <!-- Contenedor: Salidas Temporales -->
+    <div class="reg-subtab" id="reg-subtab-temp" style="display:none">
     <!-- Salidas Temporales -->
     <div class="data-panel">
       <div class="data-panel-header">
@@ -1373,38 +1445,57 @@
           <span style="font-size:.75rem;color:var(--ink-4)" id="reg-count-temp"></span>
         </div>
         <div class="data-panel-actions">
-          <div class="search-box" style="padding:.3rem .625rem;">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
-            <input type="text" id="reg-search-temp" placeholder="Buscar…" oninput="regApplyFilters('temp')" style="width:140px;">
-          </div>
           <button class="btn btn-success btn-sm" onclick="regExportExcel('temp')">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             Excel
           </button>
         </div>
       </div>
-      <div class="table-wrap"><table style="table-layout:auto;width:auto;min-width:100%;"><thead><tr>
+      <!-- Barra de filtros unificada -->
+      <div class="filter-bar" style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;padding:.6rem .75rem;border-bottom:1px solid var(--border);background:var(--bg-2,#f8f7f5);">
+        <div class="search-box" style="padding:.3rem .625rem;flex:1;min-width:140px;">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" id="reg-search-temp" placeholder="Buscar…" oninput="regApplyFilters('temp')" style="width:100%;border:none;outline:none;background:transparent;">
+        </div>
+        <select id="reg-cat-temp" onchange="regApplyFilters('temp')" class="filter-select" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;background:#fff;cursor:pointer;">
+          <option value="">Todas las categorías</option>
+          <option value="rma">RMA</option>
+          <option value="rma_nota_credito">RMA - NC</option>
+          <option value="nota_credito">Nota de Crédito</option>
+          <option value="garantia_1">Garantía 1%</option>
+          <option value="garantia_1_nota_credito">Garantía 1% + NC</option>
+          <option value="reparacion">Reparación</option>
+        </select>
+        <select id="reg-dev-temp" onchange="regApplyFilters('temp')" class="filter-select" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;background:#fff;cursor:pointer;">
+          <option value="">DEV: Todos</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="aprobado">Aprobado</option>
+          <option value="sin_dev">Sin DEV</option>
+        </select>
+        <select id="reg-owner-temp" onchange="regApplyFilters('temp')" class="filter-select" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;background:#fff;cursor:pointer;"><option value="">Propietario: Todos</option></select>
+        <input type="date" class="date-input" id="reg-temp-from" onchange="regApplyFilters('temp')" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;" title="Desde">
+        <input type="date" class="date-input" id="reg-temp-to" onchange="regApplyFilters('temp')" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;" title="Hasta">
+        <button class="btn btn-ghost btn-sm" onclick="regClearFilters('temp')" style="font-size:.75rem;padding:.3rem .6rem;">Limpiar</button>
+      </div>
+      <div id="reg-chips-temp" style="display:flex;gap:.4rem;flex-wrap:wrap;padding:.4rem .75rem;border-bottom:1px solid var(--border);"></div>
+      <div class="table-wrap"><table style="table-layout:auto;width:100%;"><thead><tr>
+        <th style="width:28px"></th>
         <th>Boleta</th>
         <th>Fecha</th>
         <th>Ticket</th>
         <th>Cat.</th>
-        <th>Motivo</th>
         <th>Cliente</th>
-        <th>Sede</th>
-        <th>Fact.</th>
-        <th>Marca</th>
-        <th>Artículo</th>
-        <th>Serie</th>
-        <th>Falla</th>
         <th>DEV</th>
-        <th>Registrado / Mod.</th>
         <th>Acciones</th>
-      </tr></thead><tbody id="reg-tbody-temp"><tr class="empty-row"><td colspan="15"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
+      </tr></thead><tbody id="reg-tbody-temp"><tr class="empty-row"><td colspan="8"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
       <div id="reg-pagination-temp" class="reg-pagination"></div>
     </div>
+    </div><!-- /reg-subtab-temp -->
 
+    <!-- Contenedor: Mis Trámites RMA -->
+    <div class="reg-subtab" id="reg-subtab-misrma" style="display:none">
     <!-- Mis Trámites RMA -->
-    <div class="data-panel" style="margin-top:1.5rem;">
+    <div class="data-panel" style="margin-top:0;">
       <div class="data-panel-header">
         <div class="data-panel-title">
           <span class="panel-dot" style="background:var(--blue);"></span>
@@ -1439,6 +1530,7 @@
         </table>
       </div>
     </div>
+    </div><!-- /reg-subtab-misrma -->
 
   </div>
 </div>
@@ -1502,28 +1594,43 @@
         <div class="data-panel-header">
           <div class="data-panel-title"><span class="panel-dot dot-brand"></span><span style="font-size:.9375rem;font-weight:700;color:var(--ink-1)">Salidas Definitivas</span><span style="font-size:.75rem;color:var(--ink-4)" id="count-def"></span></div>
           <div class="data-panel-actions">
-            <div class="date-filter"><label>Desde</label><input type="date" class="date-input" id="def-from" onchange="adminApplyFilters('def')"><label>Hasta</label><input type="date" class="date-input" id="def-to" onchange="adminApplyFilters('def')"></div>
-            <div class="search-box" style="padding:.3rem .625rem;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg><input type="text" id="search-def" placeholder="Buscar…" oninput="adminApplyFilters('def')" style="width:140px;"></div>
             <button class="btn btn-success btn-sm" onclick="exportExcel('def')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Excel Def</button>
             <button class="btn btn-success btn-sm" onclick="exportAllExcel()" style="background:var(--brand);color:#fff;font-weight:700;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Exportar TODO</button>
           </div>
         </div>
-        <div class="table-wrap"><table style="table-layout:auto;width:auto;min-width:100%;"><thead><tr>
+      <!-- Barra de filtros unificada -->
+      <div class="filter-bar" style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;padding:.6rem .75rem;border-bottom:1px solid var(--border);background:var(--bg-2,#f8f7f5);">
+        <div class="search-box" style="padding:.3rem .625rem;flex:1;min-width:140px;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg><input type="text" id="search-def" placeholder="Buscar…" oninput="adminApplyFilters('def')" style="width:100%;border:none;outline:none;background:transparent;"></div>
+        <select id="admin-cat-def" onchange="adminApplyFilters('def')" class="filter-select" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;background:#fff;cursor:pointer;">
+          <option value="">Todas las categorías</option>
+          <option value="rma">RMA</option>
+          <option value="rma_nota_credito">RMA - NC</option>
+          <option value="nota_credito">Nota de Crédito</option>
+          <option value="garantia_1">Garantía 1%</option>
+          <option value="garantia_1_nota_credito">Garantía 1% + NC</option>
+          <option value="reparacion">Reparación</option>
+        </select>
+        <select id="admin-dev-def" onchange="adminApplyFilters('def')" class="filter-select" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;background:#fff;cursor:pointer;">
+          <option value="">DEV: Todos</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="aprobado">Aprobado</option>
+          <option value="sin_dev">Sin DEV</option>
+        </select>
+        <select id="admin-owner-def" onchange="adminApplyFilters('def')" class="filter-select" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;background:#fff;cursor:pointer;"><option value="">Propietario: Todos</option></select>
+        <input type="date" class="date-input" id="def-from" onchange="adminApplyFilters('def')" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;" title="Desde">
+        <input type="date" class="date-input" id="def-to" onchange="adminApplyFilters('def')" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;" title="Hasta">
+        <button class="btn btn-ghost btn-sm" onclick="adminClearFilters('def')" style="font-size:.75rem;padding:.3rem .6rem;">Limpiar</button>
+      </div>
+      <div id="admin-chips-def" style="display:flex;gap:.4rem;flex-wrap:wrap;padding:.4rem .75rem;border-bottom:1px solid var(--border);"></div>
+        <div class="table-wrap"><table style="table-layout:auto;width:100%;"><thead><tr>
+          <th style="width:28px"></th>
           <th class="sortable" data-sort-type="def" data-sort-col="boleta">Boleta <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="fecha_creacion">Fecha <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="ticket">Ticket <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="categoria">Cat. <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="def" data-sort-col="motivo">Motivo <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="nombre">Cliente <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="def" data-sort-col="sede">Sede <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="def" data-sort-col="factura">Fact. <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="def" data-sort-col="marca">Marca <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="def" data-sort-col="serie">Artículo <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="def" data-sort-col="numero_serie">Serie <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="def" data-sort-col="falla">Falla <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="def" data-sort-col="registrado_por">Registrado / Mod. <span class="sort-icon">↕</span></th>
           <th>Acciones</th>
-        </tr></thead><tbody id="tbody-def"><tr class="empty-row"><td colspan="14"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
+        </tr></thead><tbody id="tbody-def"><tr class="empty-row"><td colspan="7"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
       <div id="admin-pagination-def" class="reg-pagination"></div>
       </div>
       <!-- Panel temp -->
@@ -1531,27 +1638,42 @@
         <div class="data-panel-header">
           <div class="data-panel-title"><span class="panel-dot dot-green"></span><span style="font-size:.9375rem;font-weight:700;color:var(--ink-1)">Salidas Temporales</span><span style="font-size:.75rem;color:var(--ink-4)" id="count-temp"></span></div>
           <div class="data-panel-actions">
-            <div class="date-filter"><label>Desde</label><input type="date" class="date-input" id="temp-from" onchange="adminApplyFilters('temp')"><label>Hasta</label><input type="date" class="date-input" id="temp-to" onchange="adminApplyFilters('temp')"></div>
-            <div class="search-box" style="padding:.3rem .625rem;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg><input type="text" id="search-temp" placeholder="Buscar…" oninput="adminApplyFilters('temp')" style="width:140px;"></div>
             <button class="btn btn-success btn-sm" onclick="exportExcel('temp')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Excel</button>
           </div>
         </div>
-        <div class="table-wrap"><table style="table-layout:auto;width:auto;min-width:100%;"><thead><tr>
+      <!-- Barra de filtros unificada -->
+      <div class="filter-bar" style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;padding:.6rem .75rem;border-bottom:1px solid var(--border);background:var(--bg-2,#f8f7f5);">
+        <div class="search-box" style="padding:.3rem .625rem;flex:1;min-width:140px;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg><input type="text" id="search-temp" placeholder="Buscar…" oninput="adminApplyFilters('temp')" style="width:100%;border:none;outline:none;background:transparent;"></div>
+        <select id="admin-cat-temp" onchange="adminApplyFilters('temp')" class="filter-select" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;background:#fff;cursor:pointer;">
+          <option value="">Todas las categorías</option>
+          <option value="rma">RMA</option>
+          <option value="rma_nota_credito">RMA - NC</option>
+          <option value="nota_credito">Nota de Crédito</option>
+          <option value="garantia_1">Garantía 1%</option>
+          <option value="garantia_1_nota_credito">Garantía 1% + NC</option>
+          <option value="reparacion">Reparación</option>
+        </select>
+        <select id="admin-dev-temp" onchange="adminApplyFilters('temp')" class="filter-select" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;background:#fff;cursor:pointer;">
+          <option value="">DEV: Todos</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="aprobado">Aprobado</option>
+          <option value="sin_dev">Sin DEV</option>
+        </select>
+        <select id="admin-owner-temp" onchange="adminApplyFilters('temp')" class="filter-select" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;background:#fff;cursor:pointer;"><option value="">Propietario: Todos</option></select>
+        <input type="date" class="date-input" id="temp-from" onchange="adminApplyFilters('temp')" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;" title="Desde">
+        <input type="date" class="date-input" id="temp-to" onchange="adminApplyFilters('temp')" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;" title="Hasta">
+        <button class="btn btn-ghost btn-sm" onclick="adminClearFilters('temp')" style="font-size:.75rem;padding:.3rem .6rem;">Limpiar</button>
+      </div>
+      <div id="admin-chips-temp" style="display:flex;gap:.4rem;flex-wrap:wrap;padding:.4rem .75rem;border-bottom:1px solid var(--border);"></div>
+        <div class="table-wrap"><table style="table-layout:auto;width:100%;"><thead><tr>
+          <th style="width:28px"></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="boleta">Boleta <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="fecha_creacion">Fecha <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="ticket">Ticket <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="categoria">Cat. <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="temp" data-sort-col="motivo">Motivo <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="temp" data-sort-col="nombre">Cliente <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="temp" data-sort-col="sede">Sede <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="temp" data-sort-col="factura">Fact. <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="temp" data-sort-col="marca">Marca <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="temp" data-sort-col="serie">Artículo <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="temp" data-sort-col="numero_serie">Serie <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="temp" data-sort-col="falla">Falla <span class="sort-icon">↕</span></th>
-          <th class="sortable" data-sort-type="temp" data-sort-col="registrado_por">Registrado / Mod. <span class="sort-icon">↕</span></th>
           <th>Acciones</th>
-        </tr></thead><tbody id="tbody-temp"><tr class="empty-row"><td colspan="14"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
+        </tr></thead><tbody id="tbody-temp"><tr class="empty-row"><td colspan="7"><span class="spinner" style="border-top-color:var(--green)"></span> Cargando…</td></tr></tbody></table></div>
       <div id="admin-pagination-temp" class="reg-pagination"></div>
       </div>
 
@@ -3193,8 +3315,8 @@ function switchTab(tab) {
     if (adminBtn) adminBtn.style.display = '';
     if (adminBtnMobile) adminBtnMobile.style.display = '';
   }
-  // Sincronizar active en TODAS las pill-btn de ambas navs
-  document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  // Sincronizar active en TODAS las pill-btn de ambas navs (excluyendo subtabs internos)
+  document.querySelectorAll('.pill-btn:not([data-rtab])').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
   document.getElementById('boletaChip').style.display = tab === 'formulario' ? '' : 'none';
   if (tab === 'admin' && !adminLoaded) { adminLoaded = true; adminLoadAll(); }
@@ -3212,6 +3334,58 @@ function switchTab(tab) {
     const rh = document.getElementById('railHerramientas');
     if (rh && isAdmin()) rh.style.display = '';
   }
+}
+
+function rowDetailHTML(r) {
+  const esc = s => (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const row = (label, value, mono) => {
+    const v = esc(value).trim();
+    if (!v) return '<div class="dg-row"><dt>' + label + '</dt><dd class="is-empty">Sin dato</dd></div>';
+    return '<div class="dg-row"><dt>' + label + '</dt><dd>' + (mono ? '<span class="dg-chip">' + v + '</span>' : v) + '</dd></div>';
+  };
+  const section = (title, rows) => '<div class="dg-section"><div class="dg-section__title">' + title + '</div><dl class="dg-rows">' + rows.join('') + '</dl></div>';
+
+  const producto = section('Producto', [
+    row('Marca', r.marca),
+    row('Artículo', r.serie, true),
+    row('N° Serie', r.numero_serie, true),
+    row('Cantidad', r.cantidad)
+  ]);
+  const comercial = section('Comercial', [
+    row('Sede', r.sede),
+    row('Factura', r.factura, true),
+    row('F. Compra', r.fecha_compra),
+    row('DEV', r.dev, true)
+  ]);
+  const tramite = section('Trámite', [
+    row('Motivo', MOT_LABELS[r.motivo] || r.motivo),
+    row('Ticket RMA', r.ticket_rma, true),
+    row('Fecha RMA', r.fecha_rma),
+    row('Estatus', r.estatus)
+  ]);
+
+  const notes = [];
+  if (esc(r.falla).trim()) notes.push('<div><div class="dg-note__title">Descripción de la falla</div><div class="dg-note__body">' + esc(r.falla) + '</div></div>');
+  if (esc(r.descripcion).trim()) notes.push('<div><div class="dg-note__title">Descripción del artículo</div><div class="dg-note__body">' + esc(r.descripcion) + '</div></div>');
+  const notesBlock = notes.length ? '<div class="dg-notes">' + notes.join('') + '</div>' : '';
+
+  const meta = ['Registrado por <strong>' + (esc(r.registrado_por) || '—') + '</strong>'];
+  if (esc(r.modificado_por).trim()) meta.push('Modificado por <strong>' + esc(r.modificado_por) + '</strong>');
+  const metaBlock = '<div class="dg-meta">' + meta.join('<span>•</span>') + '</div>';
+
+  return '<div class="row-detail-inner"><div class="row-detail-card">' +
+    '<div class="dg-sections">' + producto + comercial + tramite + '</div>' +
+    notesBlock + metaBlock +
+    '</div></div>';
+}
+
+function regSwitchSubtab(sub) {
+  document.querySelectorAll('#regTabsNav .pill-btn').forEach(b => b.classList.toggle('active', b.dataset.rtab === sub));
+  ['def', 'temp', 'misrma'].forEach(s => {
+    const el = document.getElementById('reg-subtab-' + s);
+    if (el) el.style.display = s === sub ? '' : 'none';
+  });
+  if (sub === 'misrma') regRenderMisRMA();
 }
 
 /* ═══════════════════════════════════════
@@ -4543,7 +4717,7 @@ function regRenderTable(type) {
   const pageRows = rows.slice(start, start + PAGE_SIZE);
 
   if (!total) {
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="15"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>';
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="8"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>';
     document.getElementById('reg-pagination-' + type).innerHTML = '';
     return;
   }
@@ -4556,29 +4730,19 @@ function regRenderTable(type) {
 
   tbody.innerHTML = pageRows.map((r, i) => {
     const canEdit = isAdmin() || (r.registrado_por && myName && r.registrado_por === myName);
-    const modInfo = r.modificado_por
-      ? `${r.modificado_por}${r.fecha_modificacion ? '<br><span style="font-size:.65rem;color:var(--ink-4)">' + fmtDate(r.fecha_modificacion) + '</span>' : ''}`
-      : '—';
-    const regMod = r.registrado_por
-      ? `${r.registrado_por}${r.modificado_por ? '<br><span style="font-size:.65rem;color:var(--ink-4)">mod. ' + r.modificado_por + '</span>' : ''}`
-      : (r.modificado_por || '—');
-    return `<tr style="animation-delay:${i*0.02}s">
+    const rid = r.id || ('row-' + type + '-' + i);
+    const detailId = 'detail-' + type + '-' + rid;
+    return `<tr class="row-clickable" style="animation-delay:${i*0.02}s" onclick="toggleRow('${detailId}',this)">
+    <td><span class="row-chevron">▶</span></td>
     <td class="td-mono">${boletaBadge(r.boleta)}</td>
     <td>${fmtDate(r.fecha_creacion)}</td>
     <td class="td-mono">${r.ticket||'—'}</td>
     <td>${catBadge(r.categoria)}</td>
-    <td style="color:var(--ink-3);font-size:.75rem">${MOT_LABELS[r.motivo]||r.motivo||'—'}</td>
     <td><strong>${r.nombre||'—'}</strong></td>
-    <td style="color:var(--ink-3)">${r.sede||'—'}</td>
-    <td class="td-mono">${r.factura||'—'}</td>
-    <td>${r.marca||'—'}</td>
-    <td class="td-mono">${r.serie||'—'}</td>
-    <td class="td-mono">${r.numero_serie||'—'}</td>
-    <td class="td-truncate" data-tip="${(r.falla||'—').replace(/"/g,'&quot;')}">${r.falla||'—'}</td>
     <td class="td-mono" style="color:var(--brand);font-weight:700;">${r.dev||'—'}</td>
-    <td style="font-size:.75rem;color:var(--ink-3)">${regMod}</td>
-    <td><div class="td-actions">${canEdit ? `<button class="btn btn-amber btn-sm" onclick="openEdit('${r.id}')">Editar</button>` : ''}</div></td>
-  </tr>`;
+    <td onclick="event.stopPropagation()"><div class="td-actions">${canEdit ? `<button class="btn btn-amber btn-sm" onclick="openEdit('${r.id}')">Editar</button>` : ''}</div></td>
+  </tr>
+  <tr class="row-detail" id="${detailId}"><td colspan="8">${rowDetailHTML(r)}</td></tr>`;
   }).join('');
 
   // Render pagination controls
@@ -4618,15 +4782,67 @@ function regGoPage(type, page) {
   regRenderTable(type);
 }
 
+function toggleRow(detailId, rowEl) {
+  const detail = document.getElementById(detailId);
+  if (!detail) return;
+  const isOpen = detail.classList.toggle('open');
+  if (rowEl) {
+    rowEl.classList.toggle('row-expanded', isOpen);
+    const chevron = rowEl.querySelector('.row-chevron');
+    if (chevron) chevron.classList.toggle('open', isOpen);
+  }
+}
+
 function regApplyFilters(type) {
   const q = (document.getElementById('reg-search-' + type)?.value || '').toLowerCase();
+  const cat = (document.getElementById('reg-cat-' + type)?.value || '');
+  const dev = (document.getElementById('reg-dev-' + type)?.value || '');
+  const owner = (document.getElementById('reg-owner-' + type)?.value || '');
+  const from = (document.getElementById('reg-' + type + '-from')?.value || '');
+  const to = (document.getElementById('reg-' + type + '-to')?.value || '');
   let rows = rawData[type] || [];
-  if (q) rows = rows.filter(r => [r.boleta,r.nombre,r.ticket,r.marca,r.factura,r.serie,r.sede].map(x=>(x||'').toLowerCase()).join(' ').includes(q));
+  rows = rows.filter(r => {
+    if (q) { const hay = [r.boleta,r.nombre,r.ticket,r.marca,r.factura,r.serie,r.sede].map(x=>(x||'').toLowerCase()).join(' '); if (!hay.includes(q)) return false; }
+    if (cat && r.categoria !== cat) return false;
+    if (owner && ownerRawKey(ownerCanonical(r.registrado_por)) !== ownerRawKey(owner)) return false;
+    if (dev) {
+      const devVal = (r.dev || '').toString().toLowerCase();
+      if (dev === 'sin_dev' && devVal !== '' && devVal !== '—') return false;
+      if (dev === 'sin_dev' && (!r.dev || devVal === '' || devVal === '—')) return true;
+      if (dev === 'pendiente' && !devVal.includes('pend')) return false;
+      if (dev === 'aprobado' && !devVal.includes('apr') && !devVal.includes('ok') && !devVal.includes('si')) return false;
+    }
+    if (from && r.fecha_creacion && r.fecha_creacion.slice(0,10) < from) return false;
+    if (to && r.fecha_creacion && r.fecha_creacion.slice(0,10) > to) return false;
+    return true;
+  });
   const byDateDesc = (a, b) => (b.fecha_creacion || '').localeCompare(a.fecha_creacion || '');
   rows = [...rows].sort(byDateDesc);
   regRecords[type] = rows;
-  regPage[type] = 1; // Reset to first page on search
+  regPage[type] = 1;
   regRenderTable(type);
+  regRenderChips(type, { q, cat, dev, owner, from, to });
+}
+
+function regRenderChips(type, f) {
+  const container = document.getElementById('reg-chips-' + type);
+  if (!container) return;
+  const chips = [];
+  if (f.q) chips.push({ label: '"' + f.q + '"', clear: 'reg-search-' + type });
+  if (f.cat) chips.push({ label: CAT_LABELS[f.cat] || f.cat, clear: 'reg-cat-' + type });
+  if (f.dev) chips.push({ label: 'DEV: ' + f.dev, clear: 'reg-dev-' + type });
+  if (f.owner) chips.push({ label: 'Propietario: ' + f.owner, clear: 'reg-owner-' + type });
+  if (f.from) chips.push({ label: 'Desde: ' + f.from, clear: 'reg-' + type + '-from' });
+  if (f.to) chips.push({ label: 'Hasta: ' + f.to, clear: 'reg-' + type + '-to' });
+  container.innerHTML = chips.map(c =>
+    `<span style="display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .6rem;background:var(--brand);color:#fff;border-radius:12px;font-size:.7rem;font-weight:600;cursor:pointer;" onclick="document.getElementById('${c.clear}').value='';regApplyFilters('${type}');">${c.label} <span style="font-weight:800;">×</span></span>`
+  ).join('');
+}
+
+function regClearFilters(type) {
+  const ids = ['reg-search-' + type, 'reg-cat-' + type, 'reg-dev-' + type, 'reg-owner-' + type, 'reg-' + type + '-from', 'reg-' + type + '-to'];
+  ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  regApplyFilters(type);
 }
 
 /* ═══════════════════════════════════════
@@ -4729,12 +4945,113 @@ function statsDownloadExcel() {
   showToast('Excel descargado','success');
 }
 
+let _perfilesNombres = null;
+let _ownerCanonical = new Map();
+
+function ownerAccentless(s) {
+  return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+function ownerRawKey(s) {
+  return (s || '').trim().replace(/\s+/g, ' ').toLowerCase();
+}
+function ownerGroupKey(name) {
+  const toks = name.trim().split(/\s+/).filter(t => t.replace(/\./g, '').length > 1);
+  if (toks.length < 2) return null;
+  return ownerAccentless(toks[0]) + '|' + ownerAccentless(toks[toks.length - 1]);
+}
+
+async function fetchPerfilesNombres() {
+  if (_perfilesNombres) return _perfilesNombres;
+  try {
+    const res = await fetch(SB_URL + '/rest/v1/perfiles?select=nombre,apellido', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + (authToken || SB_KEY) }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const names = data.map(p => ((p.nombre || '').trim() + ' ' + (p.apellido || '').trim()).trim().replace(/\s+/g, ' ')).filter(Boolean);
+    _perfilesNombres = names.length ? names : null;
+  } catch (e) {
+    console.warn('fetchPerfilesNombres: no accesible, agrupando desde rawData', e);
+    _perfilesNombres = null;
+  }
+  return _perfilesNombres;
+}
+
+function buildOwnerIndex() {
+  const raws = new Map();
+  [...(rawData.def || []), ...(rawData.temp || [])].forEach(r => {
+    const raw = (r.registrado_por || '').trim().replace(/\s+/g, ' ');
+    if (!raw) return;
+    if (!raws.has(ownerRawKey(raw))) raws.set(ownerRawKey(raw), raw);
+  });
+  const perfilKeys = new Set((_perfilesNombres || []).map(ownerRawKey));
+  const consider = [...raws.values()];
+  (_perfilesNombres || []).forEach(n => { if (!raws.has(ownerRawKey(n))) consider.push(n); });
+
+  const groups = new Map();
+  const singles = [];
+  consider.forEach(raw => {
+    const gk = ownerGroupKey(raw);
+    if (!gk) { singles.push(raw); return; }
+    const g = groups.get(gk) || { label: raw, raws: [] };
+    if (perfilKeys.has(ownerRawKey(raw))) g.label = raw;
+    else if (!perfilKeys.has(ownerRawKey(g.label)) && raw.split(/\s+/).length > g.label.split(/\s+/).length) g.label = raw;
+    g.raws.push(raw);
+    groups.set(gk, g);
+  });
+  singles.forEach(s => {
+    const es = ownerAccentless(s);
+    let matched = null;
+    groups.forEach((g, gk) => {
+      if (matched) return;
+      const parts = gk.split('|');
+      const f = parts[0], l = parts[1];
+      if (es === f[0] + l || es === f + l || es === l) { matched = g; return; }
+      if (l && l.length >= 4 && es.length >= l.length && es.endsWith(l) && es.length - l.length <= 3) { matched = g; return; }
+    });
+    if (matched) matched.raws.push(s);
+    else groups.set('single|' + es, { label: s, raws: [s] });
+  });
+
+  _ownerCanonical = new Map();
+  let owners = [];
+  groups.forEach(g => {
+    owners.push(g.label);
+    g.raws.forEach(r => _ownerCanonical.set(ownerRawKey(r), g.label));
+  });
+  if (perfilKeys.size) owners = owners.filter(o => perfilKeys.has(ownerRawKey(o)));
+  owners.sort((a, b) => a.localeCompare(b, 'es'));
+  return owners;
+}
+
+function ownerCanonical(v) {
+  const k = ownerRawKey(v);
+  return _ownerCanonical.get(k) || (v || '').trim().replace(/\s+/g, ' ');
+}
+
+function populateOwnerSelects() {
+  const owners = buildOwnerIndex();
+  if (!owners.length) return;
+  const html = '<option value="">Propietario: Todos</option>' +
+    owners.map(o => '<option value="' + o.replace(/"/g, '&quot;') + '">' + o.replace(/</g, '&lt;') + '</option>').join('');
+  ['reg-owner-def', 'reg-owner-temp', 'admin-owner-def', 'admin-owner-temp'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (sel) {
+      const prev = sel.value;
+      sel.innerHTML = html;
+      if (prev && owners.includes(prev)) sel.value = prev;
+    }
+  });
+}
+
 function regLoadAll() {
   console.log('=== regLoadAll llamada ===');
   regLoaded = true;
   const byDateDesc = (a, b) => (b.fecha_creacion || '').localeCompare(a.fecha_creacion || '');
   regRecords.def  = [...(rawData.def  || [])].sort(byDateDesc);
   regRecords.temp = [...(rawData.temp || [])].sort(byDateDesc);
+  populateOwnerSelects();
+  fetchPerfilesNombres().then(() => populateOwnerSelects());
   regRenderTable('def');
   regRenderTable('temp');
   regRenderMisRMA();
@@ -5837,6 +6154,8 @@ async function adminLoadAll() {
     
     adminUpdateStats(all);
     adminUpdateBadges();
+    populateOwnerSelects();
+    fetchPerfilesNombres().then(() => populateOwnerSelects());
     adminApplyFilters('def');
     adminApplyFilters('temp');
     
@@ -7462,9 +7781,21 @@ function adminSwitchSection(sec) {
 
 function adminApplyFilters(type) {
   const q=document.getElementById('search-'+type).value.toLowerCase();
+  const cat=(document.getElementById('admin-cat-'+type)?.value||'');
+  const dev=(document.getElementById('admin-dev-'+type)?.value||'');
+  const owner=(document.getElementById('admin-owner-'+type)?.value||'');
   const from=document.getElementById(type+'-from').value, to=document.getElementById(type+'-to').value;
   let rows=rawData[type].filter(r=>{
     if(q){const hay=[r.boleta,r.nombre,r.ticket,r.marca,r.factura,r.serie,r.sede].map(x=>(x||'').toLowerCase()).join(' ');if(!hay.includes(q))return false;}
+    if(cat&&r.categoria!==cat)return false;
+    if(owner&&ownerRawKey(ownerCanonical(r.registrado_por))!==ownerRawKey(owner))return false;
+    if(dev){
+      const devVal=(r.dev||'').toString().toLowerCase();
+      if(dev==='sin_dev'&&devVal!==''&&devVal!=='—')return false;
+      if(dev==='sin_dev'&&(!r.dev||devVal===''||devVal==='—'))return true;
+      if(dev==='pendiente'&&!devVal.includes('pend'))return false;
+      if(dev==='aprobado'&&!devVal.includes('apr')&&!devVal.includes('ok')&&!devVal.includes('si'))return false;
+    }
     if(from&&r.fecha_creacion&&r.fecha_creacion.slice(0,10)<from)return false;
     if(to&&r.fecha_creacion&&r.fecha_creacion.slice(0,10)>to)return false;
     return true;
@@ -7479,9 +7810,31 @@ function adminApplyFilters(type) {
     return av<bv?-dir:av>bv?dir:0;
   });
   records[type]=rows;
-  adminPage[type] = 1; // Reset to first page on filter
+  adminPage[type] = 1;
   adminRenderTable(type);
   document.getElementById('count-'+type).textContent=rows.length+' de '+rawData[type].length;
+  adminRenderChips(type, { q, cat, dev, owner, from, to });
+}
+
+function adminRenderChips(type, f) {
+  const container = document.getElementById('admin-chips-' + type);
+  if (!container) return;
+  const chips = [];
+  if (f.q) chips.push({ label: '"' + f.q + '"', clear: 'search-' + type });
+  if (f.cat) chips.push({ label: CAT_LABELS[f.cat] || f.cat, clear: 'admin-cat-' + type });
+  if (f.dev) chips.push({ label: 'DEV: ' + f.dev, clear: 'admin-dev-' + type });
+  if (f.owner) chips.push({ label: 'Propietario: ' + f.owner, clear: 'admin-owner-' + type });
+  if (f.from) chips.push({ label: 'Desde: ' + f.from, clear: type + '-from' });
+  if (f.to) chips.push({ label: 'Hasta: ' + f.to, clear: type + '-to' });
+  container.innerHTML = chips.map(c =>
+    `<span style="display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .6rem;background:var(--brand);color:#fff;border-radius:12px;font-size:.7rem;font-weight:600;cursor:pointer;" onclick="document.getElementById('${c.clear}').value='';adminApplyFilters('${type}');">${c.label} <span style="font-weight:800;">×</span></span>`
+  ).join('');
+}
+
+function adminClearFilters(type) {
+  const ids = ['search-' + type, 'admin-cat-' + type, 'admin-dev-' + type, 'admin-owner-' + type, type + '-from', type + '-to'];
+  ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  adminApplyFilters(type);
 }
 
 // FIX: adminSortTable usa el elemento pasado como parámetro, no event implícito
@@ -7510,29 +7863,23 @@ function adminRenderTable(type){
   const start = (page - 1) * ADMIN_PAGE_SIZE;
   const pageRows = rows.slice(start, start + ADMIN_PAGE_SIZE);
 
-  if(!total){tbody.innerHTML=`<tr class="empty-row"><td colspan="14"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;document.getElementById('admin-pagination-'+type).innerHTML='';return;}
+  if(!total){tbody.innerHTML=`<tr class="empty-row"><td colspan="7"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;document.getElementById('admin-pagination-'+type).innerHTML='';return;}
   tbody.innerHTML=pageRows.map((r,i)=>{
-    const regPor = r.registrado_por || '—';
-    const modPor = r.modificado_por ? ` <span style="font-size:.65rem;color:var(--ink-4)" title="Modificado por ${r.modificado_por}">(mod.)</span>` : '';
-    return `<tr style="animation-delay:${i*0.02}s">
+    const rid=r.id||('arow-'+type+'-'+i);
+    const detailId='adetail-'+type+'-'+rid;
+    return `<tr class="row-clickable" style="animation-delay:${i*0.02}s" onclick="toggleRow('${detailId}',this)">
+    <td><span class="row-chevron">▶</span></td>
     <td class="td-mono">${boletaBadge(r.boleta)}</td>
     <td>${fmtDate(r.fecha_creacion)}</td>
     <td class="td-mono">${r.ticket||'—'}</td>
     <td>${catBadge(r.categoria)}</td>
-    <td style="color:var(--ink-3);font-size:.75rem">${MOT_LABELS[r.motivo]||r.motivo||'—'}</td>
     <td class="td-wrap"><strong>${r.nombre||'—'}</strong></td>
-    <td style="color:var(--ink-3)">${r.sede||'—'}</td>
-    <td class="td-mono">${r.factura||'—'}</td>
-    <td>${r.marca||'—'}</td>
-    <td class="td-mono">${r.serie||'—'}</td>
-    <td class="td-mono">${r.numero_serie||'—'}</td>
-    <td class="td-truncate" data-tip="${(r.falla||'—').replace(/"/g,'&quot;')}">${r.falla||'—'}</td>
-    <td style="font-size:.75rem;color:var(--ink-3)">${regPor}${modPor}</td>
-    <td><div class="td-actions">
+    <td onclick="event.stopPropagation()"><div class="td-actions">
       <button class="btn btn-amber btn-sm" onclick="openEdit('${r.id}')">Editar</button>
       <button class="btn btn-danger btn-sm" onclick="askDelete('${r.id}','${r.boleta||''}')">Eliminar</button>
     </div></td>
-  </tr>`;
+  </tr>
+  <tr class="row-detail" id="${detailId}"><td colspan="7">${rowDetailHTML(r)}</td></tr>`;
   }).join('');
 
   // Render pagination controls
@@ -8111,8 +8458,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('Fecha renderizada');
     dateInterval = setInterval(renderHeaderDate, 60000);
 
-    // Tabs (ignorar botones de pestañas de trámites)
-    document.querySelectorAll('.pill-btn:not([data-subtab])').forEach(btn => {
+    // Tabs (ignorar botones de pestañas de trámites y subtabs de registros)
+    document.querySelectorAll('.pill-btn:not([data-subtab]):not([data-rtab])').forEach(btn => {
       btn.addEventListener('click', () => switchTab(btn.dataset.tab));
     });
     document.querySelectorAll('.rail-item[data-section]').forEach(btn => {
