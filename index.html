@@ -4757,7 +4757,7 @@ function regRenderTable(type) {
   })();
 
   tbody.innerHTML = pageRows.map((r, i) => {
-    const canEdit = isAdmin() || (r.registrado_por && myName && ownerRawKey(ownerCanonical(r.registrado_por)) === ownerRawKey(ownerCanonical(myName)));
+    const canEdit = isAdmin() || isMyRecord(r);
     const rid = r.id || ('row-' + type + '-' + i);
     const detailId = 'detail-' + type + '-' + rid;
     return `<tr class="row-clickable" style="animation-delay:${i*0.02}s" onclick="toggleRow('${detailId}',this)">
@@ -4982,10 +4982,15 @@ function ownerAccentless(s) {
 function ownerRawKey(s) {
   return (s || '').trim().replace(/\s+/g, ' ').toLowerCase();
 }
-function ownerGroupKey(name) {
-  const toks = name.trim().split(/\s+/).filter(t => t.replace(/\./g, '').length > 1);
-  if (toks.length < 2) return null;
-  return ownerAccentless(toks[0]) + '|' + ownerAccentless(toks[toks.length - 1]);
+function ownerTokens(name) {
+  return name.trim().split(/\s+/).filter(t => t.replace(/\./g, '').length > 1).map(ownerAccentless);
+}
+function ownerNameKeys(name) {
+  const toks = ownerTokens(name);
+  if (toks.length < 2) return toks.length === 1 ? [toks[0]] : [];
+  const keys = [];
+  for (let i = 1; i < toks.length; i++) keys.push(toks[0] + '|' + toks[i]);
+  return keys;
 }
 
 async function fetchPerfilesNombres() {
@@ -5016,36 +5021,60 @@ function buildOwnerIndex() {
   const consider = [...raws.values()];
   (_perfilesNombres || []).forEach(n => { if (!raws.has(ownerRawKey(n))) consider.push(n); });
 
-  const groups = new Map();
-  const singles = [];
+  // Union-Find
+  const parent = new Map();
+  function find(x) { while (parent.get(x) !== x) { parent.set(x, parent.get(parent.get(x))); x = parent.get(x); } return x; }
+  function union(a, b) { const ra = find(a), rb = find(b); if (ra !== rb) parent.set(ra, rb); }
+
+  // Map each nameKey -> first raw name that has it
+  const keyToName = new Map();
   consider.forEach(raw => {
-    const gk = ownerGroupKey(raw);
-    if (!gk) { singles.push(raw); return; }
-    const g = groups.get(gk) || { label: raw, raws: [] };
-    if (perfilKeys.has(ownerRawKey(raw))) g.label = raw;
-    else if (!perfilKeys.has(ownerRawKey(g.label)) && raw.split(/\s+/).length > g.label.split(/\s+/).length) g.label = raw;
-    g.raws.push(raw);
-    groups.set(gk, g);
-  });
-  singles.forEach(s => {
-    const es = ownerAccentless(s);
-    let matched = null;
-    groups.forEach((g, gk) => {
-      if (matched) return;
-      const parts = gk.split('|');
-      const f = parts[0], l = parts[1];
-      if (es === f[0] + l || es === f + l || es === l) { matched = g; return; }
-      if (l && l.length >= 4 && es.length >= l.length && es.endsWith(l) && es.length - l.length <= 3) { matched = g; return; }
+    const rk = ownerRawKey(raw);
+    parent.set(rk, rk);
+    const nks = ownerNameKeys(raw);
+    nks.forEach(nk => {
+      if (keyToName.has(nk)) union(rk, keyToName.get(nk));
+      else keyToName.set(nk, rk);
     });
-    if (matched) matched.raws.push(s);
-    else groups.set('single|' + es, { label: s, raws: [s] });
+  });
+
+  // Match singles (email prefixes like "inunez", "sbolsios") to groups by suffix
+  consider.forEach(raw => {
+    const toks = ownerTokens(raw);
+    if (toks.length >= 2) return; // already grouped via nameKeys
+    const es = ownerAccentless(raw);
+    let matched = null;
+    keyToName.forEach((nameRk, nk) => {
+      if (matched) return;
+      const parts = nk.split('|');
+      const f = parts[0], l = parts[1];
+      if (es === f[0] + l || es === f + l || es === l) { matched = nameRk; return; }
+      if (l && l.length >= 4 && es.length >= l.length && es.endsWith(l) && es.length - l.length <= 3) { matched = nameRk; return; }
+    });
+    if (matched) union(ownerRawKey(raw), matched);
+  });
+
+  // Build groups from connected components
+  const compLabels = new Map();
+  const compRaws = new Map();
+  consider.forEach(raw => {
+    const rk = ownerRawKey(raw);
+    const root = find(rk);
+    if (!compLabels.has(root)) {
+      compLabels.set(root, raw);
+      compRaws.set(root, []);
+    }
+    const cur = compLabels.get(root);
+    if (perfilKeys.has(rk)) compLabels.set(root, raw);
+    else if (!perfilKeys.has(ownerRawKey(cur)) && raw.split(/\s+/).length > cur.split(/\s+/).length) compLabels.set(root, raw);
+    compRaws.get(root).push(raw);
   });
 
   _ownerCanonical = new Map();
   let owners = [];
-  groups.forEach(g => {
-    owners.push(g.label);
-    g.raws.forEach(r => _ownerCanonical.set(ownerRawKey(r), g.label));
+  compLabels.forEach((label, root) => {
+    owners.push(label);
+    compRaws.get(root).forEach(r => _ownerCanonical.set(ownerRawKey(r), label));
   });
   if (perfilKeys.size) owners = owners.filter(o => perfilKeys.has(ownerRawKey(o)));
   owners.sort((a, b) => a.localeCompare(b, 'es'));
@@ -5054,7 +5083,120 @@ function buildOwnerIndex() {
 
 function ownerCanonical(v) {
   const k = ownerRawKey(v);
-  return _ownerCanonical.get(k) || (v || '').trim().replace(/\s+/g, ' ');
+  if (_ownerCanonical.has(k)) return _ownerCanonical.get(k);
+  const toks = ownerTokens(v);
+  // Multi-token: try matching by shared name keys
+  if (toks.length >= 2) {
+    const nks = ownerNameKeys(v);
+    for (const [ck, label] of _ownerCanonical.entries()) {
+      const labelNks = ownerNameKeys(label);
+      if (labelNks.some(lnk => nks.includes(lnk))) return label;
+    }
+  }
+  // Single-token (email prefix like "cbatista", "inunez"): match by suffix
+  if (toks.length === 1) {
+    const es = ownerAccentless(v);
+    for (const [ck, label] of _ownerCanonical.entries()) {
+      const labelNks = ownerNameKeys(label);
+      for (const nk of labelNks) {
+        const parts = nk.split('|');
+        const f = parts[0], l = parts[1];
+        if (es === f[0] + l || es === f + l || es === l) return label;
+        if (l && l.length >= 4 && es.length >= l.length && es.endsWith(l) && es.length - l.length <= 3) return label;
+        if (f && f.length >= 4 && es.length >= f.length && es.endsWith(f) && es.length - f.length <= 3) return label;
+      }
+    }
+  }
+  return (v || '').trim().replace(/\s+/g, ' ');
+}
+
+function isMyRecord(r) {
+  if (!r || !r.registrado_por) return false;
+  const myName = (function(){
+    const n = currentPerfil?.nombre || currentUser?.user_metadata?.nombre || '';
+    const a = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
+    return a ? n + ' ' + a : n;
+  })();
+  if (!myName) return false;
+  // 1. Canonical matching
+  if (ownerRawKey(ownerCanonical(r.registrado_por)) === ownerRawKey(ownerCanonical(myName))) return true;
+  // 2. Email prefix matching
+  const myEmail = currentUser?.email || '';
+  const emailUser = myEmail.split('@')[0].toLowerCase();
+  if (emailUser) {
+    const reg = ownerAccentless(r.registrado_por);
+    const regTokens = ownerTokens(r.registrado_por);
+    // email prefix matches first initial + last name
+    if (regTokens.length >= 2) {
+      const f = regTokens[0], l = regTokens[regTokens.length - 1];
+      if (emailUser === f[0] + l || emailUser === f + l) return true;
+      if (l.length >= 4 && emailUser.endsWith(l) && emailUser.length - l.length <= 3) return true;
+      // Try all name keys
+      const nks = ownerNameKeys(r.registrado_por);
+      for (const nk of nks) {
+        const parts = nk.split('|');
+        if (emailUser === parts[0][0] + parts[1]) return true;
+        if (parts[1].length >= 4 && emailUser.endsWith(parts[1]) && emailUser.length - parts[1].length <= 3) return true;
+      }
+    }
+    // registrado_por contains email prefix
+    if (reg.includes(emailUser)) return true;
+  }
+  // 3. Name parts matching (if profile has real nombre + apellido)
+  const pNombre = ownerAccentless(currentPerfil?.nombre || '');
+  const pApellido = ownerAccentless(currentPerfil?.apellido || '');
+  if (pNombre && pApellido && pNombre.length > 2 && pApellido.length > 2) {
+    const reg = ownerAccentless(r.registrado_por);
+    if (reg.includes(pNombre) && reg.includes(pApellido)) return true;
+  }
+  return false;
+}
+
+function debugOwners() {
+  const myName = (function(){
+    const n = currentPerfil?.nombre || currentUser?.user_metadata?.nombre || '';
+    const a = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
+    return a ? n + ' ' + a : n;
+  })();
+  console.log('=== DEBUG OWNERS ===');
+  console.log('myName del perfil:', JSON.stringify(myName));
+  console.log('ownerCanonical(myName):', JSON.stringify(ownerCanonical(myName)));
+  console.log('currentPerfil:', currentPerfil);
+  console.log('currentUser.email:', currentUser?.email);
+  console.log('_perfilesNombres:', _perfilesNombres);
+  console.log('_ownerCanonical entries:', _ownerCanonical.size);
+  _ownerCanonical.forEach((v, k) => console.log('  ', JSON.stringify(k), '->', JSON.stringify(v)));
+  const all = [...(rawData.def||[]), ...(rawData.temp||[])];
+  const unmatched = all.filter(r => {
+    const rk = ownerRawKey(r.registrado_por);
+    return !_ownerCanonical.has(rk);
+  });
+  console.log('Registros SIN match en _ownerCanonical:', unmatched.length);
+  if (unmatched.length) {
+    const uvals = [...new Set(unmatched.map(r => r.registrado_por))];
+    console.log('Valores no matcheados:', uvals);
+  }
+  const myCanonical = ownerRawKey(ownerCanonical(myName));
+  const mios = all.filter(r => ownerRawKey(ownerCanonical(r.registrado_por)) === myCanonical);
+  console.log('Mis registros (canEdit):', mios.length, 'de', all.length);
+  console.log('=== FIN DEBUG ===');
+}
+
+async function debugPerfiles() {
+  const res = await fetch(SB_URL + '/rest/v1/perfiles?select=nombre,apellido,correo,rol&order=correo.asc', {
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + (authToken || SB_KEY) }
+  });
+  const data = await res.json();
+  console.log('=== PERFILES (authToken) ===');
+  console.log('HTTP:', res.status, '| Count:', data.length);
+  data.forEach(p => {
+    const full = ((p.nombre||'') + ' ' + (p.apellido||'')).trim();
+    const canon = ownerCanonical(full);
+    const all = [...(rawData.def||[]), ...(rawData.temp||[])];
+    const count = all.filter(r => ownerRawKey(ownerCanonical(r.registrado_por)) === ownerRawKey(canon)).length;
+    console.log(`  ${p.correo||'??'} | nombre="${p.nombre||''}" apellido="${p.apellido||''}" | canonical="${canon}" | registros=${count}`);
+  });
+  console.log('=== FIN PERFILES ===');
 }
 
 function populateOwnerSelects() {
@@ -5106,19 +5248,7 @@ function regRenderMisRMA() {
   const rmaData = allRecords.filter(r => {
     if (r.excluir_rma) return false;
     if (!r.registrado_por) return false;
-    const reg = r.registrado_por.trim().toLowerCase();
-    const me = myName.trim().toLowerCase();
-    // Match exacto, inclusión parcial, o por nombre+apellido del perfil
-    const emailUser = myEmail.split('@')[0].toLowerCase();
-    const emailParts = emailUser.match(/[a-z]+/g) || [];
-    const esMio = (me && (reg === me || reg.includes(me) || me.includes(reg))) ||
-      (currentPerfil?.nombre && currentPerfil?.apellido &&
-       reg.includes(currentPerfil.nombre.trim().toLowerCase()) &&
-       reg.includes(currentPerfil.apellido.trim().toLowerCase())) ||
-      // Fallback por email: buscar si todas las partes del email están en registrado_por
-      (emailParts.length >= 2 && emailParts.every(p => reg.includes(p))) ||
-      // Fallback por email: si el email tiene un apellido (ej. cbatista -> batista)
-      (emailUser.length > 3 && reg.includes(emailUser.slice(1)));
+    const esMio = isMyRecord(r);
     if (!esMio) return false;
     return r.tipo === 'salida_temporal' || esCatRMA(r) || tieneDatosRMA(r);
   });
@@ -5126,7 +5256,7 @@ function regRenderMisRMA() {
   console.log('myName:', JSON.stringify(myName));
   console.log('allRecords total:', allRecords.length);
   console.log('registrado_por únicos:', [...new Set(allRecords.map(r=>r.registrado_por))].slice(0,10));
-  const mios = allRecords.filter(r => r.registrado_por && myName && ownerRawKey(ownerCanonical(r.registrado_por)) === ownerRawKey(ownerCanonical(myName)));
+  const mios = allRecords.filter(r => r.registrado_por && isMyRecord(r));
   console.log('Mis registros totales:', mios.length, '| Temporales:', mios.filter(r=>r.tipo==='salida_temporal').length);
   console.log('Cumplen RMA:', rmaData.length);
   if (countEl) countEl.textContent = rmaData.length + ' registro' + (rmaData.length !== 1 ? 's' : '');
@@ -6360,7 +6490,7 @@ function exportMisRMAExcel() {
     return a ? n + ' ' + a : n;
   })();
   if (!myName) { showToast('No se pudo determinar el usuario actual', 'error'); return; }
-  const misRMA = (rmaRawData || []).filter(r => r.registrado_por && myName && ownerRawKey(ownerCanonical(r.registrado_por)) === ownerRawKey(ownerCanonical(myName)));
+  const misRMA = (rmaRawData || []).filter(r => r.registrado_por && isMyRecord(r));
   if (!misRMA.length) { showToast('No tenés RMAs registrados a tu nombre', 'info', 'Usuario: ' + myName); return; }
   const rows = misRMA.map(r => {
     const dias = r.fecha_rma || r.fecha_creacion
@@ -6390,7 +6520,7 @@ function exportMisRMACSV() {
     return a ? n + ' ' + a : n;
   })();
   if (!myName) { showToast('No se pudo determinar el usuario actual', 'error'); return; }
-  const misRMA = (rmaRawData || []).filter(r => r.registrado_por && myName && ownerRawKey(ownerCanonical(r.registrado_por)) === ownerRawKey(ownerCanonical(myName)));
+  const misRMA = (rmaRawData || []).filter(r => r.registrado_por && isMyRecord(r));
   if (!misRMA.length) { showToast('No tenés RMAs registrados a tu nombre', 'info', 'Usuario: ' + myName); return; }
   
   const headers = ['Ticket','Cliente','Marca','Ticket RMA','Fecha RMA','Días Transcurridos','Artículo','Serie','Falla','Serie Equipo Nuevo','Estatus','Boleta','Observaciones','Seguimiento'];
@@ -6424,7 +6554,7 @@ function exportMisRMAJSON() {
     return a ? n + ' ' + a : n;
   })();
   if (!myName) { showToast('No se pudo determinar el usuario actual', 'error'); return; }
-  const misRMA = (rmaRawData || []).filter(r => r.registrado_por && myName && ownerRawKey(ownerCanonical(r.registrado_por)) === ownerRawKey(ownerCanonical(myName)));
+  const misRMA = (rmaRawData || []).filter(r => r.registrado_por && isMyRecord(r));
   if (!misRMA.length) { showToast('No tenés RMAs registrados a tu nombre', 'info', 'Usuario: ' + myName); return; }
   
   const data = misRMA.map(r => {
@@ -6458,7 +6588,7 @@ async function exportMisRMAPDF() {
     return a ? n + ' ' + a : n;
   })();
   if (!myName) { showToast('No se pudo determinar el usuario actual', 'error'); return; }
-  const misRMA = (rmaRawData || []).filter(r => r.registrado_por && myName && ownerRawKey(ownerCanonical(r.registrado_por)) === ownerRawKey(ownerCanonical(myName)));
+  const misRMA = (rmaRawData || []).filter(r => r.registrado_por && isMyRecord(r));
   if (!misRMA.length) { showToast('No tenés RMAs registrados a tu nombre', 'info', 'Usuario: ' + myName); return; }
   
   showToast('Generando PDF...', 'info');
@@ -8025,7 +8155,7 @@ function openEdit(id){
     const a = currentPerfil?.apellido || currentUser?.user_metadata?.apellido || '';
     return a ? n + ' ' + a : n;
   })();
-  const canEditDev = isAdmin() || (r.registrado_por && myName && ownerRawKey(ownerCanonical(r.registrado_por)) === ownerRawKey(ownerCanonical(myName)));
+  const canEditDev = isAdmin() || isMyRecord(r);
   let html='';
   let rmaStarted=false;
   EDIT_FIELDS.forEach(f=>{
