@@ -4834,11 +4834,11 @@ function regApplyFilters(type) {
     if (cat && r.categoria !== cat) return false;
     if (owner && ownerRawKey(ownerCanonical(r.registrado_por)) !== ownerRawKey(owner)) return false;
     if (dev) {
-      const devVal = (r.dev || '').toString().toLowerCase();
-      if (dev === 'sin_dev' && devVal !== '' && devVal !== '—') return false;
-      if (dev === 'sin_dev' && (!r.dev || devVal === '' || devVal === '—')) return true;
-      if (dev === 'pendiente' && !devVal.includes('pend')) return false;
-      if (dev === 'aprobado' && !devVal.includes('apr') && !devVal.includes('ok') && !devVal.includes('si')) return false;
+      const devVal = (r.dev || '').toString().trim().toLowerCase();
+      const hasDev = devVal && devVal !== '' && devVal !== '—';
+      if (dev === 'sin_dev' && hasDev) return false;
+      if (dev === 'aprobado' && !hasDev) return false;
+      if (dev === 'pendiente' && (hasDev || !requisitosAprobacion(r).includes('dev'))) return false;
     }
     if (from && r.fecha_creacion && r.fecha_creacion.slice(0,10) < from) return false;
     if (to && r.fecha_creacion && r.fecha_creacion.slice(0,10) > to) return false;
@@ -7976,11 +7976,11 @@ function adminApplyFilters(type) {
     if(cat&&r.categoria!==cat)return false;
     if(owner&&ownerRawKey(ownerCanonical(r.registrado_por))!==ownerRawKey(owner))return false;
     if(dev){
-      const devVal=(r.dev||'').toString().toLowerCase();
-      if(dev==='sin_dev'&&devVal!==''&&devVal!=='—')return false;
-      if(dev==='sin_dev'&&(!r.dev||devVal===''||devVal==='—'))return true;
-      if(dev==='pendiente'&&!devVal.includes('pend'))return false;
-      if(dev==='aprobado'&&!devVal.includes('apr')&&!devVal.includes('ok')&&!devVal.includes('si'))return false;
+      const devVal=(r.dev||'').toString().trim().toLowerCase();
+      const hasDev=devVal&&devVal!==''&&devVal!=='—';
+      if(dev==='sin_dev'&&hasDev)return false;
+      if(dev==='aprobado'&&!hasDev)return false;
+      if(dev==='pendiente'&&(hasDev||!requisitosAprobacion(r).includes('dev')))return false;
     }
     if(from&&r.fecha_creacion&&r.fecha_creacion.slice(0,10)<from)return false;
     if(to&&r.fecha_creacion&&r.fecha_creacion.slice(0,10)>to)return false;
