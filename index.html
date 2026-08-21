@@ -5222,8 +5222,8 @@ function regLoadAll() {
   regRecords.temp = [...(rawData.temp || [])].sort(byDateDesc);
   populateOwnerSelects();
   fetchPerfilesNombres().then(() => populateOwnerSelects());
-  regRenderTable('def');
-  regRenderTable('temp');
+  regApplyFilters('def');
+  regApplyFilters('temp');
   regRenderMisRMA();
 }
 
