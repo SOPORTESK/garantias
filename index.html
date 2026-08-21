@@ -5970,6 +5970,14 @@ async function adminLoadUsers() {
     if (res.ok) {
       users = await res.json();
     }
+    // Deduplicar por correo (por si hay registros duplicados en perfiles)
+    const seen = new Set();
+    users = users.filter(u => {
+      const key = ownerRawKey(u.correo || '');
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
     if (!users.length) {
       // RLS bloquea: construir lista desde registrado_por en rawData
       const owners = [...new Set([...(rawData.def||[]), ...(rawData.temp||[])].map(r => r.registrado_por).filter(Boolean))];
