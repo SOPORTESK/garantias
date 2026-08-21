@@ -8193,10 +8193,19 @@ function openEdit(id){
       rmaStarted=true;
     }
     let val=r[f.key]!==null&&r[f.key]!==undefined?r[f.key]:'';
-    if(f.dev) val = val ? val.replace(/^DEV-/i,'') : '';
+    if(f.dev && f.type !== 'date') val = val ? val.replace(/^DEV-/i,'') : '';
     let inp;
     if(f.type==='textarea'){inp=`<textarea id="e_${f.key}" class="field-textarea" rows="2"${f.dev&&!canEditDev?' disabled':''} style="${f.dev&&!canEditDev?'opacity:.5;cursor:not-allowed;':''}">${val}</textarea>`;}
     else if(f.type==='select'){const opts=f.opts.map(([v,l])=>`<option value="${v}"${v===val?' selected':''}>${l}</option>`).join('');inp=`<select id="e_${f.key}" class="field-select"><option value="">Seleccionar</option>${opts}</select>`;}
+    else if(f.dev && f.type==='date'){
+      inp=`<input id="e_${f.key}" type="date" class="field-input" value="${val}"${!canEditDev?' disabled style="opacity:.5;cursor:not-allowed;"':''}>`;
+      if(r.fecha_aprobacion){
+        inp+=`<div style="font-size:.72rem;color:var(--ink-4);margin-top:.25rem;">Aprobado: ${new Date(r.fecha_aprobacion).toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>`;
+      }
+      if(!canEditDev){
+        inp+=`<div style="font-size:.72rem;color:var(--ink-4);margin-top:.25rem;">Solo el autor o admin puede editar este campo</div>`;
+      }
+    }
     else if(f.dev){
       inp=`<div style="display:flex;align-items:center;gap:.4rem;">
         <span style="font-family:var(--mono);font-size:.875rem;font-weight:700;color:var(--ink-3);white-space:nowrap;">DEV-</span>
@@ -8344,7 +8353,7 @@ async function saveEdit(){
   const btn=document.getElementById('modalSaveBtn'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando…';
   const payload={};
   EDIT_FIELDS.forEach(f=>{const el=document.getElementById('e_'+f.key);if(el&&!el.disabled){
-    if(f.dev){
+    if(f.dev && f.type !== 'date'){
       // Agregar prefijo DEV- si hay valor, no enviar el campo si está vacío
       const v = el.value.trim();
       if (v) {
