@@ -6972,12 +6972,12 @@ function statsAuditDetail(tipo) {
 
 /* ═══════════════════════════════════════
    REGLAS DE APROBACIÓN
-   Definitiva + NC  → factura_salida Y dev
+   Definitiva + NC  → fecha_dev Y dev
    Temporal  + NC   → dev
-   Definitiva 1%    → factura_salida
+   Definitiva 1%    → fecha_dev
    (los RMA se auditan en el panel Trámites con Marca)
 ═══════════════════════════════════════ */
-const REQ_LABELS = { factura_salida: 'Factura Salida', dev: 'DEV' };
+const REQ_LABELS = { fecha_dev: 'Fecha DEV', dev: 'DEV' };
 
 // Devuelve los campos que este registro DEBE tener llenos según su tipo/categoría
 function requisitosAprobacion(r) {
@@ -6992,9 +6992,9 @@ function requisitosAprobacion(r) {
   const esDefinitiva = tipo === 'salida_definitiva';
   const esTemporal   = tipo === 'salida_temporal';
 
-  if (esNC && esDefinitiva)   return ['factura_salida', 'dev'];
+  if (esNC && esDefinitiva)   return ['fecha_dev', 'dev'];
   if (esNC && esTemporal)     return ['dev'];
-  if (es1pct && esDefinitiva) return ['factura_salida'];
+  if (es1pct && esDefinitiva) return ['fecha_dev'];
   return [];
 }
 
@@ -7278,7 +7278,7 @@ function statsShowAuditModal(titulo, registros, tipo) {
       <td><div class="au-m">${r.fecha_creacion?r.fecha_creacion.slice(0,10):'—'}</div><div class="au-s">${r.fecha_aprobacion?'aprob. '+r.fecha_aprobacion.slice(0,10):'sin aprobar'}</div></td>
       <td>${dias===''?'<span class="au-s">—</span>':`<span class="au-d ${diasCls}">${dias}d</span>`}</td>
       <td>${celdaRequisito(r,'dev')}</td>
-      <td>${celdaRequisito(r,'factura_salida')}</td>
+      <td>${celdaRequisito(r,'fecha_dev')}</td>
       <td class="au-reg">${r.registrado_por||'—'}</td>
     </tr>`;
   }).join('');
@@ -7445,7 +7445,7 @@ function statsAuditFull() {
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(allRows), 'Todos los Registros');
 
   // Hoja 3: Por Aprobar (NC sin DEV)
-  const porAprobar = all.filter(estaPorAprobar).map(r => ({ Boleta: r.boleta, Cliente: r.nombre, Tipo: r.tipo, Categoria: r.categoria, Sede: r.sede, 'Fecha Creación': r.fecha_creacion, DEV: r.dev||'PENDIENTE', 'Factura Salida': r.factura_salida||'PENDIENTE', 'Serie Equipo Nuevo': r.serie_fabrica||'PENDIENTE' }));
+  const porAprobar = all.filter(estaPorAprobar).map(r => ({ Boleta: r.boleta, Cliente: r.nombre, Tipo: r.tipo, Categoria: r.categoria, Sede: r.sede, 'Fecha Creación': r.fecha_creacion, DEV: r.dev||'PENDIENTE', 'Fecha DEV': r.fecha_dev||'PENDIENTE', 'Serie Equipo Nuevo': r.serie_fabrica||'PENDIENTE' }));
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(porAprobar), 'Por Aprobar');
 
   // Hoja 4: Registros con tiempo de aprobación calculado
@@ -8164,7 +8164,7 @@ const EDIT_FIELDS=[
   {key:'marca',label:'Marca',type:'text'},{key:'serie',label:'Artículo',type:'text'},{key:'numero_serie',label:'Serie',type:'text'},
   {key:'descripcion',label:'Descripción',type:'textarea',full:true},{key:'falla',label:'Falla',type:'textarea',full:true},
   {key:'dev',label:'Nota de Crédito',type:'text',dev:true},
-  {key:'factura_salida',label:'Factura de Salida',type:'text'},
+  {key:'fecha_dev',label:'Fecha DEV / NC',type:'date',dev:true},
   {key:'ticket_rma',label:'Ticket RMA',type:'text'},
   {key:'fecha_rma',label:'Fecha RMA *',type:'date'},
   {key:'serie_fabrica',label:'Serie Equipo Nuevo',type:'text'},
