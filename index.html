@@ -2555,12 +2555,23 @@ async function authSignUp(email, password, nombre, apellido) {
 async function loadPerfil() {
   if (!authToken || !currentUser) return;
   try {
-    const res = await fetch(SB_URL + '/rest/v1/perfiles?id=eq.' + currentUser.id, {
+    const res = await fetch(SB_URL + '/rest/v1/perfiles?id=eq.' + currentUser.id + '&select=*', {
       headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + authToken }
     });
     
     if (!res.ok) {
-      // Si la tabla no existe o hay error de permisos, crear perfil en memoria
+      // RLS bloquea: intentar leer por correo
+      const res2 = await fetch(SB_URL + '/rest/v1/perfiles?correo=eq.' + encodeURIComponent(currentUser.email) + '&select=*', {
+        headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + authToken }
+      });
+      if (res2.ok) {
+        const data2 = await res2.json();
+        if (data2.length) {
+          currentPerfil = data2[0];
+          return;
+        }
+      }
+      // Si todo falla, crear perfil en memoria
       const meta = currentUser.user_metadata || {};
       currentPerfil = {
         id: currentUser.id,
@@ -2573,9 +2584,30 @@ async function loadPerfil() {
     }
     
     const data = await res.json();
-    currentPerfil = data.length ? data[0] : null;
+    if (data.length) {
+      currentPerfil = data[0];
+    } else {
+      // No encontró por id, intentar por correo
+      const res2 = await fetch(SB_URL + '/rest/v1/perfiles?correo=eq.' + encodeURIComponent(currentUser.email) + '&select=*', {
+        headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + authToken }
+      });
+      if (res2.ok) {
+        const data2 = await res2.json();
+        if (data2.length) {
+          currentPerfil = data2[0];
+          return;
+        }
+      }
+      const meta = currentUser.user_metadata || {};
+      currentPerfil = {
+        id: currentUser.id,
+        nombre: meta.nombre || currentUser.email.split('@')[0],
+        apellido: meta.apellido || '',
+        correo: currentUser.email,
+        rol: isAdminEmail(currentUser.email) ? 'admin' : 'usuario'
+      };
+    }
   } catch(e) { 
-    // Error de red o parsing, crear perfil fallback
     const meta = currentUser.user_metadata || {};
     currentPerfil = {
       id: currentUser.id,
