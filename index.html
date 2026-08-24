@@ -5979,24 +5979,7 @@ async function adminLoadUsers() {
       return true;
     });
     if (!users.length) {
-      // RLS bloquea: construir lista desde registrado_por en rawData
-      const owners = [...new Set([...(rawData.def||[]), ...(rawData.temp||[])].map(r => r.registrado_por).filter(Boolean))];
-      users = owners.map((nombre, i) => {
-        const canon = ownerCanonical(nombre);
-        const emailGuess = nombre.toLowerCase().replace(/[^a-z]/g, '') + '@sekunet.com';
-        return {
-          id: 'fallback-' + i,
-          nombre: canon,
-          apellido: '',
-          correo: emailGuess,
-          rol: isAdminEmail(emailGuess) ? 'admin' : 'usuario',
-          created_at: null,
-          _fallback: true
-        };
-      });
-    }
-    if (!users.length) {
-      tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Sin usuarios registrados</td></tr>';
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No se pudieron cargar los usuarios. Verificá las políticas RLS de la tabla <code>perfiles</code> en Supabase.</td></tr>';
       return;
     }
     tbody.innerHTML = users.map(u => {
