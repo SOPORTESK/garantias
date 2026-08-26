@@ -3384,6 +3384,8 @@ function switchTab(tab) {
     adminLoadAll().then(() => {
       adminSwitchSection('control de calidad');
     });
+  } else if (tab === 'admin') {
+    adminSwitchSection('control de calidad');
   }
   if (tab === 'registros') {
     if (!adminLoaded) { adminLoaded = true; adminLoadAll().then(() => regLoadAll()); }
