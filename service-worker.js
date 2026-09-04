@@ -2,7 +2,7 @@
    Service Worker - Garantías Tienda3D
    Premium PWA con cache inteligente
 ═══════════════════════════════════════════════ */
-const CACHE_VERSION = 'garantias-v1.0.5';
+const CACHE_VERSION = 'garantias-v1.0.6';
 const CACHE_STATIC = `${CACHE_VERSION}-static`;
 const CACHE_RUNTIME = `${CACHE_VERSION}-runtime`;
 
