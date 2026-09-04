@@ -4809,7 +4809,7 @@ function regRenderTable(type) {
     <td>${fmtDate(r.fecha_creacion)}</td>
     <td class="td-mono">${r.ticket||'—'}</td>
     <td>${catBadge(r.categoria)}</td>
-    <td class="td-truncate" title="${(r.nombre||'—').replace(/"/g,'&quot;')}"><strong>${r.nombre||'—'}</strong></td>
+    <td class="td-truncate" data-tip="${(r.nombre||'—').replace(/"/g,'&quot;')}"><strong>${r.nombre||'—'}</strong></td>
     <td>${estatusBadge(r.estatus)}</td>
     <td class="td-mono" style="color:var(--brand);font-weight:700;">${r.dev||'—'}</td>
     <td onclick="event.stopPropagation()"><div class="td-actions">${canEdit ? `<button class="btn btn-amber btn-sm" onclick="openEdit('${r.id}')">Editar</button>` : ''}</div></td>
@@ -8087,7 +8087,7 @@ function adminRenderTable(type){
     <td>${fmtDate(r.fecha_creacion)}</td>
     <td class="td-mono">${r.ticket||'—'}</td>
     <td>${catBadge(r.categoria)}</td>
-    <td class="td-truncate" title="${(r.nombre||'—').replace(/"/g,'&quot;')}"><strong>${r.nombre||'—'}</strong></td>
+    <td class="td-truncate" data-tip="${(r.nombre||'—').replace(/"/g,'&quot;')}"><strong>${r.nombre||'—'}</strong></td>
     <td>${estatusBadge(r.estatus)}</td>
     <td onclick="event.stopPropagation()"><div class="td-actions">
       <button class="btn btn-amber btn-sm" onclick="openEdit('${r.id}')">Editar</button>
