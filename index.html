@@ -8382,44 +8382,52 @@ let historialData = [];
 
 async function loadHistorial(garantiaId) {
   try {
-    const data = await sbFetch('GET', 'garantias_historial?garantia_id=eq.' + garantiaId + '&order=fecha.desc');
-    historialData = data || [];
+    const data = await sbFetch('GET', 'garantias_historial?garantia_id=eq.' + encodeURIComponent(garantiaId) + '&order=fecha.desc');
+    historialData = Array.isArray(data) ? data : [];
     renderHistorialSelect();
   } catch (e) {
     console.error('Error al cargar historial:', e);
     historialData = [];
+    renderHistorialSelect();
   }
 }
 
 function renderHistorialSelect() {
   const select = document.getElementById('historial-select');
+  const obsDiv = document.getElementById('historial-observaciones');
+  const segDiv = document.getElementById('historial-seguimiento');
   if (!select) return;
   
-  if (historialData.length === 0) {
-    select.innerHTML = '<option value="">Sin historial</option>';
+  if (!historialData || historialData.length === 0) {
+    select.innerHTML = '<option value="">Sin historial registrado</option>';
+    if (obsDiv) obsDiv.textContent = 'Este registro aún no cuenta con modificaciones históricas guardadas.';
+    if (segDiv) segDiv.textContent = '—';
     return;
   }
   
-  select.innerHTML = '<option value="">Seleccionar fecha...</option>' + 
-    historialData.map((h, i) => {
-      const fecha = new Date(h.fecha).toLocaleString('es-CR');
-      return `<option value="${i}">${fecha} - ${h.modificado_por}</option>`;
-    }).join('');
+  select.innerHTML = historialData.map((h, i) => {
+    const fecha = h.fecha ? new Date(h.fecha).toLocaleString('es-CR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : 'Fecha desc.';
+    const mod = h.modificado_por || 'Técnico';
+    return `<option value="${i}">${fecha} - ${mod}</option>`;
+  }).join('');
+
+  // Mostrar automáticamente la entrada más reciente
+  showHistorialEntry(0);
 }
 
 function showHistorialEntry(index) {
   const obsDiv = document.getElementById('historial-observaciones');
   const segDiv = document.getElementById('historial-seguimiento');
   
-  if (index === '' || !historialData[index]) {
+  if (index === '' || index === null || typeof historialData[index] === 'undefined') {
     if (obsDiv) obsDiv.textContent = 'Seleccione una fecha para ver el historial';
     if (segDiv) segDiv.textContent = '';
     return;
   }
   
   const entry = historialData[index];
-  if (obsDiv) obsDiv.textContent = entry.observaciones || '(Sin observaciones)';
-  if (segDiv) segDiv.textContent = entry.seguimiento || '(Sin seguimiento)';
+  if (obsDiv) obsDiv.textContent = entry.observaciones || '(Sin observaciones registradas)';
+  if (segDiv) segDiv.textContent = entry.seguimiento || '(Sin seguimiento registrado)';
 }
 async function saveEdit(){
   const btn=document.getElementById('modalSaveBtn'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando…';
@@ -8533,18 +8541,41 @@ async function saveEdit(){
     // Guardar el registro editado primero
     await sbFetch('PATCH',TABLE+'?id=eq.'+editingId,payload);
     
-    // Guardar en historial automáticamente
+    // Guardar en historial automáticamente con ID y fecha obligatorios
     try {
-      const historialPayload = {
-        garantia_id: editingId,
-        observaciones: payload.observaciones || orig?.observaciones || '',
-        seguimiento: payload.seguimiento || orig?.seguimiento || '',
-        modificado_por: payload.modificado_por
-      };
-      if (historialPayload.observaciones || historialPayload.seguimiento) {
-        await sbFetch('POST', 'garantias_historial', historialPayload);
-        console.log('Historial guardado:', historialPayload);
+      // Detectar cambios en campos clave
+      const detalleCambios = [];
+      if (orig) {
+        if (payload.estatus && payload.estatus !== orig.estatus) detalleCambios.push('Estatus: ' + (orig.estatus || 'Sin estatus') + ' ➔ ' + payload.estatus);
+        if (payload.dev && payload.dev !== orig.dev) detalleCambios.push('DEV: ' + (orig.dev || 'Sin DEV') + ' ➔ ' + payload.dev);
+        if (payload.ticket_rma && payload.ticket_rma !== orig.ticket_rma) detalleCambios.push('Ticket RMA: ' + (orig.ticket_rma || '—') + ' ➔ ' + payload.ticket_rma);
+        if (payload.serie_fabrica && payload.serie_fabrica !== orig.serie_fabrica) detalleCambios.push('Serie Nueva: ' + (orig.serie_fabrica || '—') + ' ➔ ' + payload.serie_fabrica);
+        if (payload.sede && payload.sede !== orig.sede) detalleCambios.push('Sede: ' + (orig.sede || '—') + ' ➔ ' + payload.sede);
       }
+
+      const obsTexto = (payload.observaciones && payload.observaciones.trim()) || '';
+      const segTexto = (payload.seguimiento && payload.seguimiento.trim()) || '';
+      const obsFinal = obsTexto || (detalleCambios.length ? detalleCambios.join(' | ') : (orig?.observaciones || 'Actualización de registro'));
+      const segFinal = segTexto || orig?.seguimiento || (detalleCambios.length ? detalleCambios.join(' | ') : '');
+
+      const nuevoHistorialId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : ('hist_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9));
+      const fechaNow = new Date().toISOString();
+
+      const historialPayload = {
+        id: nuevoHistorialId,
+        garantia_id: editingId,
+        fecha: fechaNow,
+        observaciones: obsFinal,
+        seguimiento: segFinal,
+        modificado_por: payload.modificado_por || 'Técnico'
+      };
+
+      await sbFetch('POST', 'garantias_historial', historialPayload);
+      console.log('Historial guardado exitosamente:', historialPayload);
+      
+      // Actualizar memoria local de historial y re-renderizar select si el modal sigue abierto
+      historialData.unshift(historialPayload);
+      renderHistorialSelect();
     } catch (histErr) {
       console.error('Error al guardar historial:', histErr);
       // No bloquear el flujo principal si falla el historial
