@@ -4821,7 +4821,7 @@ function regRenderTable(type) {
     <td class="td-mono">${r.ticket||'—'}</td>
     <td>${catBadge(r.categoria)}</td>
     <td class="td-truncate" data-tip="${(r.nombre||'—').replace(/"/g,'&quot;')}"><strong>${r.nombre||'—'}</strong></td>
-    <td>${estatusBadge(r.estatus)}</td>
+    <td>${estatusBadge(r.estatus, r)}</td>
     <td class="td-mono" style="color:var(--brand);font-weight:700;">${devColHTML}</td>
     <td onclick="event.stopPropagation()"><div class="td-actions">${canEdit ? `<button class="btn btn-amber btn-sm" onclick="openEdit('${r.id}')">Editar</button>` : ''}</div></td>
   </tr>
@@ -8087,7 +8087,20 @@ function adminSortTable(th, type, col) {
 }
 
 function catBadge(cat){const cls={nota_credito:'badge-purple',garantia_1:'badge-brand',rma:'badge-amber',reparacion:'badge-muted',rma_nota_credito:'badge-amber',garantia_1_nota_credito:'badge-purple'};return`<span class="badge ${cls[cat]||'badge-muted'}">${CAT_LABELS[cat]||cat||'—'}</span>`;}
-function estatusBadge(est){if(!est)return'<span class="badge badge-muted">—</span>';const cls={reemplazo_total:'badge-brand',repuesto_ingresado:'badge-green',nota_credito_marca:'badge-purple',en_proceso:'badge-amber',pendiente_tramite:'badge-amber',fuera_garantia:'badge-muted',compra_repuesto:'badge-green'};return`<span class="badge ${cls[est]||'badge-muted'}">${KPI_ESTATUS_LABELS[est]||est}</span>`;}
+function estatusBadge(est, r){
+  if (r && (r.tipo || '').toLowerCase() === 'salida_definitiva') {
+    const devVal = (r.dev || '').toString().trim();
+    if (devVal !== '' && devVal !== '—') {
+      return '<span class="badge badge-green">Aprobado</span>';
+    }
+    if (estaPorAprobar(r)) {
+      return '<span class="badge badge-amber">Por Aprobar</span>';
+    }
+  }
+  if(!est) return '<span class="badge badge-muted">—</span>';
+  const cls={reemplazo_total:'badge-brand',repuesto_ingresado:'badge-green',nota_credito_marca:'badge-purple',en_proceso:'badge-amber',pendiente_tramite:'badge-amber',fuera_garantia:'badge-muted',compra_repuesto:'badge-green',aprobado:'badge-green'};
+  return `<span class="badge ${cls[est]||'badge-muted'}">${KPI_ESTATUS_LABELS[est]||(est === 'aprobado' ? 'Aprobado' : est)}</span>`;
+}
 function boletaBadge(b){if(!b)return'<span class="badge badge-muted">—</span>';const cls=b.startsWith('GNC')||b.startsWith('TNC')?'badge-purple':b.startsWith('G')?'badge-brand':b.startsWith('T')?'badge-green':'badge-muted';return`<span class="badge ${cls}">${b}</span>`;}
 function fmtDate(iso){if(!iso)return'—';return new Date(iso).toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric'});}
 
@@ -8117,7 +8130,7 @@ function adminRenderTable(type){
     <td class="td-mono">${r.ticket||'—'}</td>
     <td>${catBadge(r.categoria)}</td>
     <td class="td-truncate" data-tip="${(r.nombre||'—').replace(/"/g,'&quot;')}"><strong>${r.nombre||'—'}</strong></td>
-    <td>${estatusBadge(r.estatus)}</td>
+    <td>${estatusBadge(r.estatus, r)}</td>
     ${devCell}
     <td onclick="event.stopPropagation()"><div class="td-actions">
       <button class="btn btn-amber btn-sm" onclick="openEdit('${r.id}')">Editar</button>
