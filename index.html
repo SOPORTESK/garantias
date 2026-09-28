@@ -8226,15 +8226,68 @@ function exportAllExcel(){
 
 /* EDIT MODAL */
 let editingId=null;
+// Funciones para gestión dinámica de estatus personalizados
+function getCustomEstatusList() {
+  try {
+    const saved = localStorage.getItem('custom_garantias_estatus');
+    return saved ? JSON.parse(saved) : [];
+  } catch(e) { return []; }
+}
+
+function saveCustomEstatus(nombre) {
+  if (!nombre || !nombre.trim()) return null;
+  const cleanName = nombre.trim().toUpperCase();
+  const slug = cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  const list = getCustomEstatusList();
+  if (!list.find(x => x.value === slug || x.label.toUpperCase() === cleanName)) {
+    list.push({ value: slug, label: cleanName });
+    try { localStorage.setItem('custom_garantias_estatus', JSON.stringify(list)); } catch(e){}
+  }
+  return { value: slug, label: cleanName };
+}
+
+function handleEstatusChange(val) {
+  const isNC = (val || '').toLowerCase() === 'nota_credito_marca' || (val || '').toLowerCase().includes('nota_credito_marca');
+  const lbl = document.getElementById('label_ticket_rma');
+  const inp = document.getElementById('e_ticket_rma');
+  if (lbl) lbl.textContent = isNC ? 'Factura Marca' : 'Ticket RMA';
+  if (inp) inp.placeholder = isNC ? 'Factura Marca' : 'Ticket del proveedor';
+}
+
+function agregarNuevoEstatus() {
+  const nombre = prompt('Ingrese el nombre del nuevo estatus (ej. EN ESPERA DE REPUESTO):');
+  if (!nombre || !nombre.trim()) return;
+  const nuevo = saveCustomEstatus(nombre);
+  if (!nuevo) return;
+
+  const sel = document.getElementById('e_estatus');
+  if (sel) {
+    let opt = sel.querySelector(`option[value="${nuevo.value}"]`);
+    if (!opt) {
+      opt = document.createElement('option');
+      opt.value = nuevo.value;
+      opt.textContent = nuevo.label;
+      const addOpt = sel.querySelector('option[value="__ADD_NEW__"]');
+      if (addOpt) sel.insertBefore(opt, addOpt);
+      else sel.appendChild(opt);
+    }
+    sel.value = nuevo.value;
+    handleEstatusChange(nuevo.value);
+  }
+  showToast('Nuevo estatus disponible: ' + nuevo.label, 'success');
+}
+
 const EDIT_FIELDS=[
   {key:'boleta',label:'Número de Boleta',type:'text'},
   {key:'tipo',label:'Tipo de Salida',type:'select',opts:[['salida_definitiva','Salida Definitiva'],['salida_temporal','Salida Temporal']]},
   {key:'categoria',label:'Categoría',type:'select',opts:[['nota_credito','Nota De Crédito'],['garantia_1','Garantía 1%'],['rma','RMA'],['reparacion','Reparación'],['rma_nota_credito','RMA - NC'],['garantia_1_nota_credito','Garantía 1% + NC']]},
   {key:'motivo',label:'Motivo',type:'select',opts:[['sin_existencias','Sin Existencias'],['solicitud_cliente','Solicitud del Cliente'],['reemplazo','Reemplazo']]},
   {key:'ticket',label:'Ticket N°',type:'text'},{key:'sede',label:'Sede',type:'select',opts:[['San José','San José'],['Liberia','Liberia'],['Pérez Zeledón','Pérez Zeledón']]},
-  {key:'nombre',label:'Nombre del Cliente',type:'text'},{key:'factura',label:'Factura N°',type:'text'},{key:'cantidad',label:'Cantidad',type:'number'},{key:'fecha_compra',label:'Fecha de Compra',type:'date'},
+  {key:'nombre',label:'Nombre del Cliente',type:'text'},{key:'factura',label:'Factura N°',type:'text'},{key:'factura_salida',label:'Factura de Salida',type:'text'},{key:'cantidad',label:'Cantidad',type:'number'},{key:'fecha_compra',label:'Fecha de Compra',type:'date'},
   {key:'marca',label:'Marca',type:'text'},{key:'serie',label:'Artículo',type:'text'},{key:'numero_serie',label:'Serie',type:'text'},
   {key:'descripcion',label:'Descripción',type:'textarea',full:true},{key:'falla',label:'Falla',type:'textarea',full:true},
+  {key:'articulos_adicionales',label:'Artículos Adicionales / Accesorios',type:'textarea',full:true},
+  {key:'registrado_por',label:'Registrado por (Técnico)',type:'text'},
   {key:'dev',label:'Nota de Crédito',type:'text',dev:true},
   {key:'fecha_dev',label:'Fecha DEV / NC',type:'date',dev:true},
   {key:'ticket_rma',label:'Ticket RMA',type:'text'},
@@ -8256,18 +8309,36 @@ function openEdit(id){
     return a ? n + ' ' + a : n;
   })();
   const canEditDev = isAdmin() || isMyRecord(r);
+  const isNC = (r.estatus || '').toLowerCase() === 'nota_credito_marca' || (r.estatus || '').toLowerCase().includes('nota_credito_marca');
   let html='';
   let rmaStarted=false;
   EDIT_FIELDS.forEach(f=>{
     // Agregar titulo RMA antes del primer campo de la seccion
     if(!rmaStarted && (f.key==='ticket_rma' || f.key==='fecha_rma' || f.key==='estatus' || f.key==='serie_fabrica')){
-      html+=`<div class="field field-full" style="grid-column:1/-1;margin-top:.5rem;"><div style="font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding:.5rem 0;border-top:1px solid var(--border);">RMA</div></div>`;
+      html+=`<div class="field field-full" style="grid-column:1/-1;margin-top:.5rem;"><div style="font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding:.5rem 0;border-top:1px solid var(--border);">RMA / Trámites con Marca</div></div>`;
       rmaStarted=true;
     }
     let val=r[f.key]!==null&&r[f.key]!==undefined?r[f.key]:'';
     if(f.dev && f.type !== 'date') val = val ? val.replace(/^DEV-/i,'') : '';
     let inp;
     if(f.type==='textarea'){inp=`<textarea id="e_${f.key}" class="field-textarea" rows="2"${f.dev&&!canEditDev?' disabled':''} style="${f.dev&&!canEditDev?'opacity:.5;cursor:not-allowed;':''}">${val}</textarea>`;}
+    else if(f.key==='estatus'){
+      // Consolidar opciones base + personalizadas + valor actual
+      const baseOpts = [...f.opts];
+      const customList = getCustomEstatusList();
+      customList.forEach(c => {
+        if (!baseOpts.find(([v]) => v === c.value)) baseOpts.push([c.value, c.label]);
+      });
+      if (val && !baseOpts.find(([v]) => v === val)) {
+        baseOpts.push([val, String(val).toUpperCase().replace(/_/g, ' ')]);
+      }
+      const opts = baseOpts.map(([v,l])=>`<option value="${v}"${v===val?' selected':''}>${l}</option>`).join('');
+      inp=`<select id="e_${f.key}" class="field-select" onchange="if(this.value==='__ADD_NEW__'){this.value='${val||''}';agregarNuevoEstatus();}else{handleEstatusChange(this.value);}">
+        <option value="">Seleccionar</option>
+        ${opts}
+        <option value="__ADD_NEW__" style="color:var(--brand);font-weight:700;">➕ Agregar nuevo estatus...</option>
+      </select>`;
+    }
     else if(f.type==='select'){const opts=f.opts.map(([v,l])=>`<option value="${v}"${v===val?' selected':''}>${l}</option>`).join('');inp=`<select id="e_${f.key}" class="field-select"><option value="">Seleccionar</option>${opts}</select>`;}
     else if(f.dev && f.type==='date'){
       inp=`<input id="e_${f.key}" type="date" class="field-input" value="${val}"${!canEditDev?' disabled style="opacity:.5;cursor:not-allowed;"':''}>`;
@@ -8291,10 +8362,22 @@ function openEdit(id){
       }
     }
     else if(f.key==='ticket_rma'){
-      inp=`<input id="e_${f.key}" type="${f.type}" class="field-input" value="${val}" oninput="if(this.value){const hoy=new Date().toISOString().split('T')[0];const fechaEl=document.getElementById('e_fecha_rma');if(fechaEl&&!fechaEl.value)fechaEl.value=hoy;}">`;
+      inp=`<input id="e_${f.key}" type="${f.type}" class="field-input" value="${val}" placeholder="${isNC ? 'Factura Marca' : 'Ticket RMA'}" oninput="if(this.value){const hoy=new Date().toISOString().split('T')[0];const fechaEl=document.getElementById('e_fecha_rma');if(fechaEl&&!fechaEl.value)fechaEl.value=hoy;}">`;
     }
     else{inp=`<input id="e_${f.key}" type="${f.type}" class="field-input" value="${val}">`;}
-    html+=`<div class="field${f.full?' field-full':''}"><label class="field-label">${f.label}</label>${inp}</div>`;
+    
+    // Label personalizado con botón para estatus y id para ticket_rma
+    let labelHtml = `<label class="field-label">${f.label}</label>`;
+    if (f.key === 'ticket_rma') {
+      labelHtml = `<label class="field-label" id="label_ticket_rma">${isNC ? 'Factura Marca' : 'Ticket RMA'}</label>`;
+    } else if (f.key === 'estatus') {
+      labelHtml = `<div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.25rem;">
+        <label class="field-label" style="margin-bottom:0;">Estatus</label>
+        <button type="button" onclick="agregarNuevoEstatus()" style="background:none;border:none;color:var(--brand);font-size:.75rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.25rem;" title="Agregar nuevo estatus">+ Agregar Estatus</button>
+      </div>`;
+    }
+    
+    html+=`<div class="field${f.full?' field-full':''}">${labelHtml}${inp}</div>`;
   });
   // Checkbox excluir RMA
   const exclChk = r.excluir_rma ? 'checked' : '';
@@ -8330,6 +8413,9 @@ function openEdit(id){
   document.getElementById('modalBody').innerHTML=html;
   document.getElementById('editModal').classList.add('open');
   
+  // Sincronizar etiqueta de Ticket Marca / Factura Marca según estatus inicial
+  handleEstatusChange(r.estatus);
+
   // Cargar historial
   loadHistorial(id);
 }
