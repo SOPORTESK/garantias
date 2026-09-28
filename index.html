@@ -1632,8 +1632,9 @@
           <th class="sortable" data-sort-type="def" data-sort-col="categoria">Cat. <span class="sort-icon">↕</span></th>
           <th class="sortable" data-sort-type="def" data-sort-col="nombre">Cliente <span class="sort-icon">↕</span></th>
           <th>Estatus</th>
+          <th>DEV / Aprobado</th>
           <th>Acciones</th>
-        </tr></thead><tbody id="tbody-def"><tr class="empty-row"><td colspan="8"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
+        </tr></thead><tbody id="tbody-def"><tr class="empty-row"><td colspan="9"><span class="spinner" style="border-top-color:var(--brand)"></span> Cargando…</td></tr></tbody></table></div>
       <div id="admin-pagination-def" class="reg-pagination"></div>
       </div>
       <!-- Panel temp -->
@@ -4803,6 +4804,16 @@ function regRenderTable(type) {
     const canEdit = isAdmin() || isMyRecord(r);
     const rid = r.id || ('row-' + type + '-' + i);
     const detailId = 'detail-' + type + '-' + rid;
+    const devVal = (r.dev || '').toString().trim();
+    const hasDev = devVal !== '' && devVal !== '—';
+    let devColHTML = r.dev || '—';
+    if (type === 'def') {
+      if (hasDev) {
+        devColHTML = `<span class="badge badge-green" style="font-family:var(--mono);font-weight:700;display:inline-flex;align-items:center;gap:.25rem;"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>${devVal}</span>`;
+      } else if (estaPorAprobar(r)) {
+        devColHTML = `<span class="badge badge-amber" style="font-size:.7rem;">Sin DEV</span>`;
+      }
+    }
     return `<tr class="row-clickable" style="animation-delay:${i*0.02}s" onclick="toggleRow('${detailId}',this)">
     <td><span class="row-chevron">▶</span></td>
     <td class="td-mono">${boletaBadge(r.boleta)}</td>
@@ -4811,7 +4822,7 @@ function regRenderTable(type) {
     <td>${catBadge(r.categoria)}</td>
     <td class="td-truncate" data-tip="${(r.nombre||'—').replace(/"/g,'&quot;')}"><strong>${r.nombre||'—'}</strong></td>
     <td>${estatusBadge(r.estatus)}</td>
-    <td class="td-mono" style="color:var(--brand);font-weight:700;">${r.dev||'—'}</td>
+    <td class="td-mono" style="color:var(--brand);font-weight:700;">${devColHTML}</td>
     <td onclick="event.stopPropagation()"><div class="td-actions">${canEdit ? `<button class="btn btn-amber btn-sm" onclick="openEdit('${r.id}')">Editar</button>` : ''}</div></td>
   </tr>
   <tr class="row-detail" id="${detailId}"><td colspan="9">${rowDetailHTML(r)}</td></tr>`;
@@ -4882,7 +4893,7 @@ function regApplyFilters(type) {
       const hasDev = devVal && devVal !== '' && devVal !== '—';
       if (dev === 'sin_dev' && hasDev) return false;
       if (dev === 'aprobado' && !hasDev) return false;
-      if (dev === 'pendiente' && (hasDev || !requisitosAprobacion(r).includes('dev'))) return false;
+      if (dev === 'pendiente' && (hasDev || !estaPorAprobar(r))) return false;
     }
     if (from && r.fecha_creacion && r.fecha_creacion.slice(0,10) < from) return false;
     if (to && r.fecha_creacion && r.fecha_creacion.slice(0,10) > to) return false;
@@ -6999,9 +7010,9 @@ function statsAuditDetail(tipo) {
 
 /* ═══════════════════════════════════════
    REGLAS DE APROBACIÓN
-   Definitiva + NC  → fecha_dev Y dev
-   Temporal  + NC   → dev
-   Definitiva 1%    → fecha_dev
+   Definitiva: si tiene dev- → Aprobada
+   Definitiva + NC sin dev → dev
+   Temporal  + NC → dev
    (los RMA se auditan en el panel Trámites con Marca)
 ═══════════════════════════════════════ */
 const REQ_LABELS = { fecha_dev: 'Fecha DEV', dev: 'DEV' };
@@ -7015,18 +7026,26 @@ function requisitosAprobacion(r) {
   const tipo = (r.tipo || '').toLowerCase();
 
   const esNC   = cat.includes('nota') || cat.includes('credito') || cat.includes('nc');
-  const es1pct = cat.includes('garantia_1');
   const esDefinitiva = tipo === 'salida_definitiva';
   const esTemporal   = tipo === 'salida_temporal';
 
-  if (esNC && esDefinitiva)   return ['fecha_dev', 'dev'];
-  if (esNC && esTemporal)     return ['dev'];
-  if (es1pct && esDefinitiva) return ['fecha_dev'];
+  // Salidas Definitivas: si tiene dev-, está aprobada.
+  // Si es definitiva y es NC y no tiene dev-, requiere dev.
+  if (esDefinitiva) {
+    const devVal = (r.dev || '').toString().trim();
+    const hasDev = devVal !== '' && devVal !== '—';
+    if (hasDev) return [];
+    if (esNC) return ['dev'];
+    return [];
+  }
+
+  // Salidas Temporales: se mantienen intactas
+  if (esNC && esTemporal) return ['dev'];
   return [];
 }
 
 function reqLleno(v) {
-  return v !== null && v !== undefined && v.toString().trim() !== '';
+  return v !== null && v !== undefined && v.toString().trim() !== '' && v.toString().trim() !== '—';
 }
 
 function faltantesAprobacion(r) {
@@ -7034,6 +7053,12 @@ function faltantesAprobacion(r) {
 }
 
 function estaPorAprobar(r) {
+  const tipo = (r.tipo || '').toLowerCase();
+  if (tipo === 'salida_definitiva') {
+    const devVal = (r.dev || '').toString().trim();
+    const hasDev = devVal !== '' && devVal !== '—';
+    if (hasDev) return false;
+  }
   return faltantesAprobacion(r).length > 0;
 }
 
@@ -8007,7 +8032,7 @@ function adminApplyFilters(type) {
       const hasDev=devVal&&devVal!==''&&devVal!=='—';
       if(dev==='sin_dev'&&hasDev)return false;
       if(dev==='aprobado'&&!hasDev)return false;
-      if(dev==='pendiente'&&(hasDev||!requisitosAprobacion(r).includes('dev')))return false;
+      if(dev==='pendiente'&&(hasDev||!estaPorAprobar(r)))return false;
     }
     if(from&&r.fecha_creacion&&r.fecha_creacion.slice(0,10)<from)return false;
     if(to&&r.fecha_creacion&&r.fecha_creacion.slice(0,10)>to)return false;
@@ -8069,6 +8094,7 @@ function fmtDate(iso){if(!iso)return'—';return new Date(iso).toLocaleDateStrin
 function adminRenderTable(type){
   const tbody=document.getElementById('tbody-'+type), rows=records[type];
   const total = rows.length;
+  const colCount = type === 'def' ? 9 : 8;
 
   // Pagination
   const totalPages = Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE));
@@ -8077,10 +8103,13 @@ function adminRenderTable(type){
   const start = (page - 1) * ADMIN_PAGE_SIZE;
   const pageRows = rows.slice(start, start + ADMIN_PAGE_SIZE);
 
-  if(!total){tbody.innerHTML=`<tr class="empty-row"><td colspan="8"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;document.getElementById('admin-pagination-'+type).innerHTML='';return;}
+  if(!total){tbody.innerHTML=`<tr class="empty-row"><td colspan="${colCount}"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Sin registros</td></tr>`;document.getElementById('admin-pagination-'+type).innerHTML='';return;}
   tbody.innerHTML=pageRows.map((r,i)=>{
     const rid=r.id||('arow-'+type+'-'+i);
     const detailId='adetail-'+type+'-'+rid;
+    const devVal = (r.dev || '').toString().trim();
+    const hasDev = devVal !== '' && devVal !== '—';
+    const devCell = type === 'def' ? `<td>${hasDev ? `<span class="badge badge-green" style="font-family:var(--mono);font-weight:700;display:inline-flex;align-items:center;gap:.25rem;"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>${devVal}</span>` : estaPorAprobar(r) ? `<span class="badge badge-amber" style="font-size:.7rem;">Sin DEV</span>` : '<span class="badge badge-muted">—</span>'}</td>` : '';
     return `<tr class="row-clickable" style="animation-delay:${i*0.02}s" onclick="toggleRow('${detailId}',this)">
     <td><span class="row-chevron">▶</span></td>
     <td class="td-mono">${boletaBadge(r.boleta)}</td>
@@ -8089,12 +8118,13 @@ function adminRenderTable(type){
     <td>${catBadge(r.categoria)}</td>
     <td class="td-truncate" data-tip="${(r.nombre||'—').replace(/"/g,'&quot;')}"><strong>${r.nombre||'—'}</strong></td>
     <td>${estatusBadge(r.estatus)}</td>
+    ${devCell}
     <td onclick="event.stopPropagation()"><div class="td-actions">
       <button class="btn btn-amber btn-sm" onclick="openEdit('${r.id}')">Editar</button>
       <button class="btn btn-danger btn-sm" onclick="askDelete('${r.id}','${r.boleta||''}')">Eliminar</button>
     </div></td>
   </tr>
-  <tr class="row-detail" id="${detailId}"><td colspan="8">${rowDetailHTML(r)}</td></tr>`;
+  <tr class="row-detail" id="${detailId}"><td colspan="${colCount}">${rowDetailHTML(r)}</td></tr>`;
   }).join('');
 
   // Render pagination controls
